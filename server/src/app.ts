@@ -1,7 +1,10 @@
 import express from "express";
 import { env } from "./config/env";
+import connectDB from "./config/connectDB";
 
 const app = express();
+
+connectDB();
 
 app.use(express.json());
 app.get("/", async (req, res) => {

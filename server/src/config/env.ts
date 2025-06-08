@@ -5,6 +5,7 @@ dotenv.config();
 const envSchema = z.object({
   PORT: z.string().transform(Number).default("8080"),
   NODE_ENV: z.enum(["development", "production", "test"]),
+  DB_URL: z.string().nonempty(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
