@@ -1,10 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import { RequestHandler } from "express";
 
-export function responseHelper(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+const responseHelper: RequestHandler = (req, res, next) => {
   res.success = (
     statusCode: number,
     status: string,
@@ -23,4 +19,6 @@ export function responseHelper(
   };
 
   next();
-}
+};
+
+export default responseHelper;
