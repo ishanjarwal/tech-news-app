@@ -4,6 +4,7 @@ import connectDB from "./config/connectDB";
 import postRouter from "./routes/Post";
 import categoryRouter from "./routes/Category";
 import tagRouter from "./routes/Tag";
+import "./models"; // loads and registers all models once
 
 const app = express();
 

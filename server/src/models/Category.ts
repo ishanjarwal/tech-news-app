@@ -43,5 +43,5 @@ const categorySchema = new mongoose.Schema<CategoryValues>(
   }
 );
 
-const Category = mongoose.model<CategoryValues>("category", categorySchema);
+const Category = mongoose.model<CategoryValues>("Category", categorySchema);
 export default Category;

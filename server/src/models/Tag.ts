@@ -43,5 +43,5 @@ const tagSchema = new mongoose.Schema<TagValues>(
   }
 );
 
-const Tag = mongoose.model<TagValues>("tag", tagSchema);
+const Tag = mongoose.model<TagValues>("Tag", tagSchema);
 export default Tag;

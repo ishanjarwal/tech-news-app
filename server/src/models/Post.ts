@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
+import { POST_STATUS } from "../constants/constants";
 
 interface PostValues extends Document {
   author_id: Types.ObjectId;
@@ -10,7 +11,7 @@ interface PostValues extends Document {
   content: string;
   thumbnail?: string;
   reading_time_sec: number;
-  status: "draft" | "published" | "archived";
+  status: (typeof POST_STATUS)[number];
   tags: Types.ObjectId[];
   created_at: Date;
   updated_at: Date;
@@ -60,7 +61,7 @@ const postSchema = new mongoose.Schema<PostValues>(
     },
     status: {
       type: String,
-      enum: ["draft", "published", "archived"],
+      enum: POST_STATUS,
       default: "draft",
     },
     tags: [
