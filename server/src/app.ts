@@ -2,6 +2,8 @@ import express from "express";
 import { env } from "./config/env";
 import connectDB from "./config/connectDB";
 import postRouter from "./routes/Post";
+import categoryRouter from "./routes/Category";
+import tagRouter from "./routes/Tag";
 
 const app = express();
 
@@ -12,6 +14,8 @@ app.use(express.json());
 
 // routes
 app.use("/api/v1/post", postRouter);
+app.use("/api/v1/category", categoryRouter);
+app.use("/api/v1/tag", tagRouter);
 
 app.listen(env.PORT, (error) => {
   if (error) {

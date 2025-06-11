@@ -25,7 +25,6 @@ const tagSchema = new mongoose.Schema<TagValues>(
     },
     summary: {
       type: String,
-      required: true,
     },
     thumbnail: {
       type: String,

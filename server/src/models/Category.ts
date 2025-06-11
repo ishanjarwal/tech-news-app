@@ -25,7 +25,6 @@ const categorySchema = new mongoose.Schema<CategoryValues>(
     },
     summary: {
       type: String,
-      required: true,
     },
     thumbnail: {
       type: String,
