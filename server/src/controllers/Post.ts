@@ -75,7 +75,7 @@ export const fetchPosts: RequestHandler = async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = POST_LIMIT || 10;
     const sortField = (req.query.sort as string) || "created_at";
-    const sortOrder = (req.query.order as string) === "asc" ? 1 : -1;
+    const sortOrder = (req.query.order as string) === "desc" ? -1 : 1;
 
     const skip = (page - 1) * limit;
 
