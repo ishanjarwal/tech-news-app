@@ -4,6 +4,7 @@ import { POST_LIMIT, POST_STATUS } from "../constants/constants";
 import Post from "../models/Post";
 import calcRaadingTime from "../utils/calcReadingTime";
 import slugify from "../utils/slugify";
+import Tag from "../models/Tag";
 
 // create a post
 export const createPost: RequestHandler = async (req, res) => {
@@ -84,8 +85,14 @@ export const fetchPosts: RequestHandler = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const count = await Post.countDocuments();
-    res.success(200, "success", "Posts fetched", { posts, count });
+    const total = await Post.countDocuments();
+    res.success(200, "success", "Posts fetched", {
+      posts,
+      total,
+      count: posts.length,
+      page,
+      limit,
+    });
   } catch (error) {
     res.error(500, "error", "Something went wrong", error);
   }
@@ -190,8 +197,48 @@ export const fetchUserPosts: RequestHandler = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const count = await Post.countDocuments();
-    res.success(200, "success", "user posts fetched", { posts, count });
+    const total = await Post.countDocuments({ author_id });
+    res.success(200, "success", "user posts fetched", {
+      posts,
+      total,
+      count: posts.length,
+      page,
+      limit,
+    });
+  } catch (error) {
+    res.error(500, "error", "Something went wrong", error);
+  }
+};
+
+// get posts for user (filter for drafts)
+export const fetchPostsByTag: RequestHandler = async (req, res) => {
+  try {
+    const tag = req.params.tag;
+    const check = await Tag.findOne({ slug: tag });
+    if (!check) {
+      res.error(400, "error", "Invalid tag", null);
+      return;
+    }
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = POST_LIMIT || 10;
+    const sortField = (req.query.sort as string) || "created_at";
+    const sortOrder = (req.query.order as string) === "asc" ? 1 : -1;
+
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ tags: check._id })
+      .sort({ [sortField]: sortOrder })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Post.countDocuments({ tags: check._id });
+    res.success(200, "success", "Tag posts fetched", {
+      posts,
+      total,
+      count: posts.length,
+      limit,
+      page,
+    });
   } catch (error) {
     res.error(500, "error", "Something went wrong", error);
   }

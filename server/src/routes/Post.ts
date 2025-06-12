@@ -5,6 +5,7 @@ import {
   fetchPost,
   fetchPostMetaData,
   fetchPosts,
+  fetchPostsByTag,
   fetchUserPosts,
   updatePost,
 } from "../controllers/Post";
@@ -17,9 +18,11 @@ const router = express.Router();
 router.use(responseHelper);
 
 // public routes
-router.get("/", fetchPosts);
-router.get("/metadata/:slug", fetchPostMetaData);
-router.get("/:slug", fetchPost);
+router
+  .get("/", fetchPosts)
+  .get("/metadata/:slug", fetchPostMetaData)
+  .get("/:slug", fetchPost)
+  .get("/tag/:tag", fetchPostsByTag);
 
 // author routes
 router.post("/", validateNewPost, handleValidation, createPost);
