@@ -6,6 +6,7 @@ import {
   fetchPostMetaData,
   fetchPosts,
   fetchUserPosts,
+  updatePost,
 } from "../controllers/Post";
 import responseHelper from "../middlewares/responseHelper";
 import { validateNewPost } from "../validations/validatePost";
@@ -24,4 +25,5 @@ router.get("/:slug", fetchPost);
 router.post("/", validateNewPost, handleValidation, createPost);
 router.get("/myposts", fetchUserPosts);
 router.patch("/change-status/:id", changePostStatus);
+router.put("/:id", updatePost);
 export default router;

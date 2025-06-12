@@ -104,21 +104,19 @@ export const updatePost: RequestHandler = async (req, res) => {
         reading_time_sec: calcRaadingTime(req.body.content),
       }),
       ...(req.body.thumbnail && { thumbnail: req.body.thumbnail }),
-      ...(req.body.categoryId && { category: req.body.categoryId }),
-      ...(req.body.subCategoryId && { subCategory: req.body.subCategoryId }),
+      ...(req.body.categoryId && {
+        category: new mongoose.Types.ObjectId(req.body.categoryId),
+      }),
+      ...(req.body.subCategoryId && {
+        subCategory: new mongoose.Types.ObjectId(req.body.subCategoryId),
+      }),
       ...(req.body.tagIds && { tags: req.body.tagIds }),
     };
-
     if (Object.keys(updateFields).length === 0) {
       res.error(400, "warning", "Nothing to update", null);
       return;
     }
     updateFields.updated_at = new Date(Date.now());
-    if (req.body.content) {
-      updateFields.reading_time_sec = calcRaadingTime(
-        req.body.cotent as string
-      );
-    }
     const updated = await Post.findOneAndUpdate(
       { _id: id, author_id },
       updateFields,
