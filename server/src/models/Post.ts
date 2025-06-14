@@ -13,6 +13,7 @@ interface PostValues extends Document {
   reading_time_sec: number;
   status: (typeof POST_STATUS)[number];
   tags: Types.ObjectId[];
+  views_count: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -63,6 +64,10 @@ const postSchema = new mongoose.Schema<PostValues>(
       type: String,
       enum: POST_STATUS,
       default: "draft",
+    },
+    views_count: {
+      type: Number,
+      default: 0,
     },
     tags: [
       {

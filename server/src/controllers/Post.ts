@@ -64,6 +64,8 @@ export const fetchPost: RequestHandler = async (req, res) => {
       return;
     }
     const likeCount = await Like.countDocuments({ post_id: post._id });
+    post.views_count += 1;
+    await post.save();
     res.success(200, "success", "Post fetched", {
       ...post.toObject(),
       likes: likeCount,
