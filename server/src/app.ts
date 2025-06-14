@@ -23,6 +23,7 @@ app.use("/api/v1/sub_category", subCategoryRouter);
 app.use("/api/v1/tag", tagRouter);
 app.use("/api/v1/like", likeRouter);
 app.use("/api/v1/comment", commentRouter);
+app.use("/api/v1/follow", commentRouter);
 
 app.listen(env.PORT, (error) => {
   if (error) {
