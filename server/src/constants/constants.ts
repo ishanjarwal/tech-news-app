@@ -6,3 +6,4 @@ export const USER_STATUS = ["active", "deactive", "pending"] as const;
 export const PREFERENCES_THEMES = ["light", "dark"] as const;
 export const CATEGORY_LIMIT = 100;
 export const TAG_LIMIT = 100;
+export const COMMENT_LIMIT = 100;

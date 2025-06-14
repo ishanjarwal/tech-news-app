@@ -5,6 +5,7 @@ import Post from "../models/Post";
 import calcRaadingTime from "../utils/calcReadingTime";
 import slugify from "../utils/slugify";
 import Tag from "../models/Tag";
+import Like from "../models/Like";
 
 // create a post
 export const createPost: RequestHandler = async (req, res) => {
@@ -62,7 +63,11 @@ export const fetchPost: RequestHandler = async (req, res) => {
       res.error(400, "error", "Post not found", null);
       return;
     }
-    res.success(200, "success", "Post fetched", post);
+    const likeCount = await Like.countDocuments({ post_id: post._id });
+    res.success(200, "success", "Post fetched", {
+      ...post.toObject(),
+      likes: likeCount,
+    });
     return;
   } catch (error) {
     console.log(error);
@@ -83,7 +88,14 @@ export const fetchPosts: RequestHandler = async (req, res) => {
     const posts = await Post.find()
       .sort({ [sortField]: sortOrder })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate({ path: "category", select: "slug name -_id" })
+      .populate({ path: "subCategory", select: "slug name -_id" })
+      .populate({
+        path: "author_id",
+        select: "fullname username avatarURL -_id",
+      })
+      .populate({ path: "tags", select: "name slug -_id" });
 
     const total = await Post.countDocuments();
     res.success(200, "success", "Posts fetched", {
@@ -180,7 +192,7 @@ export const fetchPostMetaData: RequestHandler = async (req, res) => {
 };
 
 // get posts for user (filter for drafts)
-export const fetchUserPosts: RequestHandler = async (req, res) => {
+export const fetchAuthorPosts: RequestHandler = async (req, res) => {
   try {
     const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
     const status =

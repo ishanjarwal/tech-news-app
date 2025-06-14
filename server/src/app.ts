@@ -6,6 +6,7 @@ import categoryRouter from "./routes/Category";
 import tagRouter from "./routes/Tag";
 import subCategoryRouter from "./routes/SubCategory";
 import likeRouter from "./routes/Like";
+import commentRouter from "./routes/Comment";
 import "./models"; // loads and registers all models once
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/sub_category", subCategoryRouter);
 app.use("/api/v1/tag", tagRouter);
 app.use("/api/v1/like", likeRouter);
+app.use("/api/v1/comment", commentRouter);
 
 app.listen(env.PORT, (error) => {
   if (error) {

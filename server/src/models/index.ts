@@ -4,3 +4,4 @@ import "./Category";
 import "./SubCategory";
 import "./Tag";
 import "./Like";
+import "./Comment";
