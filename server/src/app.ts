@@ -7,6 +7,7 @@ import tagRouter from "./routes/Tag";
 import subCategoryRouter from "./routes/SubCategory";
 import likeRouter from "./routes/Like";
 import commentRouter from "./routes/Comment";
+import adminRouter from "./routes/Admin";
 import "./models"; // loads and registers all models once
 
 const app = express();
@@ -24,7 +25,7 @@ app.use("/api/v1/tag", tagRouter);
 app.use("/api/v1/like", likeRouter);
 app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/follow", commentRouter);
-
+app.use("/api/v1/admin", adminRouter);
 app.listen(env.PORT, (error) => {
   if (error) {
     console.error("Something went wrong while starting the server\n", error);
