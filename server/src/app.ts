@@ -9,6 +9,7 @@ import likeRouter from "./routes/Like";
 import postRouter from "./routes/Post";
 import subCategoryRouter from "./routes/SubCategory";
 import tagRouter from "./routes/Tag";
+import userRouter from "./routes/User";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/v1/like", likeRouter);
 app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/follow", commentRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/user", userRouter);
 
 app.listen(env.PORT, (error) => {
   if (error) {

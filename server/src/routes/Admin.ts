@@ -11,7 +11,7 @@ router.use(responseHelper);
 
 // approve/reject author write privilleges
 router
-  .get("/grant-author", grantAuthorPrivilleges)
-  .get("/revoke-author", revokeAuthorPrivilleges);
+  .get("/grant-author/:id", grantAuthorPrivilleges)
+  .get("/revoke-author/:id", revokeAuthorPrivilleges);
 
 export default router;
