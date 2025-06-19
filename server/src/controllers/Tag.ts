@@ -40,11 +40,11 @@ export const fetchTags: RequestHandler = async (req, res) => {
       .limit(limit)
       .select("-_id -__v");
 
-    const total = Tag.countDocuments({
+    const total = await Tag.countDocuments({
       name: { $regex: search, $options: "i" },
     });
 
-    res.success(200, "success", "Tag fetched", {
+    res.success(200, "success", "Tags fetched", {
       tags,
       total,
       count: tags.length,
@@ -53,6 +53,7 @@ export const fetchTags: RequestHandler = async (req, res) => {
     });
     return;
   } catch (error) {
+    console.log(error);
     res.error(500, "error", "Something went wrong", error);
     return;
   }

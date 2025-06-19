@@ -17,7 +17,7 @@ router.get("/:id", fetchPostComments);
 // auth user
 router
   .post("/:id", createComment)
-  .put("/:parent_comment_id/:id", replyComment)
+  .post("/:parent_comment_id/:id", replyComment)
   .put("/:id", updateComment)
   .delete("/:id", deleteComment);
 

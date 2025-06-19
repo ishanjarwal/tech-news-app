@@ -17,6 +17,12 @@ const router = express.Router();
 
 router.use(responseHelper);
 
+// author routes
+router.post("/", validateNewPost, handleValidation, createPost);
+router.get("/myposts", fetchAuthorPosts);
+router.patch("/change-status/:id", changePostStatus);
+router.put("/:id", updatePost);
+
 // public routes
 router
   .get("/", fetchPosts)
@@ -24,9 +30,4 @@ router
   .get("/:slug", fetchPost)
   .get("/tag/:tag", fetchPostsByTag);
 
-// author routes
-router.post("/", validateNewPost, handleValidation, createPost);
-router.get("/myposts", fetchAuthorPosts);
-router.patch("/change-status/:id", changePostStatus);
-router.put("/:id", updatePost);
 export default router;

@@ -21,7 +21,7 @@ app.use(express.json());
 // routes
 app.use("/api/v1/post", postRouter);
 app.use("/api/v1/category", categoryRouter);
-app.use("/api/v1/sub_category", subCategoryRouter);
+app.use("/api/v1/subcategory", subCategoryRouter);
 app.use("/api/v1/tag", tagRouter);
 app.use("/api/v1/like", likeRouter);
 app.use("/api/v1/comment", commentRouter);
