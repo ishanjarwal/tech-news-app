@@ -10,6 +10,7 @@ import postRouter from "./routes/Post";
 import subCategoryRouter from "./routes/SubCategory";
 import tagRouter from "./routes/Tag";
 import userRouter from "./routes/User";
+import followRouter from "./routes/Follow";
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use("/api/v1/subcategory", subCategoryRouter);
 app.use("/api/v1/tag", tagRouter);
 app.use("/api/v1/like", likeRouter);
 app.use("/api/v1/comment", commentRouter);
-app.use("/api/v1/follow", commentRouter);
+app.use("/api/v1/follow", followRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/user", userRouter);
 

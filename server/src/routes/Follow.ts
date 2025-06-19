@@ -2,8 +2,7 @@ import express from "express";
 import {
   fetchAuthorFollowers,
   fetchUserFollowing,
-  followAuthor,
-  unfollowAuthor,
+  toggleFollow,
 } from "../controllers/Follow";
 import responseHelper from "../middlewares/responseHelper";
 
@@ -15,9 +14,7 @@ router.use(responseHelper);
 router.get("/", fetchUserFollowing);
 
 // user routes
-router
-  .post("/:author_username", followAuthor)
-  .delete("/:author_username", unfollowAuthor);
+router.post("/:author_username", toggleFollow);
 
 // author routes
 router.get("/followers", fetchAuthorFollowers);

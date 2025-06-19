@@ -122,83 +122,33 @@ export const fetchUserLikedPosts: RequestHandler = async (req, res) => {
 };
 
 // fetch author post likes
-export const fetchAuthorPostLikes: RequestHandler = async (req, res) => {
+export const fetchPostLikers: RequestHandler = async (req, res) => {
   try {
-    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const likes = await Like.aggregate([
-      { $match: { author_id, post_id: id } },
-      {
-        $lookup: {
-          from: "posts",
-          localField: "post_id",
-          foreignField: "_id",
-          as: "post",
-        },
-      },
-      { $unwind: { path: "$post", preserveNullAndEmptyArrays: true } },
+    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const post_id = new mongoose.Types.ObjectId(req.params.id);
+
+    const users = await Like.aggregate([
+      { $match: { post_id, author_id } },
       {
         $lookup: {
           from: "users",
-          localField: "post.author_id",
+          localField: "user_id",
           foreignField: "_id",
-          as: "post.author",
+          as: "user",
         },
       },
-      { $unwind: { path: "$post.author", preserveNullAndEmptyArrays: true } },
-      {
-        $lookup: {
-          from: "categories",
-          localField: "post.category",
-          foreignField: "_id",
-          as: "post.category",
-        },
-      },
-      { $unwind: { path: "$post.category", preserveNullAndEmptyArrays: true } },
-      {
-        $lookup: {
-          from: "subcategories",
-          localField: "post.subCategory",
-          foreignField: "_id",
-          as: "post.subCategory",
-        },
-      },
-      {
-        $unwind: {
-          path: "$post.subCategory",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "tags",
-          localField: "post.tags",
-          foreignField: "_id",
-          as: "post.tags",
-        },
-      },
+      { $unwind: "$user" },
       {
         $project: {
           _id: 0,
-          likedAt: "$created_at",
-          "post.author.fullname": 1,
-          "post.author.username": 1,
-          "post.author.avatarURL": 1,
-          "post._id": 1,
-          "post.title": 1,
-          "post.slug": 1,
-          "post.thumbnail": 1,
-          "post.summary": 1,
-          "post.category.name": 1,
-          "post.category.slug": 1,
-          "post.subCategory.name": 1,
-          "post.subCategory.slug": 1,
-          "post.tags.name": 1,
-          "post.tags.slug": 1,
+          username: "$user.username",
+          fullname: "$user.fullname",
+          avatarURL: "$user.avatarURL",
         },
       },
     ]);
-    res.success(200, "success", "Fetched post likes", likes);
+
+    res.success(200, "success", "Fetched post likers", users);
   } catch (error) {
     res.error(500, "error", "Something went wrong", error);
   }

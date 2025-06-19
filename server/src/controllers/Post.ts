@@ -1,11 +1,13 @@
 import { RequestHandler } from "express";
 import mongoose from "mongoose";
 import { POST_LIMIT, POST_STATUS } from "../constants/constants";
+import Category from "../models/Category";
+import Like from "../models/Like";
 import Post from "../models/Post";
+import SubCategory from "../models/SubCategory";
+import Tag from "../models/Tag";
 import calcRaadingTime from "../utils/calcReadingTime";
 import slugify from "../utils/slugify";
-import Tag from "../models/Tag";
-import Like from "../models/Like";
 
 // create a post
 export const createPost: RequestHandler = async (req, res) => {
@@ -87,19 +89,94 @@ export const fetchPosts: RequestHandler = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find()
-      .sort({ [sortField]: sortOrder })
-      .skip(skip)
-      .limit(limit)
-      .populate({ path: "category", select: "slug name -_id" })
-      .populate({ path: "subCategory", select: "slug name -_id" })
-      .populate({
-        path: "author_id",
-        select: "fullname username avatarURL -_id",
-      })
-      .populate({ path: "tags", select: "name slug -_id" });
+    const { category, subcategory, tag } = req.query; // as slugs
+    const categoryId = category
+      ? (await Category.findOne({ slug: category }))?._id
+      : null;
+    const subCategoryId = subcategory
+      ? (await SubCategory.findOne({ slug: subcategory }))?._id
+      : null;
+    const tagId = tag ? (await Tag.findOne({ slug: tag }))?._id : null;
 
-    const total = await Post.countDocuments();
+    const pipeline: any[] = [];
+    const matchStage: any = {};
+    if (categoryId) matchStage.category = categoryId;
+    if (subCategoryId) matchStage.subCategory = subCategoryId;
+    if (tagId) matchStage.tags = { $in: [tagId] };
+
+    if (Object.keys(matchStage).length > 0) {
+      pipeline.push({ $match: matchStage });
+    }
+    pipeline.push(
+      ...[
+        {
+          $lookup: {
+            from: "users",
+            localField: "author_id",
+            foreignField: "_id",
+            as: "author",
+            pipeline: [
+              { $project: { username: 1, fullname: 1, avatarURL: 1, _id: 0 } },
+            ],
+          },
+        },
+        { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+
+        {
+          $lookup: {
+            from: "categories",
+            localField: "category",
+            foreignField: "_id",
+            as: "category",
+            pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+          },
+        },
+        { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+
+        {
+          $lookup: {
+            from: "subcategories",
+            localField: "subCategory",
+            foreignField: "_id",
+            as: "subCategory",
+            pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+          },
+        },
+        { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
+
+        {
+          $lookup: {
+            from: "tags",
+            localField: "tags",
+            foreignField: "_id",
+            as: "tags",
+            pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            __v: 0,
+            author_id: 0,
+          },
+        },
+        { $sort: { [sortField]: sortOrder } },
+        { $skip: skip },
+        { $limit: limit },
+      ]
+    );
+
+    const posts = await Post.aggregate(pipeline);
+
+    const countPipeline = [];
+    if (Object.keys(matchStage).length > 0) {
+      countPipeline.push({ $match: matchStage });
+    }
+    countPipeline.push({ $count: "total" });
+
+    const countResult = await Post.aggregate(countPipeline);
+    const total = countResult[0]?.total || 0;
+
     res.success(200, "success", "Posts fetched", {
       posts,
       total,
@@ -202,17 +279,75 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = POST_LIMIT || 10;
     const sortField = (req.query.sort as string) || "created_at";
-    const sortOrder = (req.query.order as string) === "asc" ? 1 : -1;
+    const sortOrder = (req.query.order as string) === "desc" ? -1 : 1;
 
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({ author_id, status })
-      .sort({ [sortField]: sortOrder })
-      .skip(skip)
-      .limit(limit);
+    const matchStage = { $match: { author_id, status } };
 
-    const total = await Post.countDocuments({ author_id });
-    res.success(200, "success", "user posts fetched", {
+    const posts = await Post.aggregate([
+      matchStage,
+      {
+        $lookup: {
+          from: "users",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author",
+          pipeline: [
+            { $project: { username: 1, fullname: 1, avatarURL: 1, _id: 0 } },
+          ],
+        },
+      },
+      { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+        },
+      },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "subcategories",
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategory",
+          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+        },
+      },
+      { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "tags",
+          localField: "tags",
+          foreignField: "_id",
+          as: "tags",
+          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          __v: 0,
+          author_id: 0,
+        },
+      },
+      { $sort: { [sortField]: sortOrder } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    const countPipeline = [matchStage, { $count: "total" }];
+    const countResult = await Post.aggregate(countPipeline);
+    const total = countResult[0]?.total || 0;
+
+    res.success(200, "success", "posts fetched", {
       posts,
       total,
       count: posts.length,

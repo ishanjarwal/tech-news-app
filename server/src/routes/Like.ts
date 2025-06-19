@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  fetchAuthorPostLikes,
+  fetchPostLikers,
   fetchUserLikedPosts,
   togglePostLike,
 } from "../controllers/Like";
@@ -14,6 +14,6 @@ router.use(responseHelper);
 router.get("/", fetchUserLikedPosts).get("/toggle/:id", togglePostLike);
 
 // author routes
-router.get("/likes/:id", fetchAuthorPostLikes);
+router.get("/likes/:id", fetchPostLikers);
 
 export default router;

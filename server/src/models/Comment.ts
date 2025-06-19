@@ -16,7 +16,6 @@ const commentSchema = new Schema<CommentValues>(
     parent_comment_id: {
       type: Schema.Types.ObjectId,
       ref: "Comment",
-      required: true,
     },
     content: { type: String, required: true },
     created_at: {
