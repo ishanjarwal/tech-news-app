@@ -7,6 +7,8 @@ import {
   updateComment,
 } from "../controllers/Comment";
 import responseHelper from "../middlewares/responseHelper";
+import { validateCreateComment } from "../validations/validateComment";
+import { handleValidation } from "../middlewares/handleValidation";
 
 const router = express.Router();
 
@@ -16,9 +18,14 @@ router.use(responseHelper);
 router.get("/:id", fetchPostComments);
 // auth user
 router
-  .post("/:id", createComment)
-  .post("/:parent_comment_id/:id", replyComment)
-  .put("/:id", updateComment)
+  .post("/:id", validateCreateComment, handleValidation, createComment)
+  .post(
+    "/:parent_comment_id/:id",
+    validateCreateComment,
+    handleValidation,
+    replyComment
+  )
+  .put("/:id", validateCreateComment, handleValidation, updateComment)
   .delete("/:id", deleteComment);
 
 export default router;

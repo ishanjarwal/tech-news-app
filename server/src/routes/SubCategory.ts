@@ -7,6 +7,11 @@ import {
   updateSubCategory,
 } from "../controllers/SubCategory";
 import responseHelper from "../middlewares/responseHelper";
+import {
+  validateCreateSubcategory,
+  validateUpdateSubcategory,
+} from "../validations/validateSubcategory";
+import { handleValidation } from "../middlewares/handleValidation";
 
 const router = express.Router();
 
@@ -14,13 +19,13 @@ router.use(responseHelper);
 
 // public routes
 router
-  .get("/:categoryId", fetchSubCategories)
-  .get("/:categoryId/:slug", fetchSubCategoryBySlug);
+  .get("/:slug", fetchSubCategories)
+  .get("/:categorySlug/:slug", fetchSubCategoryBySlug);
 
 // admin routes
 router
-  .post("/", createSubCategory)
-  .put("/:id", updateSubCategory)
+  .post("/", validateCreateSubcategory, handleValidation, createSubCategory)
+  .put("/:id", validateUpdateSubcategory, handleValidation, updateSubCategory)
   .delete("/:id", deleteSubCategory);
 
 export default router;

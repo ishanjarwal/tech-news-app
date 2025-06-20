@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import SubCategory from "../models/SubCategory";
 import slugify from "../utils/slugify";
 import Post from "../models/Post";
+import Category from "../models/Category";
 
 // create subCategory
 export const createSubCategory: RequestHandler = async (req, res) => {
@@ -25,9 +26,14 @@ export const createSubCategory: RequestHandler = async (req, res) => {
 // fetch all subcategories for a category
 export const fetchSubCategories: RequestHandler = async (req, res) => {
   try {
-    const { categoryId } = req.params;
+    const slug = req.params.slug;
+    const category = await Category.findOne({ slug: slug });
+    if (!category) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const subCategories = await SubCategory.find({
-      category: categoryId,
+      category: category._id,
     })
       .populate({ path: "category", select: "-_id -__v" })
       .select("-__v -_id");
@@ -40,10 +46,15 @@ export const fetchSubCategories: RequestHandler = async (req, res) => {
 // fetch subCategory by slug in a category
 export const fetchSubCategoryBySlug: RequestHandler = async (req, res) => {
   try {
-    const { slug, categoryId } = req.params;
+    const { slug, categorySlug } = req.params;
+    const category = await Category.findOne({ slug: categorySlug });
+    if (!category) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const subCategory = await SubCategory.findOne({
       slug,
-      category: categoryId,
+      category: category._id,
     }).select("-__v");
     if (!subCategory) {
       res.error(404, "error", "Subcategory not found", null);
@@ -60,14 +71,22 @@ export const fetchSubCategoryBySlug: RequestHandler = async (req, res) => {
 // update a subCategory in a category
 export const updateSubCategory: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
+    const subCategory = await SubCategory.findById(id);
+    if (!subCategory) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const updateFields = {
       ...(req.body.name && { name: req.body.name }),
       ...(req.body.summary && { summary: req.body.summary }),
       ...(req.body.thumbnail && { thumbnail: req.body.thumbnail }),
       ...(req.body.name && { slug: slugify(req.body.name) }),
-      updated_at: new Date(),
     };
+
+    if (Object.keys(updateFields).length > 0) {
+      updateFields.updated_at = new Date(Date.now());
+    }
 
     const updated = await SubCategory.findByIdAndUpdate(id, updateFields, {
       new: true,
@@ -88,8 +107,12 @@ export const updateSubCategory: RequestHandler = async (req, res) => {
 // delete a subCategory in a category (only if posts for that subCategory are 0)
 export const deleteSubCategory: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
-
+    const id = req.params.id;
+    const subCategory = await SubCategory.findById(id);
+    if (!subCategory) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const postCount = await Post.countDocuments({ subCategory: id });
     if (postCount > 0) {
       res.error(

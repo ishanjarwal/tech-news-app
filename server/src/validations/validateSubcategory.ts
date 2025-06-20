@@ -1,10 +1,29 @@
 import { body } from "express-validator";
 import { isURL } from "validator";
 import slugify from "../utils/slugify";
-import Tag from "../models/Tag";
+import Category from "../models/Category";
 import { MongooseError } from "mongoose";
+import SubCategory from "../models/SubCategory";
 
-export const validateNewTag = [
+export const validateCreateSubcategory = [
+  body("category").custom(async (slug, { req }) => {
+    try {
+      const category = await Category.findOne({ slug });
+      if (!category) {
+        throw new Error("Invalid category");
+      }
+      req.body.categoryId = category._id;
+      return true;
+    } catch (error) {
+      if (error instanceof MongooseError) {
+        throw new Error("Error validating category");
+      } else if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Error validating category");
+      }
+    }
+  }),
   body("name")
     .exists({ checkFalsy: true })
     .withMessage("Name is required")
@@ -20,24 +39,28 @@ export const validateNewTag = [
       "Name must contain only alphabetic characters, spaces, or hyphens"
     )
     .bail()
-    .custom(async (value) => {
+    .custom(async (value, { req }) => {
       try {
         const slug = slugify(value);
-        const exists = await Tag.findOne({ slug });
+        const exists = await SubCategory.findOne({
+          slug,
+          category: req.body.categoryId,
+        });
         if (exists) {
-          throw new Error("Tag already exists");
+          throw new Error("Category already exists");
         }
         return true;
       } catch (error) {
         if (error instanceof MongooseError) {
-          throw new Error("Error validating tag");
+          throw new Error("Error validating category");
         } else if (error instanceof Error) {
           throw new Error(error.message);
         } else {
-          throw new Error("Error validating tag");
+          throw new Error("Error validating category");
         }
       }
     }),
+
   body("summary")
     .optional()
     .isString()
@@ -61,7 +84,25 @@ export const validateNewTag = [
     .bail(),
 ];
 
-export const validateUpdateTag = [
+export const validateUpdateSubcategory = [
+  body("category").custom(async (slug, { req }) => {
+    try {
+      const category = await Category.findOne({ slug });
+      if (!category) {
+        throw new Error("Invalid category");
+      }
+      req.body.categoryId = category._id;
+      return true;
+    } catch (error) {
+      if (error instanceof MongooseError) {
+        throw new Error("Error validating category");
+      } else if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Error validating category");
+      }
+    }
+  }),
   body("name")
     .optional()
     .bail()
@@ -76,24 +117,28 @@ export const validateUpdateTag = [
       "Name must contain only alphabetic characters, spaces, or hyphens"
     )
     .bail()
-    .custom(async (value) => {
+    .custom(async (value, { req }) => {
       try {
         const slug = slugify(value);
-        const exists = await Tag.findOne({ slug });
+        const exists = await SubCategory.findOne({
+          slug,
+          category: req.body.categoryId,
+        });
         if (exists) {
-          throw new Error("Tag already exists");
+          throw new Error("Subcategory in this category already exists");
         }
         return true;
       } catch (error) {
         if (error instanceof MongooseError) {
-          throw new Error("Error validating tag");
+          throw new Error("Error validating category");
         } else if (error instanceof Error) {
           throw new Error(error.message);
         } else {
-          throw new Error("Error validating tag");
+          throw new Error("Error validating category");
         }
       }
     }),
+
   body("summary")
     .optional()
     .isString()

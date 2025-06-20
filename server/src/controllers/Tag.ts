@@ -19,7 +19,8 @@ export const createTag: RequestHandler = async (req, res) => {
     res.success(200, "success", "Tag created", { tagId: newTag._id });
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -54,7 +55,7 @@ export const fetchTags: RequestHandler = async (req, res) => {
     return;
   } catch (error) {
     console.log(error);
-    res.error(500, "error", "Something went wrong", error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -71,7 +72,8 @@ export const fetchTag: RequestHandler = async (req, res) => {
     res.success(200, "success", "Tag fetched", tag);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -79,8 +81,12 @@ export const fetchTag: RequestHandler = async (req, res) => {
 // Update a tag
 export const updateTag: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
-
+    const id = req.params.id;
+    const tag = await Tag.findById(id);
+    if (!tag) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const updateFields = {
       ...(req.body.name && { name: req.body.name }),
       ...(req.body.summary && { summary: req.body.summary }),
@@ -104,7 +110,8 @@ export const updateTag: RequestHandler = async (req, res) => {
     res.success(200, "success", "Tag updated", updated);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -112,8 +119,12 @@ export const updateTag: RequestHandler = async (req, res) => {
 // Delete a tag (only if no posts use it)
 export const deleteTag: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
-
+    const id = req.params.id;
+    const tag = await Tag.findById(id);
+    if (!tag) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const postCount = await Post.countDocuments({ tags: id });
     if (postCount > 0) {
       res.error(
@@ -134,7 +145,8 @@ export const deleteTag: RequestHandler = async (req, res) => {
     res.success(200, "success", "Tag deleted", null);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };

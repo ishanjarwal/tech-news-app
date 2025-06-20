@@ -6,28 +6,30 @@ import {
   fetchPost,
   fetchPostMetaData,
   fetchPosts,
-  fetchPostsByTag,
   updatePost,
 } from "../controllers/Post";
 import { handleValidation } from "../middlewares/handleValidation";
 import responseHelper from "../middlewares/responseHelper";
-import { validateNewPost } from "../validations/validatePost";
+import {
+  validateNewPost,
+  validateUpdatePost,
+} from "../validations/validatePost";
 
 const router = express.Router();
 
 router.use(responseHelper);
 
 // author routes
-router.post("/", validateNewPost, handleValidation, createPost);
-router.get("/myposts", fetchAuthorPosts);
-router.patch("/change-status/:id", changePostStatus);
-router.put("/:id", updatePost);
+router
+  .post("/", validateNewPost, handleValidation, createPost)
+  .get("/myposts", fetchAuthorPosts)
+  .patch("/change-status/:id", changePostStatus)
+  .put("/:id", validateUpdatePost, handleValidation, updatePost);
 
 // public routes
 router
   .get("/", fetchPosts)
   .get("/metadata/:slug", fetchPostMetaData)
-  .get("/:slug", fetchPost)
-  .get("/tag/:tag", fetchPostsByTag);
+  .get("/:slug", fetchPost);
 
 export default router;

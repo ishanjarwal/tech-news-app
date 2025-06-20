@@ -2,12 +2,18 @@ import { RequestHandler } from "express";
 import mongoose from "mongoose";
 import { COMMENT_LIMIT } from "../constants/constants";
 import Comment from "../models/Comment";
+import Post from "../models/Post";
 
 // create a comment
 export const createComment: RequestHandler = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
     const id = req.params.id;
+    const post = await Post.findById(id);
+    if (!post) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
     const content = req.body.content;
     const newComment = new Comment({
       user_id: userId,
@@ -18,7 +24,8 @@ export const createComment: RequestHandler = async (req, res) => {
     await newComment.save();
     res.success(200, "success", "comment saved", null);
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -28,6 +35,11 @@ export const replyComment: RequestHandler = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
     const id = new mongoose.Types.ObjectId(req.params.id);
+    const post = await Post.findById(id);
+    if (!post) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
     const parent_comment_id = new mongoose.Types.ObjectId(
       req.params.parent_comment_id
     );
@@ -48,7 +60,8 @@ export const replyComment: RequestHandler = async (req, res) => {
     await newComment.save();
     res.success(200, "success", "replied", null);
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -134,7 +147,8 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
       total,
     });
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -143,13 +157,14 @@ export const updateComment: RequestHandler = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
     const id = new mongoose.Types.ObjectId(req.params.id);
-    const comment = await Comment.findOne({ _id: id, user_id: userId });
-    if (!comment) {
-      res.error(404, "error", "invalid request", null);
+    const post = await Post.findById(id);
+    if (!post) {
+      res.error(400, "error", "Invalid request", {});
       return;
     }
-    if (!req.body.content || req.body.content.trim() === "") {
-      res.error(403, "warning", "nothing to update", null);
+    const comment = await Comment.findOne({ _id: id, user_id: userId });
+    if (!comment) {
+      res.error(400, "error", "Invalid request", {});
       return;
     }
     comment.content = req.body.content;
@@ -158,7 +173,8 @@ export const updateComment: RequestHandler = async (req, res) => {
     res.success(200, "success", "comment updated", null);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -167,6 +183,11 @@ export const deleteComment: RequestHandler = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
     const id = new mongoose.Types.ObjectId(req.params.id);
+    const post = await Post.findById(id);
+    if (!post) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
     const comment = await Comment.findOne({ _id: id, user_id: userId });
     if (!comment) {
       res.error(400, "error", "invalid request", null);
@@ -182,7 +203,8 @@ export const deleteComment: RequestHandler = async (req, res) => {
     res.success(200, "success", message, null);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };

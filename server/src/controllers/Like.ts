@@ -8,10 +8,9 @@ export const togglePostLike: RequestHandler = async (req, res) => {
   try {
     const userId = "6849905025c3c13ff2e36f6b"; // from req.user
     const id = req.params.id;
-
     const post = await Post.findById(id).select("author_id");
     if (!post) {
-      res.error(404, "error", "Post not found", null);
+      res.error(400, "error", "Invalid request", null);
       return;
     }
 
@@ -31,14 +30,15 @@ export const togglePostLike: RequestHandler = async (req, res) => {
     res.success(200, "success", "Post liked", null);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
 // fetch user liked posts
 export const fetchUserLikedPosts: RequestHandler = async (req, res) => {
   try {
-    const userId = "6849905025c3c13ff2e36f6b"; //from req.user
+    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); //from req.user
     const posts = await Like.aggregate([
       {
         $match: { user_id: new mongoose.Types.ObjectId(userId) },
@@ -117,7 +117,8 @@ export const fetchUserLikedPosts: RequestHandler = async (req, res) => {
     res.success(200, "success", "Liked posts fetched", posts);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
@@ -126,7 +127,11 @@ export const fetchPostLikers: RequestHandler = async (req, res) => {
   try {
     const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
     const post_id = new mongoose.Types.ObjectId(req.params.id);
-
+    const post = await Post.findById(post_id);
+    if (!post) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const users = await Like.aggregate([
       { $match: { post_id, author_id } },
       {
@@ -150,6 +155,7 @@ export const fetchPostLikers: RequestHandler = async (req, res) => {
 
     res.success(200, "success", "Fetched post likers", users);
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };

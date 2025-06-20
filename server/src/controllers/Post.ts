@@ -45,7 +45,8 @@ export const createPost: RequestHandler = async (req, res) => {
       postStatus: newPost.status,
     });
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -75,7 +76,8 @@ export const fetchPost: RequestHandler = async (req, res) => {
     return;
   } catch (error) {
     console.log(error);
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
@@ -185,14 +187,20 @@ export const fetchPosts: RequestHandler = async (req, res) => {
       limit,
     });
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 // update post
 export const updatePost: RequestHandler = async (req, res) => {
   try {
     const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
-    const { id } = req.params;
+    const id = req.params.id;
+    const post = await Post.findOne({ _id: id, author_id });
+    if (!post) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
     const updateFields = {
       ...(req.body.title && { title: req.body.title }),
       ...(req.body.title && { slug: slugify(req.body.title) }),
@@ -225,37 +233,44 @@ export const updatePost: RequestHandler = async (req, res) => {
       postStatus: updated?.status,
     });
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 // change post status
 export const changePostStatus: RequestHandler = async (req, res) => {
   try {
     const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
-    const { id } = req.params;
-    const status =
-      (req.body.status as (typeof POST_STATUS)[number]) || "published";
+    const id = req.params.id;
     const post = await Post.findOne({ _id: id, author_id });
     if (!post) {
-      res.error(400, "error", "Post not found", null);
+      res.error(400, "error", "Invalid request", null);
       return;
     }
+    const status =
+      (req.body.status as (typeof POST_STATUS)[number]) === "draft"
+        ? "draft"
+        : "published";
     post.status = status;
     await post.save();
-    res.success(200, "success", `Post ${status}`, post);
+    res.success(200, "success", `Post status changed to ${status}`, {
+      slug: post.slug,
+      status: post.status,
+    });
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
 // fetch meta details
 export const fetchPostMetaData: RequestHandler = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const post = await Post.findOne({ slug });
     if (!post) {
-      res.error(400, "error", "Post not found", null);
+      res.error(400, "error", "Invalid request", null);
       return;
     }
     res.success(200, "success", "Post metadata fetched", {
@@ -266,7 +281,8 @@ export const fetchPostMetaData: RequestHandler = async (req, res) => {
     });
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
@@ -275,7 +291,9 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
   try {
     const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
     const status =
-      (req.query.status as (typeof POST_STATUS)[number]) || "published";
+      (req.query.status as (typeof POST_STATUS)[number]) === "draft"
+        ? "draft"
+        : "published";
     const page = parseInt(req.query.page as string) || 1;
     const limit = POST_LIMIT || 10;
     const sortField = (req.query.sort as string) || "created_at";
@@ -355,40 +373,28 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
       limit,
     });
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
-// get posts for user (filter for drafts)
-export const fetchPostsByTag: RequestHandler = async (req, res) => {
+// delete (disable) post
+export const deletePost: RequestHandler = async (req, res) => {
   try {
-    const tag = req.params.tag;
-    const check = await Tag.findOne({ slug: tag });
-    if (!check) {
-      res.error(400, "error", "Invalid tag", null);
+    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    const post = await Post.findOne({ _id: id, author_id });
+    if (!post) {
+      res.error(400, "error", "Invalid request", null);
       return;
     }
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = POST_LIMIT || 10;
-    const sortField = (req.query.sort as string) || "created_at";
-    const sortOrder = (req.query.order as string) === "asc" ? 1 : -1;
-
-    const skip = (page - 1) * limit;
-
-    const posts = await Post.find({ tags: check._id })
-      .sort({ [sortField]: sortOrder })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Post.countDocuments({ tags: check._id });
-    res.success(200, "success", "Tag posts fetched", {
-      posts,
-      total,
-      count: posts.length,
-      limit,
-      page,
-    });
+    post.status = "archived";
+    await post.save();
+    res.success(200, "success", "Post deleted", null);
+    return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };

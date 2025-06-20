@@ -8,7 +8,10 @@ import {
 } from "../controllers/Category";
 import { handleValidation } from "../middlewares/handleValidation";
 import responseHelper from "../middlewares/responseHelper";
-import { validateNewCategory } from "../validations/validateCategory";
+import {
+  validateNewCategory,
+  validateUpdateCategory,
+} from "../validations/validateCategory";
 
 const router = express.Router();
 
@@ -20,7 +23,7 @@ router.get("/", fetchCategories).get("/:slug", fetchCategory);
 // admin routes
 router
   .post("/", validateNewCategory, handleValidation, createCategory)
-  .put("/:id", updateCategory)
+  .put("/:id", validateUpdateCategory, handleValidation, updateCategory)
   .delete("/:id", deleteCategory);
 
 export default router;

@@ -21,7 +21,8 @@ export const createCategory: RequestHandler = async (req, res) => {
     });
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -41,10 +42,19 @@ export const fetchCategories: RequestHandler = async (req, res) => {
       .limit(limit)
       .select("-_id -__v");
 
-    res.success(200, "success", "Categories fetched", categories);
+    const total = await Category.countDocuments();
+
+    res.success(200, "success", "Categories fetched", {
+      categories,
+      total,
+      count: categories.length,
+      page,
+      limit,
+    });
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -54,13 +64,14 @@ export const fetchCategory: RequestHandler = async (req, res) => {
     const slug = req.params.slug;
     const category = await Category.findOne({ slug }).select("-_id -__v");
     if (!category) {
-      res.error(400, "error", "Category not found", null);
+      res.error(400, "warning", "Category not found", {});
       return;
     }
     res.success(200, "success", "Category fetched", category);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -68,7 +79,12 @@ export const fetchCategory: RequestHandler = async (req, res) => {
 // update a category
 export const updateCategory: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
+    const category = await Category.findById(id);
+    if (!category) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
 
     const updateFields = {
       ...(req.body.name && { name: req.body.name }),
@@ -86,13 +102,14 @@ export const updateCategory: RequestHandler = async (req, res) => {
     }).select("-_id -__v");
 
     if (!updated) {
-      res.error(400, "error", "Category not found", null);
+      res.error(400, "warning", "Category not found", null);
       return;
     }
     res.success(200, "success", "Category updated", updated);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };
@@ -101,12 +118,16 @@ export const updateCategory: RequestHandler = async (req, res) => {
 export const deleteCategory: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-
+    const category = await Category.findById(id);
+    if (!category) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
     const postCount = await Post.countDocuments({ category: id });
     if (postCount >= 0) {
       res.error(
         400,
-        "error",
+        "warning",
         "This category cannot be deleted because it has posts associated with it",
         null
       );
@@ -121,7 +142,8 @@ export const deleteCategory: RequestHandler = async (req, res) => {
     res.success(200, "success", "Category deleted", null);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
     return;
   }
 };

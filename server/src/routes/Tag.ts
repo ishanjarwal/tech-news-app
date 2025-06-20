@@ -8,7 +8,7 @@ import {
   fetchTags,
   updateTag,
 } from "../controllers/Tag";
-import { validateNewTag } from "../validations/validateTag";
+import { validateNewTag, validateUpdateTag } from "../validations/validateTag";
 
 const router = express.Router();
 
@@ -19,7 +19,7 @@ router.get("/", fetchTags).get("/:slug", fetchTag);
 // admin
 router
   .post("/", validateNewTag, handleValidation, createTag)
-  .put("/:id", updateTag)
+  .put("/:id", validateUpdateTag, handleValidation, updateTag)
   .delete("/:id", deleteTag);
 
 export default router;

@@ -30,14 +30,15 @@ export const toggleFollow: RequestHandler = async (req, res) => {
     res.success(200, "success", `Following ${author.username}`, null);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
 // get user followers
 export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
   try {
-    const authorId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const authorId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
     const followers = await Follow.aggregate([
       { $match: { user_id: authorId } },
       {
@@ -63,7 +64,8 @@ export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
     res.success(200, "success", "Followers fetched", simplified);
     return;
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
 
@@ -97,6 +99,7 @@ export const fetchUserFollowing: RequestHandler = async (req, res) => {
 
     res.success(200, "success", "following fetched", simplified);
   } catch (error) {
-    res.error(500, "error", "Something went wrong", error);
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
   }
 };
