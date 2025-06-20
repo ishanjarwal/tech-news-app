@@ -2,6 +2,9 @@ import "express";
 
 declare global {
   namespace Express {
+    interface Request {
+      validationErrors: any[];
+    }
     interface Response {
       success: (
         statusCode: number,
