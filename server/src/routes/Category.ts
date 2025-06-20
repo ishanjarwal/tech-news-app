@@ -17,10 +17,10 @@ router.use(responseHelper);
 // public routes
 router.get("/", fetchCategories).get("/:slug", fetchCategory);
 
-// author routes
-router.post("/", validateNewCategory, handleValidation, createCategory);
-
 // admin routes
-router.put("/:id", updateCategory).delete("/:id", deleteCategory);
+router
+  .post("/", validateNewCategory, handleValidation, createCategory)
+  .put("/:id", updateCategory)
+  .delete("/:id", deleteCategory);
 
 export default router;
