@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { isURL } from "validator";
 import slugify from "../utils/slugify";
 import Category from "../models/Category";
@@ -6,13 +6,12 @@ import { MongooseError } from "mongoose";
 import SubCategory from "../models/SubCategory";
 
 export const validateCreateSubcategory = [
-  body("category").custom(async (slug, { req }) => {
+  param("categoryId").custom(async (id, { req }) => {
     try {
-      const category = await Category.findOne({ slug });
+      const category = await Category.findById(id);
       if (!category) {
         throw new Error("Invalid category");
       }
-      req.body.categoryId = category._id;
       return true;
     } catch (error) {
       if (error instanceof MongooseError) {
@@ -44,19 +43,19 @@ export const validateCreateSubcategory = [
         const slug = slugify(value);
         const exists = await SubCategory.findOne({
           slug,
-          category: req.body.categoryId,
+          category: req.params?.categoryId,
         });
         if (exists) {
-          throw new Error("Category already exists");
+          throw new Error("Subcategory already exists");
         }
         return true;
       } catch (error) {
         if (error instanceof MongooseError) {
-          throw new Error("Error validating category");
+          throw new Error("Error validating Subcategory");
         } else if (error instanceof Error) {
           throw new Error(error.message);
         } else {
-          throw new Error("Error validating category");
+          throw new Error("Error validating Subcategory");
         }
       }
     }),
@@ -85,21 +84,21 @@ export const validateCreateSubcategory = [
 ];
 
 export const validateUpdateSubcategory = [
-  body("category").custom(async (slug, { req }) => {
+  param("id").custom(async (id, { req }) => {
     try {
-      const category = await Category.findOne({ slug });
-      if (!category) {
-        throw new Error("Invalid category");
+      const subCategory = await SubCategory.findById(id);
+      if (!subCategory) {
+        throw new Error("Invalid Subcategory");
       }
-      req.body.categoryId = category._id;
+      req.body.categoryId = subCategory.category;
       return true;
     } catch (error) {
       if (error instanceof MongooseError) {
-        throw new Error("Error validating category");
+        throw new Error("Error validating Subcategory");
       } else if (error instanceof Error) {
         throw new Error(error.message);
       } else {
-        throw new Error("Error validating category");
+        throw new Error("Error validating Subcategory");
       }
     }
   }),
@@ -122,19 +121,21 @@ export const validateUpdateSubcategory = [
         const slug = slugify(value);
         const exists = await SubCategory.findOne({
           slug,
-          category: req.body.categoryId,
+          category: req.body?.categoryId,
         });
         if (exists) {
-          throw new Error("Subcategory in this category already exists");
+          throw new Error(
+            "A subcategory with the same name already exists in this category"
+          );
         }
         return true;
       } catch (error) {
         if (error instanceof MongooseError) {
-          throw new Error("Error validating category");
+          throw new Error("Error validating Subcategory");
         } else if (error instanceof Error) {
           throw new Error(error.message);
         } else {
-          throw new Error("Error validating category");
+          throw new Error("Error validating Subcategory");
         }
       }
     }),

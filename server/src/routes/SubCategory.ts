@@ -24,7 +24,12 @@ router
 
 // admin routes
 router
-  .post("/", validateCreateSubcategory, handleValidation, createSubCategory)
+  .post(
+    "/:categoryId",
+    validateCreateSubcategory,
+    handleValidation,
+    createSubCategory
+  )
   .put("/:id", validateUpdateSubcategory, handleValidation, updateSubCategory)
   .delete("/:id", deleteSubCategory);
 

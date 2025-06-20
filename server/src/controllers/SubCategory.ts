@@ -7,7 +7,8 @@ import Category from "../models/Category";
 // create subCategory
 export const createSubCategory: RequestHandler = async (req, res) => {
   try {
-    const { name, summary, thumbnail, categoryId } = req.body;
+    const categoryId = req.params.categoryId;
+    const { name, summary, thumbnail } = req.body;
     const slug = slugify(name);
     const newSubCategory = new SubCategory({
       name,
