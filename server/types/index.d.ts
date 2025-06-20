@@ -1,5 +1,11 @@
 import "express";
 
+export type ResponseStatusValues =
+  | "error"
+  | "success"
+  | "validation_error"
+  | "warning";
+
 declare global {
   namespace Express {
     interface Request {
@@ -8,13 +14,13 @@ declare global {
     interface Response {
       success: (
         statusCode: number,
-        status: string,
+        status: ResponseStatusValues,
         message: string,
         data: any
       ) => this;
       error: (
         statusCode: number,
-        status: string,
+        status: ResponseStatusValues,
         message: string,
         error: any
       ) => this;
