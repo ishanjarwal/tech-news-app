@@ -1,11 +1,14 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 import {
+  LOGIN_PROVIDER_OPTIONS,
   PREFERENCES_THEMES,
   USER_ROLES,
   USER_STATUS,
 } from "../constants/constants";
 
-interface UserValues extends Document {
+export interface UserValues {
+  _id: Schema.Types.ObjectId;
+
   fullname: string;
   username: string;
   email: string;
@@ -36,9 +39,11 @@ interface UserValues extends Document {
 
   created_at: Date;
   updated_at: Date;
+
+  login_provider: (typeof LOGIN_PROVIDER_OPTIONS)[number];
 }
 
-const userSchema = new mongoose.Schema<UserValues>(
+const userSchema = new Schema<UserValues>(
   {
     fullname: {
       type: String,
@@ -88,11 +93,15 @@ const userSchema = new mongoose.Schema<UserValues>(
       threads: {
         type: String,
       },
-      websites: [
-        {
-          type: String,
+      websites: {
+        type: [String],
+        set: (arr: string[] | null) => {
+          if (!arr || arr.length === 0) {
+            return undefined;
+          }
+          return arr;
         },
-      ],
+      },
       youtube: {
         type: String,
       },
@@ -116,6 +125,8 @@ const userSchema = new mongoose.Schema<UserValues>(
       enum: USER_STATUS,
       default: "active",
     },
+
+    login_provider: { type: String, required: true },
 
     created_at: {
       type: Date,

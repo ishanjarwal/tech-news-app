@@ -1,4 +1,6 @@
 import "express";
+import { UserValues } from "../src/models/User";
+import { Document } from "mongoose";
 
 export type ResponseStatusValues =
   | "error"
@@ -10,6 +12,7 @@ declare global {
   namespace Express {
     interface Request {
       validationErrors: any[];
+      user?: UserValues;
     }
     interface Response {
       success: (

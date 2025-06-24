@@ -11,6 +11,11 @@ import subCategoryRouter from "./routes/SubCategory";
 import tagRouter from "./routes/Tag";
 import userRouter from "./routes/User";
 import followRouter from "./routes/Follow";
+import passport from "passport";
+import cookieParser from "cookie-parser";
+
+import "./config/passport-jwt-strategy";
+import "./config/passport-google-strategy";
 
 const app = express();
 
@@ -18,6 +23,9 @@ connectDB();
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser());
+// init passport auth
+app.use(passport.initialize());
 
 // routes
 app.use("/api/v1/post", postRouter);

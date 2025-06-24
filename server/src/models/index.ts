@@ -6,3 +6,6 @@ import "./Tag";
 import "./Like";
 import "./Comment";
 import "./Follow";
+import "./auth/Verification";
+import "./auth/RefreshToken";
+import "./auth/PasswordResetToken";
