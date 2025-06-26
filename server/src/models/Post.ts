@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import { POST_STATUS } from "../constants/constants";
+import { POST_FLAGS, POST_STATUS } from "../constants/constants";
 import imageSchema, { ImageValues } from "./Image";
 
 interface PostValues extends Document {
@@ -15,6 +15,7 @@ interface PostValues extends Document {
   status: (typeof POST_STATUS)[number];
   tags: Types.ObjectId[];
   views_count: number;
+  flags: (typeof POST_FLAGS)[number][];
   created_at: Date;
   updated_at: Date;
 }
@@ -76,6 +77,10 @@ const postSchema = new mongoose.Schema<PostValues>(
         ref: "Tag",
       },
     ],
+    flags: {
+      type: [String],
+      enum: POST_FLAGS,
+    },
     created_at: {
       type: Date,
       default: Date.now,

@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import User from "../models/User";
 import { genericMailSender } from "../utils/genericMailSender";
 import { env } from "../config/env";
+import Post from "../models/Post";
 
 // grant write privilleges to author
 export const grantAuthorPrivilleges: RequestHandler = async (req, res) => {
@@ -209,6 +210,26 @@ export const revokeAuthorPrivilleges: RequestHandler = async (req, res) => {
     );
     return;
   } catch (error) {
+    res.error(500, "error", "Something went wrong", error);
+    return;
+  }
+};
+
+export const addFlagsToPost: RequestHandler = async (req, res) => {
+  try {
+    const { flags } = req.body;
+    const id = req.params.id;
+    const post = await Post.findById(id);
+    if (!post) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
+    post.flags = flags;
+    await post.save();
+    res.success(200, "success", "Flags added to the post", {});
+    return;
+  } catch (error) {
+    console.log(error);
     res.error(500, "error", "Something went wrong", error);
     return;
   }
