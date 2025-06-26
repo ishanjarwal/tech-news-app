@@ -18,6 +18,7 @@ router.use(responseHelper);
 
 // public routes
 router.get("/:id", fetchPostComments);
+
 // auth user
 router
   .post(

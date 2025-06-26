@@ -1,9 +1,8 @@
 import { body, param } from "express-validator";
-import { isURL } from "validator";
-import slugify from "../utils/slugify";
-import Category from "../models/Category";
 import { MongooseError } from "mongoose";
+import Category from "../models/Category";
 import SubCategory from "../models/SubCategory";
+import slugify from "../utils/slugify";
 
 export const validateCreateSubcategory = [
   param("categoryId").custom(async (id, { req }) => {
@@ -67,19 +66,6 @@ export const validateCreateSubcategory = [
     .bail()
     .isLength({ max: 300 })
     .withMessage("Summary must be at most 300 characters long")
-    .bail(),
-
-  body("thumbnail")
-    .optional()
-    .isString()
-    .withMessage("Thumbnail must be a string")
-    .bail()
-    .custom((value) => {
-      if (!isURL(value)) {
-        throw new Error("Thumbnail must be a valid URL with http/https");
-      }
-      return true;
-    })
     .bail(),
 ];
 
@@ -147,18 +133,5 @@ export const validateUpdateSubcategory = [
     .bail()
     .isLength({ max: 300 })
     .withMessage("Summary must be at most 300 characters long")
-    .bail(),
-
-  body("thumbnail")
-    .optional()
-    .isString()
-    .withMessage("Thumbnail must be a string")
-    .bail()
-    .custom((value) => {
-      if (!isURL(value)) {
-        throw new Error("Thumbnail must be a valid URL with http/https");
-      }
-      return true;
-    })
     .bail(),
 ];

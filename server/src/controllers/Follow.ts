@@ -1,15 +1,17 @@
 import { RequestHandler } from "express";
 import mongoose from "mongoose";
 import Follow from "../models/Follow";
-import User from "../models/User";
+import User, { UserValues } from "../models/User";
 
 // follow a author
 export const toggleFollow: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const author_username = req.params.author_username;
     const author = await User.findOne({ username: author_username });
-    if (!author || userId.equals(author?._id as mongoose.Types.ObjectId)) {
+    if (!author || userId.toString() === author._id.toString()) {
       res.error(400, "error", "invalid request", null);
       return;
     }
@@ -35,12 +37,14 @@ export const toggleFollow: RequestHandler = async (req, res) => {
   }
 };
 
-// get user followers
+// get author followers
 export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
   try {
-    const authorId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const followers = await Follow.aggregate([
-      { $match: { user_id: authorId } },
+      { $match: { user_id: userId } },
       {
         $lookup: {
           from: "users",
@@ -55,7 +59,7 @@ export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
           _id: 0,
           "follower.username": 1,
           "follower.fullname": 1,
-          "follower.avatarURL": 1,
+          "follower.avatar": 1,
         },
       },
     ]);
@@ -72,8 +76,9 @@ export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
 // get user following
 export const fetchUserFollowing: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
-
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const following = await Follow.aggregate([
       { $match: { follower_id: userId } }, // user is following others
       {
@@ -90,7 +95,7 @@ export const fetchUserFollowing: RequestHandler = async (req, res) => {
           _id: 0,
           "followedUser.username": 1,
           "followedUser.fullname": 1,
-          "followedUser.avatarURL": 1,
+          "followedUser.avatar": 1,
         },
       },
     ]);

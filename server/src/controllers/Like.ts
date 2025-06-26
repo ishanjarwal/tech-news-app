@@ -2,11 +2,14 @@ import { RequestHandler } from "express";
 import Like from "../models/Like";
 import Post from "../models/Post";
 import mongoose from "mongoose";
+import { UserValues } from "../models/User";
 
 // toggle post like
 export const togglePostLike: RequestHandler = async (req, res) => {
   try {
-    const userId = "6849905025c3c13ff2e36f6b"; // from req.user
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = req.params.id;
     const post = await Post.findById(id).select("author_id");
     if (!post) {
@@ -38,10 +41,13 @@ export const togglePostLike: RequestHandler = async (req, res) => {
 // fetch user liked posts
 export const fetchUserLikedPosts: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); //from req.user
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
+
     const posts = await Like.aggregate([
       {
-        $match: { user_id: new mongoose.Types.ObjectId(userId) },
+        $match: { user_id: userId },
       },
       {
         $lookup: {
@@ -98,7 +104,7 @@ export const fetchUserLikedPosts: RequestHandler = async (req, res) => {
           likedAt: "$created_at",
           "post.author.fullname": 1,
           "post.author.username": 1,
-          "post.author.avatarURL": 1,
+          "post.author.avatar": 1,
           "post._id": 1,
           "post.title": 1,
           "post.slug": 1,
@@ -125,7 +131,9 @@ export const fetchUserLikedPosts: RequestHandler = async (req, res) => {
 // fetch author post likes
 export const fetchPostLikers: RequestHandler = async (req, res) => {
   try {
-    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const post_id = new mongoose.Types.ObjectId(req.params.id);
     const post = await Post.findById(post_id);
     if (!post) {
@@ -133,7 +141,7 @@ export const fetchPostLikers: RequestHandler = async (req, res) => {
       return;
     }
     const users = await Like.aggregate([
-      { $match: { post_id, author_id } },
+      { $match: { post_id, author_id: userId } },
       {
         $lookup: {
           from: "users",
@@ -148,7 +156,7 @@ export const fetchPostLikers: RequestHandler = async (req, res) => {
           _id: 0,
           username: "$user.username",
           fullname: "$user.fullname",
-          avatarURL: "$user.avatarURL",
+          avatarURL: "$user.avatar",
         },
       },
     ]);

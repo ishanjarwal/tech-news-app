@@ -3,11 +3,14 @@ import mongoose from "mongoose";
 import { COMMENT_LIMIT } from "../constants/constants";
 import Comment from "../models/Comment";
 import Post from "../models/Post";
+import { UserValues } from "../models/User";
 
 // create a comment
 export const createComment: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = req.params.id;
     const post = await Post.findById(id);
     if (!post) {
@@ -33,7 +36,9 @@ export const createComment: RequestHandler = async (req, res) => {
 // reply to a comment
 export const replyComment: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = new mongoose.Types.ObjectId(req.params.id);
     const post = await Post.findById(id);
     if (!post) {
@@ -113,7 +118,7 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
                 updated_at: 1,
                 "user.username": 1,
                 "user.fullname": 1,
-                "user.avatarURL": 1,
+                "user.avatar": 1,
               },
             },
             { $sort: { updated_at: -1 } },
@@ -130,7 +135,7 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
           updated_at: 1,
           "user.username": 1,
           "user.fullname": 1,
-          "user.avatarURL": 1,
+          "user.avatar": 1,
           replies: 1,
         },
       },
@@ -155,7 +160,9 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
 // update a comment
 export const updateComment: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"); // from req.user
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = new mongoose.Types.ObjectId(req.params.id);
     const post = await Post.findById(id);
     if (!post) {
@@ -181,7 +188,9 @@ export const updateComment: RequestHandler = async (req, res) => {
 // delete a comment
 export const deleteComment: RequestHandler = async (req, res) => {
   try {
-    const userId = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = new mongoose.Types.ObjectId(req.params.id);
     const post = await Post.findById(id);
     if (!post) {

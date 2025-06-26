@@ -13,6 +13,10 @@ import cloudinary from "../config/cloudinary";
 
 // create a post
 export const createPost: RequestHandler = async (req, res) => {
+  const user = req.user as UserValues;
+  if (!user) throw new Error();
+  const userId = user._id;
+
   try {
     const {
       title,
@@ -28,7 +32,7 @@ export const createPost: RequestHandler = async (req, res) => {
     const reading_time_sec = calcRaadingTime(content);
 
     const newPost = new Post({
-      author_id: new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b"),
+      author_id: userId,
       title,
       slug,
       summary,
@@ -194,9 +198,11 @@ export const fetchPosts: RequestHandler = async (req, res) => {
 // update post
 export const updatePost: RequestHandler = async (req, res) => {
   try {
-    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = req.params.id;
-    const post = await Post.findOne({ _id: id, author_id });
+    const post = await Post.findOne({ _id: id, author_id: userId });
     if (!post) {
       res.error(400, "error", "Invalid request", null);
       return;
@@ -223,7 +229,7 @@ export const updatePost: RequestHandler = async (req, res) => {
     }
     updateFields.updated_at = new Date(Date.now());
     const updated = await Post.findOneAndUpdate(
-      { _id: id, author_id },
+      { _id: id, author_id: userId },
       updateFields,
       { new: true }
     );
@@ -239,9 +245,11 @@ export const updatePost: RequestHandler = async (req, res) => {
 // change post status
 export const changePostStatus: RequestHandler = async (req, res) => {
   try {
-    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = req.params.id;
-    const post = await Post.findOne({ _id: id, author_id });
+    const post = await Post.findOne({ _id: id, author_id: userId });
     if (!post) {
       res.error(400, "error", "Invalid request", null);
       return;
@@ -288,7 +296,9 @@ export const fetchPostMetaData: RequestHandler = async (req, res) => {
 // get posts for user (filter for drafts)
 export const fetchAuthorPosts: RequestHandler = async (req, res) => {
   try {
-    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const status =
       (req.query.status as (typeof POST_STATUS)[number]) === "draft"
         ? "draft"
@@ -300,7 +310,7 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const matchStage = { $match: { author_id, status } };
+    const matchStage = { $match: { author_id: userId, status } };
 
     const posts = await Post.aggregate([
       matchStage,
@@ -380,9 +390,11 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
 // delete (disable) post
 export const deletePost: RequestHandler = async (req, res) => {
   try {
-    const author_id = new mongoose.Types.ObjectId("6849905025c3c13ff2e36f6b");
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
     const id = new mongoose.Types.ObjectId(req.params.id);
-    const post = await Post.findOne({ _id: id, author_id });
+    const post = await Post.findOne({ _id: id, author_id: userId });
     if (!post) {
       res.error(400, "error", "Invalid request", null);
       return;

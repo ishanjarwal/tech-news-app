@@ -47,19 +47,6 @@ export const validateNewCategory = [
     .isLength({ max: 300 })
     .withMessage("Summary must be at most 300 characters long")
     .bail(),
-
-  body("thumbnail")
-    .optional()
-    .isString()
-    .withMessage("Thumbnail must be a string")
-    .bail()
-    .custom((value) => {
-      if (!isURL(value)) {
-        throw new Error("Thumbnail must be a valid URL with http/https");
-      }
-      return true;
-    })
-    .bail(),
 ];
 
 export const validateUpdateCategory = [
@@ -103,18 +90,5 @@ export const validateUpdateCategory = [
     .bail()
     .isLength({ max: 300 })
     .withMessage("Summary must be at most 300 characters long")
-    .bail(),
-
-  body("thumbnail")
-    .optional()
-    .isString()
-    .withMessage("Thumbnail must be a string")
-    .bail()
-    .custom((value) => {
-      if (!isURL(value)) {
-        throw new Error("Thumbnail must be a valid URL with http/https");
-      }
-      return true;
-    })
     .bail(),
 ];
