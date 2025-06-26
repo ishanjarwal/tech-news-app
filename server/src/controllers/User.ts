@@ -549,7 +549,6 @@ export const deleteCoverImage: RequestHandler = async (req, res) => {
   try {
     const user = req.user as UserValues;
     if (!user) throw new Error();
-
     if (user.cover_image?.public_id) {
       const result = await cloudinary.uploader.destroy(
         user.cover_image.public_id

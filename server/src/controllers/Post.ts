@@ -8,6 +8,8 @@ import SubCategory from "../models/SubCategory";
 import Tag from "../models/Tag";
 import calcRaadingTime from "../utils/calcReadingTime";
 import slugify from "../utils/slugify";
+import { UserValues } from "../models/User";
+import cloudinary from "../config/cloudinary";
 
 // create a post
 export const createPost: RequestHandler = async (req, res) => {
@@ -19,7 +21,6 @@ export const createPost: RequestHandler = async (req, res) => {
       tagIds,
       categoryId,
       subCategoryId,
-      thumbnail,
       status,
     } = req.body;
 
@@ -35,7 +36,6 @@ export const createPost: RequestHandler = async (req, res) => {
       tags: tagIds,
       category: new mongoose.Types.ObjectId(categoryId),
       subCategory: new mongoose.Types.ObjectId(subCategoryId),
-      thumbnail,
       reading_time_sec,
       status: status || "draft",
     });
@@ -209,7 +209,6 @@ export const updatePost: RequestHandler = async (req, res) => {
       ...(req.body.content && {
         reading_time_sec: calcRaadingTime(req.body.content),
       }),
-      ...(req.body.thumbnail && { thumbnail: req.body.thumbnail }),
       ...(req.body.categoryId && {
         category: new mongoose.Types.ObjectId(req.body.categoryId),
       }),
@@ -396,5 +395,83 @@ export const deletePost: RequestHandler = async (req, res) => {
     console.log(error);
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
+  }
+};
+
+export const uploadPostThumbnail: RequestHandler = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const image = req.body.image;
+    if (!image) throw new Error();
+    const existing = await Post.findOne({ _id: id, author_id: user._id });
+    if (!existing) throw new Error();
+
+    if (existing.thumbnail?.public_id) {
+      const result = await cloudinary.uploader.destroy(
+        existing.thumbnail.public_id
+      );
+      console.log(result);
+      if (result.result !== "ok") {
+        res.error(400, "error", "Something went wrong while uploading", {});
+        return;
+      }
+    }
+
+    const post = await Post.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          thumbnail: {
+            public_id: image.public_id,
+            url: image.secure_url,
+            format: image.format,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    res.success(200, "success", "Thumbnail uploaded", {});
+    return;
+  } catch (error) {
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+export const deletePostThumbnail: RequestHandler = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+
+    const existing = await Post.findOne({ _id: id, author_id: user._id });
+    if (!existing) throw new Error();
+
+    if (existing.thumbnail?.public_id) {
+      const result = await cloudinary.uploader.destroy(
+        existing.thumbnail.public_id
+      );
+      if (result.result !== "ok") {
+        res.error(400, "error", "Something went wrong while uploading", {});
+        return;
+      }
+    }
+
+    const post = await Post.findByIdAndUpdate(
+      id,
+      { $unset: { thumbnail: 1 } },
+      { new: true }
+    );
+
+    res.success(200, "success", "Thumbnail removed", {});
+    return;
+  } catch (error) {
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
   }
 };

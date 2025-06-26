@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { POST_STATUS } from "../constants/constants";
+import imageSchema, { ImageValues } from "./Image";
 
 interface PostValues extends Document {
   author_id: Types.ObjectId;
@@ -9,7 +10,7 @@ interface PostValues extends Document {
   category: Types.ObjectId | null;
   subCategory: Types.ObjectId | null;
   content: string;
-  thumbnail?: string;
+  thumbnail?: ImageValues;
   reading_time_sec: number;
   status: (typeof POST_STATUS)[number];
   tags: Types.ObjectId[];
@@ -54,7 +55,7 @@ const postSchema = new mongoose.Schema<PostValues>(
       required: true,
     },
     thumbnail: {
-      type: String,
+      type: imageSchema,
     },
     reading_time_sec: {
       type: Number,

@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import Tag from "../models/Tag";
 import Category from "../models/Category";
 import SubCategory from "../models/SubCategory";
@@ -154,21 +154,6 @@ export const validateNewPost = [
     })
     .bail(),
 
-  body("thumbnail")
-    .exists({ checkFalsy: true })
-    .withMessage("Thumbnail is required")
-    .bail()
-    .isString()
-    .withMessage("Thumbnail must be a string")
-    .bail()
-    .custom((value) => {
-      if (!isURL(value)) {
-        throw new Error("Invalid Thumbnail");
-      }
-      return true;
-    })
-    .bail(),
-
   body("status")
     .optional()
     .isIn(["published", "draft"])
@@ -318,18 +303,21 @@ export const validateUpdatePost = [
       }
     })
     .bail(),
+];
 
-  body("thumbnail")
-    .optional()
-    .bail()
-    .isString()
-    .withMessage("Thumbnail must be a string")
-    .bail()
-    .custom((value) => {
-      if (!isURL(value)) {
-        throw new Error("Invalid Thumbnail");
+export const validateThumbnailUpload = [
+  param("id").custom(async (id, { req }) => {
+    try {
+      const check = await Post.findOne({ _id: id, author_id: req.user._id });
+      if (!check) throw new Error("Invalid request");
+    } catch (error) {
+      if (error instanceof MongooseError) {
+        throw new Error("validation error");
+      } else if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("validation error");
       }
-      return true;
-    })
-    .bail(),
+    }
+  }),
 ];
