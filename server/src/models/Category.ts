@@ -1,10 +1,11 @@
 import mongoose, { Document } from "mongoose";
+import imageSchema, { ImageValues } from "./Image";
 
 interface CategoryValues extends Document {
   name: string;
   slug: string;
   summary?: string;
-  thumbnail?: string;
+  thumbnail?: ImageValues;
   created_at: Date;
   updated_at: Date;
 }
@@ -27,7 +28,7 @@ const categorySchema = new mongoose.Schema<CategoryValues>(
       type: String,
     },
     thumbnail: {
-      type: String,
+      type: imageSchema,
     },
     created_at: {
       type: Date,

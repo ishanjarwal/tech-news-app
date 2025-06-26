@@ -412,7 +412,6 @@ export const uploadPostThumbnail: RequestHandler = async (req, res) => {
       const result = await cloudinary.uploader.destroy(
         existing.thumbnail.public_id
       );
-      console.log(result);
       if (result.result !== "ok") {
         res.error(400, "error", "Something went wrong while uploading", {});
         return;
@@ -436,6 +435,9 @@ export const uploadPostThumbnail: RequestHandler = async (req, res) => {
     res.success(200, "success", "Thumbnail uploaded", {});
     return;
   } catch (error) {
+    if (req.body?.image?.public_id) {
+      await cloudinary.uploader.destroy(req.body.image.public_id);
+    }
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
     return;

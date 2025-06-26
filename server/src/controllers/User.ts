@@ -469,6 +469,9 @@ export const uploadProfilePicture: RequestHandler = async (req, res) => {
     res.success(200, "success", "profile updated", null);
     return;
   } catch (error) {
+    if (req.body?.image?.public_id) {
+      await cloudinary.uploader.destroy(req.body.image.public_id);
+    }
     console.error(error);
     res.error(500, "error", "Something went wrong", {});
     return;
@@ -507,6 +510,9 @@ export const uploadCoverImage: RequestHandler = async (req, res) => {
     res.success(200, "success", "cover image updated", null);
     return;
   } catch (error) {
+    if (req.body?.image?.public_id) {
+      await cloudinary.uploader.destroy(req.body.image.public_id);
+    }
     console.error(error);
     res.error(500, "error", "Something went wrong", {});
     return;

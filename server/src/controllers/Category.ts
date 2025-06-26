@@ -3,6 +3,7 @@ import Category from "../models/Category";
 import slugify from "../utils/slugify";
 import { CATEGORY_LIMIT } from "../constants/constants";
 import Post from "../models/Post";
+import cloudinary from "../config/cloudinary";
 
 // create category
 export const createCategory: RequestHandler = async (req, res) => {
@@ -138,6 +139,87 @@ export const deleteCategory: RequestHandler = async (req, res) => {
       return;
     }
     res.success(200, "success", "Category deleted", null);
+    return;
+  } catch (error) {
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+export const uploadCategoryThumbnail: RequestHandler = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const image = req.body.image;
+    if (!image) throw new Error();
+    const existing = await Category.findOne({ _id: id });
+    if (!existing) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
+
+    if (existing.thumbnail?.public_id) {
+      const result = await cloudinary.uploader.destroy(
+        existing.thumbnail.public_id
+      );
+      if (result.result !== "ok") {
+        res.error(400, "error", "Something went wrong while uploading", {});
+        return;
+      }
+    }
+
+    const updated = await Category.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          thumbnail: {
+            public_id: image.public_id,
+            url: image.secure_url,
+            format: image.format,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    res.success(200, "success", "Thumbnail uploaded", {});
+    return;
+  } catch (error) {
+    if (req.body?.image?.public_id) {
+      await cloudinary.uploader.destroy(req.body.image.public_id);
+    }
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+export const deleteCategoryThumbnail: RequestHandler = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const existing = await Category.findById(id);
+    if (!existing) {
+      res.error(400, "error", "Invalid request", {});
+      return;
+    }
+    if (existing.thumbnail?.public_id) {
+      const result = await cloudinary.uploader.destroy(
+        existing.thumbnail.public_id
+      );
+      if (result.result !== "ok") {
+        res.error(400, "error", "Something went wrong while deleting", {});
+        return;
+      }
+    }
+
+    const post = await Category.findByIdAndUpdate(
+      id,
+      { $unset: { thumbnail: 1 } },
+      { new: true }
+    );
+
+    res.success(200, "success", "Thumbnail removed", {});
     return;
   } catch (error) {
     console.log(error);

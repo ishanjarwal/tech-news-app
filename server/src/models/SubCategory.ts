@@ -5,7 +5,6 @@ interface SubCategoryValues extends Document {
   category: Types.ObjectId;
   slug: string;
   summary?: string;
-  thumbnail?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -32,9 +31,6 @@ const subCategorySchema = new mongoose.Schema<SubCategoryValues>(
     summary: {
       type: String,
       required: true,
-    },
-    thumbnail: {
-      type: String,
     },
     created_at: {
       type: Date,
