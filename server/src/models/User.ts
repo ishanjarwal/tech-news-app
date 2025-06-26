@@ -5,6 +5,7 @@ import {
   USER_ROLES,
   USER_STATUS,
 } from "../constants/constants";
+import imageSchema, { ImageValues } from "./Image";
 
 export interface UserValues {
   _id: Schema.Types.ObjectId;
@@ -15,8 +16,8 @@ export interface UserValues {
   password: string;
 
   bio?: string;
-  avatarURL?: string;
-  coverImageURL?: string;
+  avatar?: ImageValues;
+  cover_image?: ImageValues;
   socialLinks?: {
     github?: string;
     linkedin?: string;
@@ -71,11 +72,11 @@ const userSchema = new Schema<UserValues>(
     bio: {
       type: String,
     },
-    avatarURL: {
-      type: String,
+    avatar: {
+      type: imageSchema,
     },
-    coverImageURL: {
-      type: String,
+    cover_image: {
+      type: imageSchema,
     },
     socialLinks: {
       github: {
@@ -101,6 +102,7 @@ const userSchema = new Schema<UserValues>(
           }
           return arr;
         },
+        default: undefined,
       },
       youtube: {
         type: String,

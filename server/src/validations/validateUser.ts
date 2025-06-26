@@ -9,6 +9,8 @@ const validateLinks = (name: string) =>
     .optional()
     .isString()
     .withMessage(`Invalid ${name} link`)
+    .isURL({ require_protocol: true })
+    .withMessage("Must be a valid URL")
     .bail()
     .isLength({ max: 100 })
     .withMessage("Max 100 characters");
@@ -25,7 +27,7 @@ const validatePassword = (name: string) =>
     .isLength({ max: 50 })
     .withMessage("Password must be atmost 50 characters long")
     .bail()
-    .matches(/^[\w\d\S]{8,100}$/)
+    .matches(/^[A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|]{8,100}$/)
     .withMessage("Password must not contain spaces");
 
 export const validateCreateUser = [
@@ -65,7 +67,7 @@ export const validateCreateUser = [
     .withMessage("Full name is required")
     .isLength({ max: 100 })
     .withMessage("Full name must be at most 100 characters")
-    .matches(/^[A-Za-z]+(?:\s[A-Za-z]+){0,2}$/)
+    .matches(/^[\p{L}]+(?:\s[\p{L}]+){0,2}$/u)
     .withMessage(
       "Full name must contain only letters and at most two words (separated by spaces)"
     ),
@@ -133,34 +135,10 @@ export const validateUpdateUser = [
     .trim()
     .isLength({ max: 100 })
     .withMessage("Full name must be at most 100 characters")
-    .matches(/^[A-Za-z]+(?:\s[A-Za-z]+){0,2}$/)
+    .matches(/^[\p{L}]+(?:\s[\p{L}]+){0,2}$/u)
     .withMessage(
       "Full name must contain only letters and at most two words (separated by spaces)"
     ),
-  body("email")
-    .optional()
-    .trim()
-    .isLength({ max: 100 })
-    .withMessage("Email must be at most 100 characters")
-    .isEmail()
-    .withMessage("Invalid email format")
-    .custom(async (email) => {
-      try {
-        const exists = await User.findOne({ email });
-        if (exists) {
-          throw new Error("Email is already registered");
-        }
-        return true;
-      } catch (error) {
-        if (error instanceof MongooseError) {
-          throw new Error("Error validating email");
-        } else if (error instanceof Error) {
-          throw new Error(error.message);
-        } else {
-          throw new Error("Error validating email");
-        }
-      }
-    }),
   body("bio")
     .optional()
     .isString()
@@ -182,11 +160,11 @@ export const validateUpdateUser = [
     .withMessage("you can add at most 3 websites"),
 
   body("websites.*")
-    .optional()
+    .notEmpty()
+    .withMessage("Website URLs cannot be empty")
     .isString()
-    .withMessage("Must be a string")
-    .isLength({ max: 100 })
-    .withMessage("Max 100 characters."),
+    .withMessage("Website URLs must be strings")
+    .isLength({ max: 100 }),
   body("theme")
     .optional()
     .isIn(PREFERENCES_THEMES)
@@ -239,6 +217,8 @@ export const validatePasswordChange = [
     .withMessage("Please enter confirmation password")
     .bail()
     .custom((value, { req }) => {
+      if (!req.body.password)
+        throw new Error("Password is required before confirmation");
       if (value !== req.body.password) {
         throw new Error("Password confirmation does not match password");
       }
@@ -255,6 +235,8 @@ export const validatePasswordReset = [
     .withMessage("Please provide password confirmation")
     .bail()
     .custom((value, { req }) => {
+      if (!req.body.password)
+        throw new Error("Password is required before confirmation");
       if (value !== req.body.password) {
         throw new Error("Password confirmation does not match password");
       }

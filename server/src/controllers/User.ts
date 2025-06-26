@@ -11,6 +11,7 @@ import sendOTP from "../utils/auth/sendOTP";
 import sendPasswordResetEmailUtil from "../utils/auth/sendPasswordResetEmail";
 import setAuthCookies from "../utils/auth/setAuthCookies";
 import { genericMailSender } from "../utils/genericMailSender";
+import cloudinary from "../config/cloudinary";
 // User Registration
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -430,6 +431,145 @@ export const updateUser: RequestHandler = async (req, res) => {
     ).select("-password");
 
     res.success(200, "success", "Details updated", {});
+    return;
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+// upload profile picture
+export const uploadProfilePicture: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const image = req.body.image;
+    if (!image) throw new Error();
+    if (user.avatar?.public_id) {
+      const result = await cloudinary.uploader.destroy(user.avatar.public_id);
+      if (result.result !== "ok") {
+        res.error(400, "error", "Something went wrong while uploading", null);
+        return;
+      }
+    }
+    const updated = await User.findByIdAndUpdate(
+      user._id,
+      {
+        $set: {
+          avatar: {
+            public_id: image.public_id,
+            format: image.format,
+            url: image.url,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.success(200, "success", "profile updated", null);
+    return;
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+// upload cover image
+export const uploadCoverImage: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const image = req.body.image;
+    if (!image) throw new Error();
+    if (user.cover_image?.public_id) {
+      const result = await cloudinary.uploader.destroy(
+        user.cover_image.public_id
+      );
+      if (result.result !== "ok") {
+        res.error(400, "error", "Something went wrong while uploading", null);
+        return;
+      }
+    }
+    const updated = await User.findByIdAndUpdate(
+      user._id,
+      {
+        $set: {
+          cover_image: {
+            public_id: image.public_id,
+            format: image.format,
+            url: image.url,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.success(200, "success", "cover image updated", null);
+    return;
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+// delete profile picture :
+export const deleteProfilePicture: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    if (user.avatar?.public_id) {
+      const result = await cloudinary.uploader.destroy(user.avatar.public_id);
+      if (result.result !== "ok") {
+        res.error(
+          400,
+          "error",
+          "Something went wrong while removing picture",
+          null
+        );
+        return;
+      }
+    }
+    const updated = await User.findByIdAndUpdate(
+      user._id,
+      { $unset: { avatar: 1 } },
+      { new: true }
+    );
+    res.success(200, "success", "profile picture removed", null);
+    return;
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+// delete dover image :
+export const deleteCoverImage: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+
+    if (user.cover_image?.public_id) {
+      const result = await cloudinary.uploader.destroy(
+        user.cover_image.public_id
+      );
+      if (result.result !== "ok") {
+        res.error(
+          400,
+          "error",
+          "Something went wrong while removing image",
+          null
+        );
+        return;
+      }
+    }
+    const updated = await User.findByIdAndUpdate(
+      user._id,
+      { $unset: { cover_image: 1 } },
+      { new: true }
+    );
+    res.success(200, "success", "cover image removed", null);
     return;
   } catch (error) {
     console.error(error);

@@ -16,6 +16,7 @@ import cookieParser from "cookie-parser";
 
 import "./config/passport-jwt-strategy";
 import "./config/passport-google-strategy";
+import "./config/cloudinary";
 
 const app = express();
 

@@ -21,6 +21,10 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().nonempty(),
   GOOGLE_CLIENT_SECRET: z.string().nonempty(),
   GOOGLE_CALLBACK_URL: z.string().nonempty(),
+  CLOUDINARY_CLOUD_NAME: z.string().nonempty(),
+  CLOUDINARY_API_KEY: z.string().nonempty(),
+  CLOUDINARY_API_SECRET: z.string().nonempty(),
+  CLOUDINARY_ROOT_FOLDER: z.string().nonempty(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

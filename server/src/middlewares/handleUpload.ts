@@ -1,17 +1,11 @@
 import { RequestHandler } from "express";
 import multer from "multer";
 
-interface UploadValues {
-  allowedMimetypes: string[];
-  sizeLimit: number; // in MB
-  fieldName: string; // file field name in the form (e.g., "thumbnail")
-}
-
-const handleUpload = ({
-  allowedMimetypes,
-  sizeLimit,
-  fieldName,
-}: UploadValues): RequestHandler => {
+const handleUpload = (
+  allowedMimetypes: string[],
+  sizeLimit: number, // in mb
+  fieldName: string
+): RequestHandler => {
   const storage = multer.memoryStorage(); // store file in memory as buffer
 
   const upload = multer({
@@ -36,7 +30,7 @@ const handleUpload = ({
     },
   }).single(fieldName);
 
-  return (req, res, next) => {
+  return async (req, res, next) => {
     upload(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         if (err.code == "LIMIT_FILE_SIZE") {

@@ -8,3 +8,4 @@ export const CATEGORY_LIMIT = 100;
 export const TAG_LIMIT = 100;
 export const COMMENT_LIMIT = 100;
 export const LOGIN_PROVIDER_OPTIONS = ["google", "email", "github"] as const;
+export const IMAGE_FORMATS = ["jpeg", "png", "jpg"] as const;

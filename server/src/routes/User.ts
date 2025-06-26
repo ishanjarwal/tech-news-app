@@ -1,7 +1,11 @@
 import { Router } from "express";
+import passport from "passport";
+import { env } from "../config/env";
 import {
   changeUserPassword,
   createUser,
+  deleteCoverImage,
+  deleteProfilePicture,
   loginUser,
   logoutUser,
   requestAuthorPrivilleges,
@@ -9,13 +13,18 @@ import {
   resetPassword,
   sendPasswordResetEmail,
   updateUser,
+  uploadCoverImage,
+  uploadProfilePicture,
   userProfile,
   verifyEmail,
 } from "../controllers/User";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
+import handleUpload from "../middlewares/handleUpload";
 import { handleValidation } from "../middlewares/handleValidation";
 import responseHelper from "../middlewares/responseHelper";
+import uploadToCloudinary from "../middlewares/uploadToCloudinary";
+import setAuthCookies from "../utils/auth/setAuthCookies";
 import {
   validateCreateUser,
   validateEmail,
@@ -25,9 +34,6 @@ import {
   validatePasswordReset,
   validateUpdateUser,
 } from "../validations/validateUser";
-import passport from "passport";
-import setAuthCookies from "../utils/auth/setAuthCookies";
-import { env } from "../config/env";
 
 const router = Router();
 
@@ -77,7 +83,37 @@ router
     handleValidation,
     updateUser
   )
-  .post("/author-privilleges", requestAuthorPrivilleges);
+  .post("/author-privilleges", requestAuthorPrivilleges)
+  .post(
+    "/upload-profile-picture",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    handleUpload(["image/jpeg", "image/jpg"], 2, "image"),
+    handleValidation,
+    uploadToCloudinary("user_profiles", "image", "user"),
+    uploadProfilePicture
+  )
+  .post(
+    "/upload-cover-image",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    handleUpload(["image/jpeg", "image/jpg"], 2, "image"),
+    handleValidation,
+    uploadToCloudinary("cover_images", "image", "cover"),
+    uploadCoverImage
+  )
+  .delete(
+    "/profile-picture",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    deleteProfilePicture
+  )
+  .delete(
+    "/cover-image",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    deleteCoverImage
+  );
 
 //   google auth
 router.get(
