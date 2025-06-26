@@ -4,7 +4,6 @@ interface TagValues extends Document {
   name: string;
   slug: string;
   summary?: string;
-  thumbnail?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -24,9 +23,6 @@ const tagSchema = new mongoose.Schema<TagValues>(
       trim: true,
     },
     summary: {
-      type: String,
-    },
-    thumbnail: {
       type: String,
     },
     created_at: {
