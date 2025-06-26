@@ -15,6 +15,7 @@ import { handleValidation } from "../middlewares/handleValidation";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
 import accessByRole from "../middlewares/auth/accessByRole";
+import { rateLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
@@ -22,13 +23,14 @@ router.use(responseHelper);
 
 // public routes
 router
-  .get("/:slug", fetchSubCategories)
-  .get("/:categorySlug/:slug", fetchSubCategoryBySlug);
+  .get("/:slug", rateLimiter(1, 100), fetchSubCategories)
+  .get("/:categorySlug/:slug", rateLimiter(1, 100), fetchSubCategoryBySlug);
 
 // admin routes
 router
   .post(
     "/:categoryId",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -38,6 +40,7 @@ router
   )
   .put(
     "/:id",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -47,6 +50,7 @@ router
   )
   .delete(
     "/:id",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),

@@ -19,18 +19,22 @@ import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
 import accessByRole from "../middlewares/auth/accessByRole";
 import handleUpload from "../middlewares/handleUpload";
 import uploadToCloudinary from "../middlewares/uploadToCloudinary";
+import { rateLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
 router.use(responseHelper);
 
 // public routes
-router.get("/", fetchCategories).get("/:slug", fetchCategory);
+router
+  .get("/", rateLimiter(1, 100), fetchCategories)
+  .get("/:slug", rateLimiter(1, 100), fetchCategory);
 
 // admin routes
 router
   .post(
     "/",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -40,6 +44,7 @@ router
   )
   .put(
     "/:id",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -49,6 +54,7 @@ router
   )
   .delete(
     "/:id",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -56,6 +62,7 @@ router
   )
   .post(
     "/thumbnail/:id",
+    rateLimiter(1, 5),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -66,6 +73,7 @@ router
   )
   .delete(
     "/thumbnail/:id",
+    rateLimiter(1, 5),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),

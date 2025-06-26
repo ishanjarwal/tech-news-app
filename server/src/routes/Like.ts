@@ -8,6 +8,7 @@ import responseHelper from "../middlewares/responseHelper";
 import accessByRole from "../middlewares/auth/accessByRole";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
+import { rateLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
@@ -15,9 +16,16 @@ router.use(responseHelper);
 
 // user routes
 router
-  .get("/", accessTokenAutoRefresh, passportAuthenticate, fetchUserLikedPosts)
+  .get(
+    "/",
+    rateLimiter(1, 5),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    fetchUserLikedPosts
+  )
   .get(
     "/toggle/:id",
+    rateLimiter(1, 25),
     accessTokenAutoRefresh,
     passportAuthenticate,
     togglePostLike
@@ -26,6 +34,7 @@ router
 // author routes
 router.get(
   "/likes/:id",
+  rateLimiter(1, 25),
   accessTokenAutoRefresh,
   passportAuthenticate,
   accessByRole(["author"]),

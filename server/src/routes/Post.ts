@@ -22,6 +22,7 @@ import uploadToCloudinary from "../middlewares/uploadToCloudinary";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
 import accessByRole from "../middlewares/auth/accessByRole";
+import { rateLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ router.use(responseHelper);
 router
   .post(
     "/",
+    rateLimiter(1, 1),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
@@ -40,6 +42,7 @@ router
   )
   .get(
     "/myposts",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
@@ -47,6 +50,7 @@ router
   )
   .patch(
     "/change-status/:id",
+    rateLimiter(1, 5),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
@@ -54,6 +58,7 @@ router
   )
   .put(
     "/:id",
+    rateLimiter(1, 5),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
@@ -63,6 +68,7 @@ router
   )
   .post(
     "/thumbnail/:id",
+    rateLimiter(1, 5),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
@@ -74,6 +80,7 @@ router
   )
   .delete(
     "/thumbnail/:id",
+    rateLimiter(1, 5),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
@@ -82,8 +89,8 @@ router
 
 // public routes
 router
-  .get("/", fetchPosts)
-  .get("/metadata/:slug", fetchPostMetaData)
-  .get("/:slug", fetchPost);
+  .get("/", rateLimiter(1, 25), fetchPosts)
+  .get("/metadata/:slug", rateLimiter(1, 25), fetchPostMetaData)
+  .get("/:slug", rateLimiter(1, 25), fetchPost);
 
 export default router;

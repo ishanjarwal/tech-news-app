@@ -12,17 +12,21 @@ import { validateNewTag, validateUpdateTag } from "../validations/validateTag";
 import accessByRole from "../middlewares/auth/accessByRole";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
+import { rateLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
 router.use(responseHelper);
 
 // public routes
-router.get("/", fetchTags).get("/:slug", fetchTag);
+router
+  .get("/", rateLimiter(1, 100), fetchTags)
+  .get("/:slug", rateLimiter(1, 100), fetchTag);
 // admin
 router
   .post(
     "/",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -32,6 +36,7 @@ router
   )
   .put(
     "/:id",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),
@@ -41,6 +46,7 @@ router
   )
   .delete(
     "/:id",
+    rateLimiter(1, 10),
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["admin"]),

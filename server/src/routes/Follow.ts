@@ -8,17 +8,19 @@ import responseHelper from "../middlewares/responseHelper";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
 import accessByRole from "../middlewares/auth/accessByRole";
+import { rateLimiter } from "../middlewares/rateLimiter";
 
 const router = express.Router();
 
 router.use(responseHelper);
 
 // public routes
-router.get("/", fetchUserFollowing);
+router.get("/", rateLimiter(1, 5), fetchUserFollowing);
 
 // user routes
 router.post(
   "/:author_username",
+  rateLimiter(1, 10),
   accessTokenAutoRefresh,
   passportAuthenticate,
   toggleFollow
@@ -27,6 +29,7 @@ router.post(
 // author routes
 router.get(
   "/followers",
+  rateLimiter(1, 10),
   accessTokenAutoRefresh,
   passportAuthenticate,
   accessByRole(["author"]),
