@@ -21,6 +21,7 @@ import handleUpload from "../middlewares/handleUpload";
 import uploadToCloudinary from "../middlewares/uploadToCloudinary";
 import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
 import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
+import accessByRole from "../middlewares/auth/accessByRole";
 
 const router = express.Router();
 
@@ -28,14 +29,43 @@ router.use(responseHelper);
 
 // author routes
 router
-  .post("/", validateNewPost, handleValidation, createPost)
-  .get("/myposts", fetchAuthorPosts)
-  .patch("/change-status/:id", changePostStatus)
-  .put("/:id", validateUpdatePost, handleValidation, updatePost)
+  .post(
+    "/",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    validateNewPost,
+    handleValidation,
+    createPost
+  )
+  .get(
+    "/myposts",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    fetchAuthorPosts
+  )
+  .patch(
+    "/change-status/:id",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    changePostStatus
+  )
+  .put(
+    "/:id",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    validateUpdatePost,
+    handleValidation,
+    updatePost
+  )
   .post(
     "/thumbnail/:id",
     accessTokenAutoRefresh,
     passportAuthenticate,
+    accessByRole(["author"]),
     validateThumbnailUpload,
     handleValidation,
     handleUpload(["image/jpeg", "image/jpg"], 2, "image"),
@@ -46,6 +76,7 @@ router
     "/thumbnail/:id",
     accessTokenAutoRefresh,
     passportAuthenticate,
+    accessByRole(["author"]),
     deletePostThumbnail
   );
 

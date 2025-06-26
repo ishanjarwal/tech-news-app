@@ -7,13 +7,12 @@ import { TAG_LIMIT } from "../constants/constants";
 // create a tag
 export const createTag: RequestHandler = async (req, res) => {
   try {
-    const { name, summary, thumbnail } = req.body;
+    const { name, summary } = req.body;
     const slug = slugify(name);
     const newTag = new Tag({
       name,
       slug,
       summary,
-      thumbnail,
     });
     await newTag.save();
     res.success(200, "success", "Tag created", { tagId: newTag._id });
@@ -90,7 +89,6 @@ export const updateTag: RequestHandler = async (req, res) => {
     const updateFields = {
       ...(req.body.name && { name: req.body.name }),
       ...(req.body.summary && { summary: req.body.summary }),
-      ...(req.body.thumbnail && { thumbnail: req.body.thumbnail }),
       ...(req.body.name && { slug: slugify(req.body.name) }),
     };
 
@@ -98,9 +96,13 @@ export const updateTag: RequestHandler = async (req, res) => {
       updateFields.updated_at = new Date(Date.now());
     }
 
-    const updated = await Tag.findByIdAndUpdate(id, updateFields, {
-      new: true,
-    }).select("-_id -__v");
+    const updated = await Tag.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      {
+        new: true,
+      }
+    ).select("-_id -__v");
 
     if (!updated) {
       res.error(400, "error", "Tag not found", null);

@@ -8,13 +8,12 @@ import Category from "../models/Category";
 export const createSubCategory: RequestHandler = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-    const { name, summary, thumbnail } = req.body;
+    const { name, summary } = req.body;
     const slug = slugify(name);
     const newSubCategory = new SubCategory({
       name,
       slug,
       summary,
-      thumbnail,
       category: categoryId,
     });
     await newSubCategory.save();
@@ -81,7 +80,6 @@ export const updateSubCategory: RequestHandler = async (req, res) => {
     const updateFields = {
       ...(req.body.name && { name: req.body.name }),
       ...(req.body.summary && { summary: req.body.summary }),
-      ...(req.body.thumbnail && { thumbnail: req.body.thumbnail }),
       ...(req.body.name && { slug: slugify(req.body.name) }),
     };
 

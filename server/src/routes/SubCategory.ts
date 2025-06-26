@@ -12,6 +12,9 @@ import {
   validateUpdateSubcategory,
 } from "../validations/validateSubcategory";
 import { handleValidation } from "../middlewares/handleValidation";
+import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
+import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
+import accessByRole from "../middlewares/auth/accessByRole";
 
 const router = express.Router();
 
@@ -26,11 +29,28 @@ router
 router
   .post(
     "/:categoryId",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["admin"]),
     validateCreateSubcategory,
     handleValidation,
     createSubCategory
   )
-  .put("/:id", validateUpdateSubcategory, handleValidation, updateSubCategory)
-  .delete("/:id", deleteSubCategory);
+  .put(
+    "/:id",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["admin"]),
+    validateUpdateSubcategory,
+    handleValidation,
+    updateSubCategory
+  )
+  .delete(
+    "/:id",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["admin"]),
+    deleteSubCategory
+  );
 
 export default router;

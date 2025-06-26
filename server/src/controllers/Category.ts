@@ -7,13 +7,12 @@ import Post from "../models/Post";
 // create category
 export const createCategory: RequestHandler = async (req, res) => {
   try {
-    const { name, summary, thumbnail } = req.body;
+    const { name, summary } = req.body;
     const slug = slugify(name);
     const newCategory = new Category({
       name,
       slug,
       summary,
-      thumbnail,
     });
     await newCategory.save();
     res.success(200, "success", "Category created", {
@@ -89,7 +88,6 @@ export const updateCategory: RequestHandler = async (req, res) => {
     const updateFields = {
       ...(req.body.name && { name: req.body.name }),
       ...(req.body.summary && { summary: req.body.summary }),
-      ...(req.body.thumbnail && { thumbnail: req.body.thumbnail }),
       ...(req.body.name && { slug: slugify(req.body.name) }),
     };
 

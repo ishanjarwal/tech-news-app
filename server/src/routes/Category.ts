@@ -12,6 +12,9 @@ import {
   validateNewCategory,
   validateUpdateCategory,
 } from "../validations/validateCategory";
+import accessTokenAutoRefresh from "../middlewares/auth/accessTokenAutoRefresh";
+import passportAuthenticate from "../middlewares/auth/passportAuthenticate";
+import accessByRole from "../middlewares/auth/accessByRole";
 
 const router = express.Router();
 
@@ -22,8 +25,30 @@ router.get("/", fetchCategories).get("/:slug", fetchCategory);
 
 // admin routes
 router
-  .post("/", validateNewCategory, handleValidation, createCategory)
-  .put("/:id", validateUpdateCategory, handleValidation, updateCategory)
-  .delete("/:id", deleteCategory);
+  .post(
+    "/",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["admin"]),
+    validateNewCategory,
+    handleValidation,
+    createCategory
+  )
+  .put(
+    "/:id",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["admin"]),
+    validateUpdateCategory,
+    handleValidation,
+    updateCategory
+  )
+  .delete(
+    "/:id",
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["admin"]),
+    deleteCategory
+  );
 
 export default router;
