@@ -12,7 +12,7 @@ const refreshTokens = async (req: Request, res: Response) => {
     // Find User based on Refresh Token detail id
     const user = await User.findById(tokenDetails.id);
     if (!user) {
-      throw new Error("unauthorized access");
+      throw new Error("Unauthorized access");
     }
 
     // Generate new access and refresh tokens

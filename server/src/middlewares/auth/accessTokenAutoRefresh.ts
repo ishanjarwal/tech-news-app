@@ -18,7 +18,7 @@ const accessTokenAutoRefresh = async (
     // If refresh token is also missing, throw an error
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      throw new Error("unauthorized access - refresh token not found");
+      throw new Error("Unauthorized access");
     }
 
     //if refreshToken is found but accessToken not found or expired create new tokens and set in cookies + auth header

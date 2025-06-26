@@ -7,7 +7,7 @@ const verifyRefreshToken = async (token: string): Promise<JwtPayload> => {
     // Find the refresh token document
     const userRefreshToken = await RefreshToken.findOne({ token });
     if (!userRefreshToken) {
-      throw new Error("unauthorized access : refresh token doc not found");
+      throw new Error("Unauthorized access");
     }
 
     // Verify the refresh token and return the paylod
@@ -15,7 +15,7 @@ const verifyRefreshToken = async (token: string): Promise<JwtPayload> => {
     return tokenDetails as JwtPayload;
   } catch (error: Error | JsonWebTokenError | any) {
     if (error instanceof JsonWebTokenError) {
-      throw new Error("unauthorized access, couldn't verify token");
+      throw new Error("Unauthorized access");
     }
     throw new Error(error.message);
   }
