@@ -13,6 +13,7 @@ import userRouter from "./routes/User";
 import followRouter from "./routes/Follow";
 import passport from "passport";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import "./config/passport-jwt-strategy";
 import "./config/passport-google-strategy";
@@ -27,6 +28,8 @@ app.use(express.json());
 app.use(cookieParser());
 // init passport auth
 app.use(passport.initialize());
+
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 // routes
 app.use("/api/v1/post", postRouter);

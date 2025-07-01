@@ -3,25 +3,57 @@ import { CustomFormInput } from '@/components/common/CustomFormElements';
 import Logo from '@/components/common/Logo';
 import { Button } from '@/components/ui/button';
 import { auth, logo } from '@/constants/constants';
+import {
+  resetPasswordLink,
+  resetRedirect,
+  resetValidationErrors,
+  selectUserState,
+} from '@/reducers/userReducer';
+import { AppDispatch } from '@/stores/appstore';
 import { EmailSchema, EmailValues } from '@/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Loader, X } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ForgotPasswordForm = () => {
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    loading,
+    errors: validation_errors,
+    redirect,
+  } = useSelector(selectUserState);
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email');
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<EmailValues>({
-    defaultValues: { email: '' },
+    defaultValues: { email: email ? email : '' },
     resolver: zodResolver(EmailSchema),
   });
 
   const onSubmit = (data: EmailValues) => {
-    console.log(data);
+    dispatch(resetPasswordLink(data));
   };
+
+  useEffect(() => {
+    if (redirect) {
+      router.push(redirect);
+    }
+  }, [redirect]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetValidationErrors());
+      dispatch(resetRedirect());
+    };
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -47,9 +79,20 @@ const ForgotPasswordForm = () => {
             </div>
             <h1 className="text-3xl font-semibold">Recover your password</h1>
           </div>
+          {validation_errors && (
+            <div className="border-destructive bg-destructive/10 text-destructive w-full rounded-lg px-3 py-2">
+              {validation_errors.map((el) => (
+                <p className="flex items-start justify-start space-x-1">
+                  <X size={16} className="mt-[3px]" />
+                  <span>{el.msg}</span>
+                </p>
+              ))}
+            </div>
+          )}
           <div className="flex w-full flex-col gap-8">
             <div className="flex flex-col gap-0">
               <CustomFormInput
+                disabled={loading}
                 register={register}
                 name={'email'}
                 error={errors.email}
@@ -57,7 +100,11 @@ const ForgotPasswordForm = () => {
               />
               <div className="flex flex-col gap-4">
                 <Button type="submit" className="mt-2 w-full">
-                  Send Reset Link
+                  {!loading ? (
+                    'Send Reset Link'
+                  ) : (
+                    <Loader className="animate-spin" />
+                  )}
                 </Button>
               </div>
             </div>

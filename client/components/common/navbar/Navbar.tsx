@@ -16,8 +16,12 @@ import ThemeToggleButton from '../theme_toggle/ThemeToggleButton';
 import UserProfile from './UserProfile';
 import { useTheme } from 'next-themes';
 import Logo from '../Logo';
+import { useSelector } from 'react-redux';
+import { selectUserState } from '@/reducers/userReducer';
 
 const Navbar = () => {
+  const { user } = useSelector(selectUserState);
+
   const { theme } = useTheme();
   const [mobileNav, setMobileNav] = useState<boolean>(false);
 
@@ -40,15 +44,19 @@ const Navbar = () => {
           <div className="me-2 flex items-center justify-center">
             <ThemeToggleButton />
           </div>
-          <UserProfile />
-          {/* <div className="hidden items-center gap-2 md:flex">
-            <Button asChild variant="outline" size="sm">
-              <Link href={auth.login.href}>{auth.login.title}</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href={auth.signup.href}>{auth.signup.title}</Link>
-            </Button>
-          </div> */}
+
+          {user ? (
+            <UserProfile />
+          ) : (
+            <div className="hidden items-center gap-2 md:flex">
+              <Button asChild variant="outline" size="sm">
+                <Link href={auth.login.href}>{auth.login.title}</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href={auth.signup.href}>{auth.signup.title}</Link>
+              </Button>
+            </div>
+          )}
           <div className="md:hidden">
             <Button
               onClick={() => setMobileNav(true)}

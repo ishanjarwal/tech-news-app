@@ -12,6 +12,7 @@ interface CustomFormInputProps {
   register: UseFormRegister<any>; // or use a generic for typed forms
   error?: FieldError;
   autoFocus?: boolean;
+  disabled?: boolean;
 }
 const CustomFormInput = ({
   labelText,
@@ -19,11 +20,13 @@ const CustomFormInput = ({
   name,
   error,
   autoFocus,
+  disabled,
 }: CustomFormInputProps) => {
   return (
     <div>
       <div className="relative flex flex-col">
         <Input
+          disabled={disabled}
           autoFocus={autoFocus}
           {...register(name)}
           type="text"
@@ -50,6 +53,7 @@ const CustomPasswordInput = ({
   register,
   name,
   error,
+  disabled,
 }: CustomFormInputProps) => {
   const [show, setShow] = useState<boolean>(false);
 
@@ -63,17 +67,23 @@ const CustomPasswordInput = ({
         )}
       >
         <Input
+          disabled={disabled}
           {...register(name)}
           type={show ? 'text' : 'password'}
           className="peer border-0 !bg-transparent shadow-none ring-0 focus-visible:border-0 focus-visible:ring-0"
           placeholder=""
         />
-        <span
-          className="cursor-pointer"
+        <button
+          type="button"
+          className={cn(
+            !disabled && 'cursor-pointer',
+            disabled && 'text-muted-foreground'
+          )}
           onClick={() => setShow((prev) => !prev)}
+          disabled={disabled}
         >
           {show ? <Eye size={16} /> : <EyeOff size={16} />}
-        </span>
+        </button>
         <Label className="text-muted-foreground pointer-events-none absolute -top-5 text-xs duration-150 peer-placeholder-shown:top-1/2 peer-placeholder-shown:translate-x-4 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-110 peer-focus-within:-top-5 peer-focus-within:translate-x-0 peer-focus-within:-translate-y-0 peer-focus-within:scale-100">
           {labelText}
         </Label>

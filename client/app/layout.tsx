@@ -1,8 +1,11 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import Navbar from '@/components/common/navbar/Navbar';
 import Footer from '@/components/common/footer/Footer';
+import Navbar from '@/components/common/navbar/Navbar';
+import AppStoreProvider from '@/providers/AppStoreProvider';
 import ThemeProvider from '@/providers/ThemeProvider';
+import type { Metadata } from 'next';
+import ToastContainer, { Toaster } from 'react-hot-toast';
+import './globals.css';
+import InitializeUser from '@/components/auth/InitializeUser';
 
 export const metadata: Metadata = {
   title: 'Tech News | Stay ahead in the Tech Space',
@@ -18,20 +21,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main className="flex items-center justify-center">
-            <div className="mx-auto w-full max-w-7xl">
-              <Navbar />
-              <div className="">{children}</div>
-              <Footer />
-            </div>
-          </main>
-        </ThemeProvider>
+        <AppStoreProvider>
+          <InitializeUser>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Toaster position="top-center" />
+              <main className="flex items-center justify-center">
+                <div className="max-w-8xl mx-auto w-full">
+                  <Navbar />
+                  <div className="">{children}</div>
+                  <Footer />
+                </div>
+              </main>
+            </ThemeProvider>
+          </InitializeUser>
+        </AppStoreProvider>
       </body>
     </html>
   );

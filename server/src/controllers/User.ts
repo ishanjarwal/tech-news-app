@@ -48,7 +48,6 @@ export const createUser: RequestHandler = async (req, res) => {
 
     res.success(200, "success", "Verification OTP sent to your email", {
       email: newUser.email,
-      username: newUser.username,
     });
     return;
   } catch (error) {
@@ -366,7 +365,7 @@ export const logoutUser: RequestHandler = async (req, res) => {
     await RefreshToken.deleteMany({ token: refreshToken });
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
-    res.status(200).json({ status: "success", message: "logged out" });
+    res.status(200).json({ status: "success", message: "Logged out" });
   } catch (error) {
     console.log(error);
     res.error(500, "error", "Something went wrong", {});

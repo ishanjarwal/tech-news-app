@@ -1,10 +1,13 @@
+import Restricted from '@/components/auth/Restricted';
 import SignUpForm from '@/components/auth/signup/SignUpForm';
 
 const page = () => {
   return (
-    <div className="w-full">
-      <SignUpForm />
-    </div>
+    <Restricted>
+      <div className="w-full">
+        <SignUpForm />
+      </div>
+    </Restricted>
   );
 };
 
