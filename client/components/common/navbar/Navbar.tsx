@@ -41,31 +41,35 @@ const Navbar = () => {
           <div className="flex flex-1 items-center px-4">
             <SearchBar />
           </div>
-          <div className="me-2 flex items-center justify-center">
-            <ThemeToggleButton />
-          </div>
+          <div className="flex items-center justify-end space-x-1 md:space-x-2">
+            <div className="flex items-center justify-center">
+              <ThemeToggleButton />
+            </div>
 
-          {user ? (
-            <UserProfile />
-          ) : (
-            <div className="hidden items-center gap-2 md:flex">
-              <Button asChild variant="outline" size="sm">
-                <Link href={auth.login.href}>{auth.login.title}</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href={auth.signup.href}>{auth.signup.title}</Link>
+            {user ? (
+              <div className="flex items-center justify-center md:me-0">
+                <UserProfile />
+              </div>
+            ) : (
+              <div className="hidden items-center gap-2 md:flex">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={auth.login.href}>{auth.login.title}</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href={auth.signup.href}>{auth.signup.title}</Link>
+                </Button>
+              </div>
+            )}
+            <div className="md:hidden">
+              <Button
+                onClick={() => setMobileNav(true)}
+                variant={'ghost'}
+                size={'icon'}
+                className="cursor-pointer active:brightness-90"
+              >
+                <Menu />
               </Button>
             </div>
-          )}
-          <div className="md:hidden">
-            <Button
-              onClick={() => setMobileNav(true)}
-              variant={'secondary'}
-              size={'icon'}
-              className="cursor-pointer active:brightness-90"
-            >
-              <Menu />
-            </Button>
           </div>
         </nav>
       </div>

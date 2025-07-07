@@ -5,6 +5,7 @@ import {
   UserSignUpValues,
   VerifyValues,
 } from '@/validations/auth';
+import { UpdateUserValues } from '@/validations/profile';
 import axios from 'axios';
 
 export async function registerUserAPI(data: UserSignUpValues) {
@@ -96,14 +97,14 @@ export async function logoutUserAPI() {
   });
 }
 
-export async function updateUserAPI(data: { name: string; bio: string }) {
+export async function updateUserAPI(data: UpdateUserValues) {
   return new Promise(async (resolve, reject) => {
     try {
       const url = `${env.NEXT_PUBLIC_BASE_URL}/user/`;
-      const { name, bio } = data;
+      const { websites } = data;
       const response = await axios.put(
         url,
-        { name, bio },
+        { ...data, websites: websites?.map((el) => el.value) },
         { withCredentials: true }
       );
       resolve(response.data);

@@ -1,10 +1,19 @@
 'use client';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { FieldError, UseFormRegister } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldError,
+  UseFormRegister,
+} from 'react-hook-form';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { cn } from '@/lib/utils';
+import { Textarea } from '../ui/textarea';
+import { Checkbox } from '../ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { PREFERENCES_THEMES } from '@/validations/profile';
 
 interface CustomFormInputProps {
   name: string;
@@ -95,4 +104,134 @@ const CustomPasswordInput = ({
   );
 };
 
-export { CustomFormInput, CustomPasswordInput };
+const CustomTextboxInput = ({
+  labelText,
+  register,
+  name,
+  error,
+  autoFocus,
+  disabled,
+}: CustomFormInputProps) => {
+  return (
+    <div>
+      <div className="relative flex flex-col">
+        <Textarea
+          disabled={disabled}
+          autoFocus={autoFocus}
+          {...register(name)}
+          className={cn(
+            'peer max-h-[240px] min-h-[80px]',
+            error &&
+              'border-destructive ring-destructive/50 focus-visible:ring-destructive/50 focus-visible:border-destructive'
+          )}
+          placeholder=""
+        />
+        <Label className="text-muted-foreground pointer-events-none absolute -top-5 text-xs duration-150 peer-placeholder-shown:top-6 peer-placeholder-shown:translate-x-4 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-110 peer-focus-within:-top-5 peer-focus-within:translate-x-0 peer-focus-within:-translate-y-0 peer-focus-within:scale-100">
+          {labelText}
+        </Label>
+      </div>
+      {error && (
+        <p className="text-destructive ms-1 text-xs">{error.message}</p>
+      )}
+    </div>
+  );
+};
+
+interface CustomCheckboxProps {
+  control: Control;
+  name: string;
+  label: string;
+  error?: FieldError;
+  disabled?: boolean;
+}
+
+const CustomCheckboxInput = ({
+  control,
+  name,
+  label,
+  error,
+  disabled,
+}: CustomCheckboxProps) => {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => {
+        return (
+          <div>
+            {error && (
+              <p className="text-destructive ms-1 text-xs">{error.message}</p>
+            )}
+            <Label className="flex cursor-pointer items-center space-x-2">
+              <Checkbox
+                disabled={disabled}
+                className="scale-110 cursor-pointer"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+              <p>{label}</p>
+            </Label>
+          </div>
+        );
+      }}
+    />
+  );
+};
+
+interface CustomRadioGroupProps {
+  options: { label: string; value: string; disabled?: boolean }[];
+  control: Control;
+  name: string;
+  error?: FieldError;
+  defaultValue?: string;
+  disabled?: boolean;
+}
+
+const CustomRadioGroupInput = ({
+  control,
+  name,
+  options,
+  error,
+  defaultValue,
+  disabled,
+}: CustomRadioGroupProps) => {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => {
+        return (
+          <div>
+            {error && (
+              <p className="text-destructive ms-1 text-xs">{error.message}</p>
+            )}
+            <RadioGroup
+              disabled={disabled}
+              defaultValue={defaultValue}
+              name={field.name}
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              {options.map((el) => (
+                <div key={el.value} className="flex items-center gap-3">
+                  <Label className="bg-accent flex cursor-pointer items-center space-x-2 rounded-md px-3 py-2 capitalize hover:brightness-90">
+                    <RadioGroupItem disabled={el.disabled} value={el.value} />
+                    <p>{el.label}</p>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        );
+      }}
+    />
+  );
+};
+
+export {
+  CustomFormInput,
+  CustomPasswordInput,
+  CustomTextboxInput,
+  CustomCheckboxInput,
+  CustomRadioGroupInput,
+};

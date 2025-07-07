@@ -345,11 +345,27 @@ export const resetPassword: RequestHandler = async (req, res) => {
 // get User (used with a middleware always)
 export const userProfile: RequestHandler = async (req, res) => {
   try {
-    const user = req.user;
+    const user = req.user as UserValues;
     if (!user) {
       throw new Error();
     }
-    res.success(200, "success", "User details fetched", user);
+    const modifiled = {
+      _id: user._id,
+      fullname: user.fullname,
+      email: user.email,
+      username: user.username,
+      login_provider: user.login_provider,
+      roles: user.roles,
+      socialLinks: user.socialLinks,
+      preferences: user.preferences,
+      status: user.status,
+      creaetd_at: user.created_at,
+      updated_at: user.updated_at,
+      bio: user.bio,
+      avatar: user.avatar?.url,
+      cover_image: user.cover_image?.url
+    }
+    res.success(200, "success", "User details fetched", modifiled);
     return;
   } catch (error) {
     console.log(error);
@@ -414,7 +430,7 @@ export const updateUser: RequestHandler = async (req, res) => {
         ...(linkedin && { linkedin }),
         ...(threads && { threads }),
         ...(facebook && { facebook }),
-        ...(websites.length > 0 && { websites }),
+        ...(websites && websites?.length > 0 && { websites }),
       };
       updates.socialLinks = socialLinks;
     }
@@ -465,7 +481,7 @@ export const uploadProfilePicture: RequestHandler = async (req, res) => {
       },
       { new: true }
     );
-    res.success(200, "success", "profile updated", null);
+    res.success(200, "success", "profile updated", {avatar: image.url});
     return;
   } catch (error) {
     if (req.body?.image?.public_id) {
@@ -506,7 +522,7 @@ export const uploadCoverImage: RequestHandler = async (req, res) => {
       },
       { new: true }
     );
-    res.success(200, "success", "cover image updated", null);
+    res.success(200, "success", "cover image updated", {cover_image: image.url});
     return;
   } catch (error) {
     if (req.body?.image?.public_id) {

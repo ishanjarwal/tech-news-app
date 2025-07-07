@@ -16,7 +16,8 @@ import { RootState } from '@/stores/appstore';
 import { User } from '@/types/types';
 import fireToast from '@/utils/fireToast';
 import { UserLoginValues, UserSignUpValues } from '@/validations/auth';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { UpdateUserValues } from '@/validations/profile';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { string } from 'zod';
 
 interface UserStateValues {
@@ -154,7 +155,7 @@ export const resetPassword = createAsyncThunk(
 
 export const updateUser = createAsyncThunk(
   'user/update-user',
-  async (data: { name: string; bio: string }, { rejectWithValue }) => {
+  async (data: UpdateUserValues, { rejectWithValue }) => {
     try {
       const response = await updateUserAPI(data);
       return response;
@@ -180,6 +181,16 @@ const userSlice = createSlice({
     resetRedirect(state) {
       state.redirect = undefined;
     },
+    setAvatar(state, action:PayloadAction<string | undefined>){
+      if(state.user){
+        state.user.avatar = action.payload
+      }
+    },
+    setCoverImage(state, action:PayloadAction<string | undefined>){
+      if(state.user){
+        state.user.cover_image = action.payload
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -250,8 +261,19 @@ const userSlice = createSlice({
         state.initialized = false;
       })
       .addCase(userProfile.fulfilled, (state, action: any) => {
-        const { fullname, email, username, roles, login_provider, avatar } =
-          action.payload?.data;
+        const {
+          fullname,
+          email,
+          username,
+          roles,
+          login_provider,
+          avatar,
+          cover_image,
+          preferences,
+          created_at,
+          updated_at,
+          socialLinks,
+        } = action.payload?.data as User;
         state.loading = false;
         state.initialized = true;
         state.user = {
@@ -261,6 +283,11 @@ const userSlice = createSlice({
           login_provider,
           roles,
           avatar,
+          created_at,
+          updated_at,
+          preferences,
+          socialLinks,
+          cover_image
         };
       })
       .addCase(userProfile.rejected, (state, action: any) => {
@@ -322,13 +349,22 @@ const userSlice = createSlice({
       })
       .addCase(updateUser.pending, (state, action: any) => {
         state.loading = true;
+        state.errors = undefined;
       })
       .addCase(updateUser.fulfilled, (state, action: any) => {
         state.loading = false;
-        state.user = action.payload.body;
+        state.initialized = false;
+        const message = action.payload?.message || 'Details updated';
+        fireToast('success', message, 3000);
       })
       .addCase(updateUser.rejected, (state, action: any) => {
         state.loading = false;
+        const status = action.payload?.status || 'error';
+        if (status === 'validation_error') {
+          state.errors = action.payload?.error;
+        }
+        const message = action.payload?.message || 'Something went wrong';
+        fireToast('error', message, 3000);
       });
   },
 });
@@ -338,6 +374,8 @@ export const {
   resetVerificationEmail,
   resetValidationErrors,
   resetRedirect,
+  setAvatar,
+  setCoverImage
 } = userSlice.actions;
 export const selectUserState = (state: RootState) => state.user;
 

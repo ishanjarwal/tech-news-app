@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import ToastContainer, { Toaster } from 'react-hot-toast';
 import './globals.css';
 import InitializeUser from '@/components/auth/InitializeUser';
+import PhotoUploader from '@/components/photo_upload/PhotoUploader';
 
 export const metadata: Metadata = {
   title: 'Tech News | Stay ahead in the Tech Space',
@@ -30,8 +31,9 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <Toaster position="top-center" />
-              <main className="flex items-center justify-center">
+              <main className="container mx-auto flex items-center justify-center">
                 <div className="max-w-8xl mx-auto w-full">
+                  <PhotoUploader />
                   <Navbar />
                   <div className="">{children}</div>
                   <Footer />

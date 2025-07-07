@@ -17,7 +17,7 @@ const Footer = () => {
     newsletter,
   } = footer_content;
   return (
-    <section className="px-2 py-16 sm:px-4 lg:py-32">
+    <section className="border-border border-t px-2 py-16 sm:px-4 lg:py-32">
       <div className="">
         <footer>
           <div className="grid grid-cols-2 gap-12 lg:grid-cols-7">
