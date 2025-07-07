@@ -18,6 +18,7 @@ import { useTheme } from 'next-themes';
 import Logo from '../Logo';
 import { useSelector } from 'react-redux';
 import { selectUserState } from '@/reducers/userReducer';
+import LogoutButton from '@/components/auth/logout/LogoutButton';
 
 const Navbar = () => {
   const { user } = useSelector(selectUserState);
@@ -89,10 +90,12 @@ const Navbar = () => {
 interface MobilenavProps {
   theme: string | undefined;
   open: boolean;
-  setOpen: () => void;
+  setOpen: (value: boolean) => void;
 }
 
 const MobileNavbar = ({ open, setOpen, theme }: MobilenavProps) => {
+  const { user } = useSelector(selectUserState);
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {/* <SheetTrigger>Open</SheetTrigger> */}
@@ -111,14 +114,36 @@ const MobileNavbar = ({ open, setOpen, theme }: MobilenavProps) => {
           </SheetDescription>
         </SheetHeader>
         <div>
-          <div className="flex w-full space-x-2 px-4">
-            <Button asChild variant="outline" size="sm" className="flex-1">
-              <Link href={auth.login.href}>{auth.login.title}</Link>
-            </Button>
-            <Button asChild size="sm" className="flex-1">
-              <Link href={auth.signup.href}>{auth.signup.title}</Link>
-            </Button>
-          </div>
+          {user ? (
+            <div className="px-4">
+              <LogoutButton
+                onClick={() => {
+                  setOpen(false);
+                }}
+                className="bg-background cursor-pointer rounded-md border px-3 py-2 text-center hover:brightness-90"
+              />
+            </div>
+          ) : (
+            <div className="flex w-full space-x-2 px-4">
+              <Button
+                onClick={() => setOpen(false)}
+                asChild
+                variant="outline"
+                size="sm"
+                className="flex-1"
+              >
+                <Link href={auth.login.href}>{auth.login.title}</Link>
+              </Button>
+              <Button
+                onClick={() => setOpen(false)}
+                asChild
+                size="sm"
+                className="flex-1"
+              >
+                <Link href={auth.signup.href}>{auth.signup.title}</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

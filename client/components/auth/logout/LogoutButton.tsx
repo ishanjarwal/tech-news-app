@@ -6,7 +6,13 @@ import { AppDispatch } from '@/stores/appstore';
 import { Loader } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
-const LogoutButton = ({ className }: { className?: string }) => {
+const LogoutButton = ({
+  className,
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) => {
   const { loading } = useSelector(selectUserState);
   const dispatch = useDispatch<AppDispatch>();
   const handleLogout = () => {
@@ -15,7 +21,10 @@ const LogoutButton = ({ className }: { className?: string }) => {
 
   return (
     <button
-      onClick={handleLogout}
+      onClick={() => {
+        handleLogout();
+        onClick && onClick();
+      }}
       type="button"
       className={cn('w-full cursor-pointer text-start outline-none', className)}
     >
