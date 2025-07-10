@@ -14,7 +14,6 @@ import followRouter from "./routes/Follow";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
 import "./config/passport-jwt-strategy";
 import "./config/passport-google-strategy";
 import "./config/cloudinary";
@@ -29,7 +28,7 @@ app.use(cookieParser());
 // init passport auth
 app.use(passport.initialize());
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: env.FRONTEND_HOST, credentials: true }));
 
 // routes
 app.use("/api/v1/post", postRouter);

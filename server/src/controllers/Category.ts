@@ -40,7 +40,7 @@ export const fetchCategories: RequestHandler = async (req, res) => {
       .sort({ [sortField]: sortOrder })
       .skip(skip)
       .limit(limit)
-      .select("-_id -__v");
+      .select("-__v");
 
     const total = await Category.countDocuments();
 

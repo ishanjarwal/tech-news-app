@@ -1,5 +1,5 @@
 'use client';
-import { Eye, EyeOff } from 'lucide-react';
+import { Check, ChevronsUpDown, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import {
   Control,
@@ -14,6 +14,16 @@ import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { PREFERENCES_THEMES } from '@/validations/profile';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Button } from '../ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '../ui/command';
 
 interface CustomFormInputProps {
   name: string;
@@ -228,10 +238,91 @@ const CustomRadioGroupInput = ({
   );
 };
 
+interface CustomSelectInputProps extends CustomFormInputProps {
+  options: { label: string; value: string }[];
+  notFoundLabel: string;
+  control: Control<any>;
+}
+
+const CustomSelectInput = ({
+  labelText,
+  name,
+  options,
+  notFoundLabel,
+  disabled,
+  control,
+  error,
+}: CustomSelectInputProps) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Popover open={open} onOpenChange={setOpen}>
+          {error && <p className="text-destructive text-xs">{error.message}</p>}
+          <PopoverTrigger asChild>
+            <Button
+              disabled={disabled}
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className={cn(
+                'w-full justify-between',
+                error ? '!border-destructive' : '!border-border'
+              )}
+            >
+              {field.value
+                ? options.find((option) => option.value === field.value)?.label
+                : 'Select ' + labelText}
+              <ChevronsUpDown className="opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+            <Command>
+              <CommandInput
+                disabled={disabled}
+                placeholder={'Search ' + labelText}
+                className="h-9"
+              />
+              <CommandList>
+                <CommandEmpty>{notFoundLabel}</CommandEmpty>
+                <CommandGroup value={field.value}>
+                  {options.map((option) => (
+                    <CommandItem
+                      onSelect={() => {
+                        field.onChange(option.value);
+                        setOpen(false);
+                      }}
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                      <Check
+                        className={cn(
+                          'ml-auto',
+                          field.value === option.value
+                            ? 'opacity-100'
+                            : 'opacity-0'
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      )}
+    />
+  );
+};
+
 export {
   CustomFormInput,
   CustomPasswordInput,
   CustomTextboxInput,
   CustomCheckboxInput,
   CustomRadioGroupInput,
+  CustomSelectInput,
 };

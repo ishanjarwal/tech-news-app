@@ -2,6 +2,7 @@ import express from "express";
 import {
   fetchAuthorFollowers,
   fetchUserFollowing,
+  removeFollow,
   toggleFollow,
 } from "../controllers/Follow";
 import responseHelper from "../middlewares/responseHelper";
@@ -15,7 +16,13 @@ const router = express.Router();
 router.use(responseHelper);
 
 // public routes
-router.get("/", rateLimiter(1, 5), fetchUserFollowing);
+router.get(
+  "/",
+  accessTokenAutoRefresh,
+  passportAuthenticate,
+  rateLimiter(1, 5),
+  fetchUserFollowing
+);
 
 // user routes
 router.post(
@@ -27,13 +34,22 @@ router.post(
 );
 
 // author routes
-router.get(
-  "/followers",
-  rateLimiter(1, 10),
-  accessTokenAutoRefresh,
-  passportAuthenticate,
-  accessByRole(["author"]),
-  fetchAuthorFollowers
-);
+router
+  .get(
+    "/followers",
+    rateLimiter(1, 10),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    fetchAuthorFollowers
+  )
+  .get(
+    "/remove/:username",
+    rateLimiter(1, 10),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    removeFollow
+  );
 
 export default router;

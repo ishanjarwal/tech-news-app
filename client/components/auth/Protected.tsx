@@ -28,7 +28,7 @@ const Protected = ({
   if (
     !initialized ||
     (!user && initialized && !loading) ||
-    (roles && user && !user.roles.every((role) => roles.includes(role)))
+    (roles && user && !user.roles.some((role) => roles.includes(role)))
   )
     return <PageLoader />;
 

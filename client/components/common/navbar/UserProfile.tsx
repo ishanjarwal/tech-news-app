@@ -10,7 +10,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { selectUserState } from '@/reducers/userReducer';
 import { User } from '@/types/types';
-import { ArrowRight } from 'lucide-react';
+import {
+  ArrowRight,
+  Pen,
+  SlidersHorizontal,
+  User as UserIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -60,7 +65,21 @@ const UserProfile = () => {
         </div>
         <DropdownMenuItem className="cursor-pointer" asChild>
           <Link href={'/me'} className="group relative">
-            Profile
+            <span>
+              <UserIcon />
+            </span>
+            <span>Profile</span>
+            <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
+              <ArrowRight />
+            </span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" asChild>
+          <Link href={'/write'} className="group relative">
+            <span>
+              <Pen />
+            </span>
+            <span>Write</span>
             <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
               <ArrowRight />
             </span>
@@ -68,7 +87,10 @@ const UserProfile = () => {
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" asChild>
           <Link href={'/me/preferences'} className="group relative">
-            Preferences
+            <span>
+              <SlidersHorizontal />
+            </span>
+            <span>Preferences</span>
             <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
               <ArrowRight />
             </span>

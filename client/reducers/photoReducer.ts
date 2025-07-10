@@ -1,10 +1,12 @@
 'use client';
-import { deleteCoverImageAPI, deleteProfilePictureAPI, uploadCoverImageAPI, uploadProfilePictureAPI } from '@/apis/photoAPI';
 import { reduxThunkErrorPaylod } from '@/lib/utils';
 import { RootState } from '@/stores/appstore';
 import fireToast from '@/utils/fireToast';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { setAvatar, setCoverImage } from './userReducer';
+import axios from 'axios';
+import { env } from '@/config/env';
+import { ReduxErrorPayload, ReduxSuccessPayload } from '@/types/types';
 
 interface PhotoStateValues {
   open: boolean;
@@ -12,7 +14,7 @@ interface PhotoStateValues {
   description: string;
   loading: boolean;
   errors?: any[];
-  action: ((photo?: Blob) => void )| null;
+  action: ((photo?: Blob) => void) | null;
   aspectRatio: number;
 }
 
@@ -26,58 +28,79 @@ const initialState: PhotoStateValues = {
   aspectRatio: 1,
 };
 
-export const uploadProfilePicture = createAsyncThunk(
+export const uploadProfilePicture = createAsyncThunk<
+  ReduxSuccessPayload,
+  { photo: Blob },
+  { rejectValue: ReduxErrorPayload }
+>(
   'photo/upload-profile-picture',
-  async (data: {photo: Blob}, { rejectWithValue, dispatch }) => {
+  async (data: { photo: Blob }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await uploadProfilePictureAPI(data.photo);
-      dispatch(setAvatar(response.data.avatar))
-      return response;
+      const url = `${env.NEXT_PUBLIC_BASE_URL}/user/upload-profile-picture`;
+      const formData = new FormData();
+      formData.append('image', data.photo);
+      const response = await axios.post(url, formData, {
+        withCredentials: true,
+      });
+      dispatch(setAvatar(response.data.avatar));
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(reduxThunkErrorPaylod(error));
     }
   }
 );
 
-export const deleteProfilePicture = createAsyncThunk(
-  'photo/delete-profile-picture',
-  async (_, { dispatch,rejectWithValue }) => {
-    try {
-      const response = await deleteProfilePictureAPI();
-      dispatch(setAvatar())
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(reduxThunkErrorPaylod(error));
-    }
+export const deleteProfilePicture = createAsyncThunk<
+  ReduxSuccessPayload,
+  any,
+  { rejectValue: ReduxErrorPayload }
+>('photo/delete-profile-picture', async (_, { dispatch, rejectWithValue }) => {
+  try {
+    const url = `${env.NEXT_PUBLIC_BASE_URL}/user/profile-picture`;
+    const response = await axios.delete(url, { withCredentials: true });
+    dispatch(setAvatar());
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(reduxThunkErrorPaylod(error));
   }
-);
+});
 
-
-export const uploadCoverImage = createAsyncThunk(
+export const uploadCoverImage = createAsyncThunk<
+  ReduxSuccessPayload,
+  { photo: Blob },
+  { rejectValue: ReduxErrorPayload }
+>(
   'photo/upload-cover-image',
-  async (data: {photo: Blob}, { rejectWithValue, dispatch }) => {
+  async (data: { photo: Blob }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await uploadCoverImageAPI(data.photo);
-      dispatch(setCoverImage(response.data.cover_image))
-      return response;
+      const url = `${env.NEXT_PUBLIC_BASE_URL}/user/upload-cover-image`;
+      const formData = new FormData();
+      formData.append('image', data.photo);
+      const response = await axios.post(url, formData, {
+        withCredentials: true,
+      });
+      dispatch(setCoverImage(response.data.data.cover_image));
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(reduxThunkErrorPaylod(error));
     }
   }
 );
 
-export const deleteCoverImage = createAsyncThunk(
-  'photo/delete-cover-image',
-  async (_, { dispatch,rejectWithValue }) => {
-    try {
-      const response = await deleteCoverImageAPI();
-      dispatch(setCoverImage())
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(reduxThunkErrorPaylod(error));
-    }
+export const deleteCoverImage = createAsyncThunk<
+  ReduxSuccessPayload,
+  any,
+  { rejectValue: ReduxErrorPayload }
+>('photo/delete-cover-image', async (_, { dispatch, rejectWithValue }) => {
+  try {
+    const url = `${env.NEXT_PUBLIC_BASE_URL}/user/cover-image`;
+    const response = await axios.delete(url, { withCredentials: true });
+    dispatch(setCoverImage());
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(reduxThunkErrorPaylod(error));
   }
-);
+});
 
 const photoSlice = createSlice({
   name: 'photo',
@@ -87,7 +110,7 @@ const photoSlice = createSlice({
       state.title = action.payload?.title || 'Upload a picture';
       state.description = action.payload?.description;
       state.aspectRatio = action.payload?.aspectRatio || 1;
-      state.action = action.payload?.action || null
+      state.action = action.payload?.action || null;
       state.open = true;
     },
     close(state) {
@@ -95,88 +118,91 @@ const photoSlice = createSlice({
       state.title = '';
       state.description = '';
       state.aspectRatio = 1;
-      state.action = null
+      state.action = null;
     },
   },
   extraReducers: (builder) => {
-      builder
-      .addCase(uploadProfilePicture.pending, (state, action) => {
+    builder
+      .addCase(uploadProfilePicture.pending, (state) => {
         state.errors = undefined;
         state.loading = true;
       })
-      .addCase(uploadProfilePicture.fulfilled, (state, action: any) => {
-        const message = action.payload.message || 'Profile updated';
+      .addCase(uploadProfilePicture.fulfilled, (state, action) => {
+        const payload = action.payload;
+        const message = payload.message;
         state.loading = false;
         fireToast('success', message, 5000);
-        state.open = false
+        state.open = false;
       })
-      .addCase(uploadProfilePicture.rejected, (state, action: any) => {
-        state.open = false
-        const error = action.payload;
-        if (error?.status === 'validation_error') {
+      .addCase(uploadProfilePicture.rejected, (state, action) => {
+        const error = action.payload as ReduxErrorPayload;
+        state.open = false;
+        if (error.status === 'validation_error') {
           state.errors = error.error;
         }
         state.loading = false;
-        fireToast('error', error.message || 'Something went wrong');
+        fireToast('error', error.message);
       })
-      .addCase(deleteProfilePicture.pending, (state, action) => {
+      .addCase(deleteProfilePicture.pending, (state) => {
         state.errors = undefined;
         state.loading = true;
       })
-      .addCase(deleteProfilePicture.fulfilled, (state, action: any) => {
-        const message = action.payload.message || 'Profile removed';
+      .addCase(deleteProfilePicture.fulfilled, (state, action) => {
+        const payload = action.payload;
+        const message = payload.message;
         state.loading = false;
         fireToast('success', message, 5000);
-        state.open = false
+        state.open = false;
       })
-      .addCase(deleteProfilePicture.rejected, (state, action: any) => {
-        state.open = false
-        const error = action.payload;
-        if (error?.status === 'validation_error') {
+      .addCase(deleteProfilePicture.rejected, (state, action) => {
+        const error = action.payload as ReduxErrorPayload;
+        state.open = false;
+        if (error.status === 'validation_error') {
           state.errors = error.error;
         }
         state.loading = false;
-        fireToast('error', error.message || 'Something went wrong');
-      }).addCase(uploadCoverImage.pending, (state, action) => {
+        fireToast('error', error.message);
+      })
+      .addCase(uploadCoverImage.pending, (state) => {
         state.errors = undefined;
         state.loading = true;
       })
-      .addCase(uploadCoverImage.fulfilled, (state, action: any) => {
-        const message = action.payload.message || 'Cover image updated';
+      .addCase(uploadCoverImage.fulfilled, (state, action) => {
+        const payload = action.payload;
+        const message = payload.message;
         state.loading = false;
         fireToast('success', message, 5000);
-        state.open = false
+        state.open = false;
       })
-      .addCase(uploadCoverImage.rejected, (state, action: any) => {
-        state.open = false
-        const error = action.payload;
-        if (error?.status === 'validation_error') {
+      .addCase(uploadCoverImage.rejected, (state, action) => {
+        const error = action.payload as ReduxErrorPayload;
+        state.open = false;
+        if (error.status === 'validation_error') {
           state.errors = error.error;
         }
         state.loading = false;
-        fireToast('error', error.message || 'Something went wrong');
+        fireToast('error', error.message);
       })
-      .addCase(deleteCoverImage.pending, (state, action) => {
+      .addCase(deleteCoverImage.pending, (state) => {
         state.errors = undefined;
         state.loading = true;
       })
-      .addCase(deleteCoverImage.fulfilled, (state, action: any) => {
-        const message = action.payload.message || 'Cover Image removed';
+      .addCase(deleteCoverImage.fulfilled, (state, action) => {
+        const payload = action.payload;
+        const message = payload.message;
         state.loading = false;
         fireToast('success', message, 5000);
-        state.open = false
+        state.open = false;
       })
-      .addCase(deleteCoverImage.rejected, (state, action: any) => {
-        state.open = false
-        const error = action.payload;
-        if (error?.status === 'validation_error') {
+      .addCase(deleteCoverImage.rejected, (state, action) => {
+        const error = action.payload as ReduxErrorPayload;
+        state.open = false;
+        if (error.status === 'validation_error') {
           state.errors = error.error;
         }
         state.loading = false;
-        fireToast('error', error.message || 'Something went wrong');
-      })
-
-
+        fireToast('error', error.message);
+      });
   },
 });
 

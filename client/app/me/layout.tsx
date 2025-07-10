@@ -13,7 +13,7 @@ const layout = ({ children }: { children: ReactNode }) => {
           <Header />
           <Stats />
           <div className="relative w-full sm:rounded-2xl">
-            <div className="w-full overflow-auto">
+            <div className="sticky top-0 z-[2] w-full overflow-auto sm:static sm:top-auto">
               <Tabs />
             </div>
             <div className="min-h-[480px] overflow-y-auto py-4 sm:py-8">

@@ -21,7 +21,10 @@ export const toggleFollow: RequestHandler = async (req, res) => {
     });
     if (exists) {
       await exists.deleteOne();
-      res.success(200, "success", `Unfollowed ${author.username}`, null);
+      res.success(200, "success", `Unfollowed ${author.username}`, {
+        action: "unfollow",
+        username: author.username,
+      });
       return;
     }
     const newFollow = new Follow({
@@ -29,7 +32,10 @@ export const toggleFollow: RequestHandler = async (req, res) => {
       follower_id: userId,
     });
     await newFollow.save();
-    res.success(200, "success", `Following ${author.username}`, null);
+    res.success(200, "success", `Following ${author.username}`, {
+      action: "follow",
+      username: author.username,
+    });
     return;
   } catch (error) {
     console.log(error);
@@ -43,8 +49,16 @@ export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
     const user = req.user as UserValues;
     if (!user) throw new Error();
     const userId = user._id;
+
+    const limit = 25; //  Fixed limit
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const skip = (page - 1) * limit;
+
     const followers = await Follow.aggregate([
       { $match: { user_id: userId } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
       {
         $lookup: {
           from: "users",
@@ -65,7 +79,13 @@ export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
     ]);
 
     const simplified = followers.map((f) => f.follower);
-    res.success(200, "success", "Followers fetched", simplified);
+    const totalCount = await Follow.countDocuments({ user_id: userId });
+    res.success(200, "success", "Followers fetched", {
+      followers: simplified,
+      page: page,
+      limit: limit,
+      totalCount,
+    });
     return;
   } catch (error) {
     console.log(error);
@@ -77,10 +97,18 @@ export const fetchAuthorFollowers: RequestHandler = async (req, res) => {
 export const fetchUserFollowing: RequestHandler = async (req, res) => {
   try {
     const user = req.user as UserValues;
-    if (!user) throw new Error();
+    if (!user) throw new Error("Unauthenticated");
     const userId = user._id;
+
+    const limit = 25; // Fixed limit
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const skip = (page - 1) * limit;
+
     const following = await Follow.aggregate([
-      { $match: { follower_id: userId } }, // user is following others
+      { $match: { follower_id: userId } },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
       {
         $lookup: {
           from: "users",
@@ -101,10 +129,59 @@ export const fetchUserFollowing: RequestHandler = async (req, res) => {
     ]);
 
     const simplified = following.map((f) => f.followedUser);
-
-    res.success(200, "success", "following fetched", simplified);
+    const totalCount = await Follow.countDocuments({ follower_id: userId });
+    res.success(200, "success", "following fetched", {
+      following: simplified,
+      page: page,
+      limit: limit,
+      totalCount,
+    });
   } catch (error) {
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
+  }
+};
+
+// remove follower
+export const removeFollow: RequestHandler = async (req, res) => {
+  try {
+    const author = req.user as UserValues;
+    if (!author) throw new Error("Unauthenticated");
+
+    const authorId = author._id;
+    const followerUsername = req.params.username;
+
+    const follower = await User.findOne({ username: followerUsername });
+    if (!follower || follower._id.toString() === authorId.toString()) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
+
+    const followEntry = await Follow.findOne({
+      user_id: authorId, // author is being followed
+      follower_id: follower._id, // follower to remove
+    });
+
+    if (!followEntry) {
+      res.error(400, "error", "Invalid request", null);
+      return;
+    }
+
+    await followEntry.deleteOne();
+
+    res.success(
+      200,
+      "success",
+      `Removed ${follower.username} from your followers`,
+      {
+        action: "removed",
+        username: follower.username,
+      }
+    );
+    return;
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
   }
 };

@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { logoutUser, selectUserState } from '@/reducers/userReducer';
 import { AppDispatch } from '@/stores/appstore';
-import { Loader } from 'lucide-react';
+import { Loader, LogOut } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const LogoutButton = ({
@@ -28,7 +28,16 @@ const LogoutButton = ({
       type="button"
       className={cn('w-full cursor-pointer text-start outline-none', className)}
     >
-      {!loading ? 'Logout' : <Loader className="mx-auto block animate-spin" />}
+      {!loading ? (
+        <span className="flex items-center space-x-2">
+          <span>
+            <LogOut />
+          </span>
+          <span>Logout</span>
+        </span>
+      ) : (
+        <Loader className="mx-auto block animate-spin" />
+      )}
     </button>
   );
 };

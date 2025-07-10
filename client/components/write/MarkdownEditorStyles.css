@@ -1,0 +1,56 @@
+.mdeditor .tiptap{
+    outline: none;
+    height: 100%;
+    min-height: 400px;
+}
+
+.mdeditor .tiptap p{
+    font-size: 16px;
+}
+
+.mdeditor .tiptap h1{
+    font-size: 48px;
+}
+
+.mdeditor .tiptap h2{
+    font-size: 32px;
+}
+
+.mdeditor .tiptap h3{
+    font-size: 24px;
+}
+
+.mdeditor .tiptap code{
+    padding: 16px;
+    background-color: var(--color-accent);
+    border-radius: 8px;
+    width: 100%;
+    display: block;
+}
+
+.mdeditor .tiptap ul{
+    padding-left: 2rem;
+    list-style-type: disc;
+}
+
+.mdeditor .tiptap ol{
+    padding-left: 2rem;
+    list-style-type: decimal;
+}
+
+.mdeditor .tiptap blockquote{
+    padding: 1rem 0rem 1rem 1rem;
+    background-color: var(--color-accent);
+    border-left: 2px solid var(--color-foreground);
+}
+
+.mdeditor .tiptap a{
+   text-decoration: underline;
+   color: var(--color-blue-500)
+}
+
+.mdeditor .tiptap img{
+   display: block;
+   margin: 32 auto;
+   max-width: 75%;
+}
