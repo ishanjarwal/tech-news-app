@@ -1,6 +1,7 @@
 import mongoose, { Document } from "mongoose";
 
-interface TagValues extends Document {
+export interface TagValues extends Document {
+  _id: mongoose.Schema.Types.ObjectId;
   name: string;
   slug: string;
   summary?: string;

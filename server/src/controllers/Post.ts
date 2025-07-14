@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { POST_LIMIT, POST_STATUS } from "../constants/constants";
 import Category from "../models/Category";
 import Like from "../models/Like";
@@ -10,6 +10,7 @@ import calcRaadingTime from "../utils/calcReadingTime";
 import slugify from "../utils/slugify";
 import { UserValues } from "../models/User";
 import cloudinary from "../config/cloudinary";
+import TempImage from "../models/TempImage";
 
 // create a post
 export const createPost: RequestHandler = async (req, res) => {
@@ -26,6 +27,7 @@ export const createPost: RequestHandler = async (req, res) => {
       categoryId,
       subCategoryId,
       status,
+      thumbnail,
     } = req.body;
 
     const slug = slugify(title);
@@ -42,12 +44,22 @@ export const createPost: RequestHandler = async (req, res) => {
       subCategory: new mongoose.Types.ObjectId(subCategoryId),
       reading_time_sec,
       status: status || "draft",
+      thumbnail,
     });
+
+    if (thumbnail?.public_id) {
+      const doc = await TempImage.findOne({
+        "image.public_id": thumbnail.public_id,
+      });
+      if (doc) {
+        await doc.deleteOne();
+      }
+    }
     await newPost.save();
-    const message = newPost.status==="published"? "Post published": "Draft Saved"
+    const message =
+      newPost.status === "published" ? "Post published" : "Draft Saved";
     res.success(200, "success", message, {
-      postSlug: newPost.slug,
-      postStatus: newPost.status,
+      slug: newPost.slug,
     });
   } catch (error) {
     console.log(error);
@@ -82,6 +94,103 @@ export const fetchPost: RequestHandler = async (req, res) => {
   } catch (error) {
     console.log(error);
     console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+  }
+};
+
+export const fetchPostById: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const postId = new Types.ObjectId(id);
+
+    const result = await Post.aggregate([
+      { $match: { _id: postId } },
+
+      // Lookup category
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+
+      // Lookup subCategory
+      {
+        $lookup: {
+          from: "subcategories",
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategory",
+        },
+      },
+      { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
+
+      // Lookup author
+      {
+        $lookup: {
+          from: "users",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author",
+          pipeline: [
+            { $project: { username: 1, fullname: 1, avatar: 1, _id: 0 } },
+          ],
+        },
+      },
+      {
+        $unwind: { path: "$author", preserveNullAndEmptyArrays: true },
+      },
+      // {
+      //   $project: {
+      //     // Only select desired author fields
+      //     "author_id.fullname": 1,
+      //     "author_id.username": 1,
+      //     "author_id.avatarURL": 1,
+      //     "author_id._id": 1,
+      //     // Include all other post fields
+      //     title: 1,
+      //     content: 1,
+      //     views_count: 1,
+      //     category: 1,
+      //     subCategory: 1,
+      //     tags: 1,
+      //     createdAt: 1,
+      //     updatedAt: 1,
+      //   },
+      // },
+
+      // Lookup tags
+      {
+        $lookup: {
+          from: "tags",
+          localField: "tags",
+          foreignField: "_id",
+          as: "tags",
+        },
+      },
+    ]);
+
+    const post = result[0];
+    if (!post) {
+      res.error(400, "error", "Post not found", null);
+      return;
+    }
+
+    const likeCount = await Like.countDocuments({ post_id: post._id });
+
+    // Increment views_count manually (not through aggregation)
+    await Post.updateOne({ _id: post._id }, { $inc: { views_count: 1 } });
+
+    res.success(200, "success", "Post fetched", {
+      ...post,
+      likes: likeCount,
+    });
+  } catch (error) {
+    console.error(error);
     res.error(500, "error", "Something went wrong", {});
   }
 };
@@ -135,7 +244,7 @@ export const fetchPosts: RequestHandler = async (req, res) => {
             localField: "category",
             foreignField: "_id",
             as: "category",
-            pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+            // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
           },
         },
         { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
@@ -146,7 +255,7 @@ export const fetchPosts: RequestHandler = async (req, res) => {
             localField: "subCategory",
             foreignField: "_id",
             as: "subCategory",
-            pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+            // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
           },
         },
         { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
@@ -157,12 +266,12 @@ export const fetchPosts: RequestHandler = async (req, res) => {
             localField: "tags",
             foreignField: "_id",
             as: "tags",
-            pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+            // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
           },
         },
         {
           $project: {
-            _id: 0,
+            // _id: 0,
             __v: 0,
             author_id: 0,
           },
@@ -196,53 +305,82 @@ export const fetchPosts: RequestHandler = async (req, res) => {
     res.error(500, "error", "Something went wrong", {});
   }
 };
+
 // update post
 export const updatePost: RequestHandler = async (req, res) => {
   try {
     const user = req.user as UserValues;
-    if (!user) throw new Error();
-    const userId = user._id;
-    const id = req.params.id;
-    const post = await Post.findOne({ _id: id, author_id: userId });
-    if (!post) {
-      res.error(400, "error", "Invalid request", null);
+    if (!user || !user._id) {
+      res.error(401, "error", "Unauthorized access", null);
       return;
     }
-    const updateFields = {
-      ...(req.body.title && { title: req.body.title }),
-      ...(req.body.title && { slug: slugify(req.body.title) }),
-      ...(req.body.summary && { summary: req.body.summary }),
-      ...(req.body.content && { content: req.body.content }),
-      ...(req.body.content && {
-        reading_time_sec: calcRaadingTime(req.body.content),
-      }),
-      ...(req.body.categoryId && {
-        category: new mongoose.Types.ObjectId(req.body.categoryId),
-      }),
-      ...(req.body.subCategoryId && {
-        subCategory: new mongoose.Types.ObjectId(req.body.subCategoryId),
-      }),
-      ...(req.body.tagIds && { tags: req.body.tagIds }),
-    };
+
+    const userId = user._id;
+    const postId = req.params.id;
+
+    if (!mongoose.isValidObjectId(postId)) {
+      res.error(400, "error", "Invalid post ID", null);
+      return;
+    }
+
+    const post = await Post.findOne({ _id: postId, author_id: userId });
+    if (!post) {
+      res.error(404, "error", "Post not found or unauthorized", null);
+      return;
+    }
+
+    const { title, summary, content, categoryId, subCategoryId, tagIds } =
+      req.body;
+
+    const updateFields: Record<string, any> = {};
+
+    if (title) {
+      updateFields.title = title;
+      updateFields.slug = slugify(title);
+    }
+
+    if (summary) updateFields.summary = summary;
+    if (content) {
+      updateFields.content = content;
+      updateFields.reading_time_sec = calcRaadingTime(content);
+    }
+
+    if (categoryId && mongoose.isValidObjectId(categoryId)) {
+      updateFields.category = new mongoose.Types.ObjectId(categoryId);
+    }
+
+    if (subCategoryId && mongoose.isValidObjectId(subCategoryId)) {
+      updateFields.subCategory = new mongoose.Types.ObjectId(subCategoryId);
+    }
+
+    if (Array.isArray(tagIds)) {
+      updateFields.tags = tagIds;
+    }
+
     if (Object.keys(updateFields).length === 0) {
       res.error(400, "warning", "Nothing to update", null);
       return;
     }
-    updateFields.updated_at = new Date(Date.now());
-    const updated = await Post.findOneAndUpdate(
-      { _id: id, author_id: userId },
+
+    updateFields.updated_at = new Date();
+
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: postId, author_id: userId },
       updateFields,
       { new: true }
     );
-    res.success(200, "success", "post updated", {
-      postSlug: updated?.slug,
-      postStatus: updated?.status,
+
+    res.success(200, "success", "Post updated", {
+      slug: updatedPost?.slug,
     });
+    return;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.error(500, "error", "Something went wrong", {});
+    return;
   }
 };
+
 // change post status
 export const changePostStatus: RequestHandler = async (req, res) => {
   try {
@@ -306,8 +444,8 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
         : "published";
     const page = parseInt(req.query.page as string) || 1;
     const limit = POST_LIMIT || 10;
-    const sortField = (req.query.sort as string) || "created_at";
-    const sortOrder = (req.query.order as string) === "desc" ? -1 : 1;
+    const sortField = (req.query.sort as string) || "updated_at";
+    const sortOrder = (req.query.order as string) === "asc" ? 1 : -1;
 
     const skip = (page - 1) * limit;
 
@@ -334,7 +472,7 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
           localField: "category",
           foreignField: "_id",
           as: "category",
-          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+          // pipeline: [{ $project: { name: 1, slug: 1, _id: 1, thumbnail: 1, summary: 1 } }],
         },
       },
       { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
@@ -345,7 +483,7 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
           localField: "subCategory",
           foreignField: "_id",
           as: "subCategory",
-          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+          // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
         },
       },
       { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
@@ -356,12 +494,12 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
           localField: "tags",
           foreignField: "_id",
           as: "tags",
-          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+          // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
         },
       },
       {
         $project: {
-          _id: 0,
+          // _id: 0,
           __v: 0,
           author_id: 0,
         },
@@ -373,12 +511,11 @@ export const fetchAuthorPosts: RequestHandler = async (req, res) => {
 
     const countPipeline = [matchStage, { $count: "total" }];
     const countResult = await Post.aggregate(countPipeline);
-    const total = countResult[0]?.total || 0;
+    const totalCount = countResult[0]?.total || 0;
 
     res.success(200, "success", "posts fetched", {
       posts,
-      total,
-      count: posts.length,
+      totalCount,
       page,
       limit,
     });
@@ -445,7 +582,9 @@ export const uploadPostThumbnail: RequestHandler = async (req, res) => {
       { new: true }
     );
 
-    res.success(200, "success", "Thumbnail uploaded", {});
+    res.success(200, "success", "Thumbnail uploaded", {
+      url: image.secure_url,
+    });
     return;
   } catch (error) {
     if (req.body?.image?.public_id) {
@@ -485,6 +624,38 @@ export const deletePostThumbnail: RequestHandler = async (req, res) => {
     res.success(200, "success", "Thumbnail removed", {});
     return;
   } catch (error) {
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+export const uploadThumbnailTemporary: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const image = req.body.image;
+    if (!image) throw new Error();
+
+    await new TempImage({
+      author_id: user._id,
+      image: {
+        public_id: image.public_id,
+        url: image.secure_url,
+        format: image.format,
+      },
+    }).save();
+
+    res.success(200, "success", "Thumbnail uploaded", {
+      public_id: image.public_id,
+      url: image.secure_url,
+      format: image.format,
+    });
+    return;
+  } catch (error) {
+    if (req.body?.image?.public_id) {
+      await cloudinary.uploader.destroy(req.body.image.public_id);
+    }
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
     return;

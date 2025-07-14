@@ -6,6 +6,7 @@ import {
   deleteTag,
   fetchTag,
   fetchTags,
+  searchTag,
   updateTag,
 } from "../controllers/Tag";
 import { validateNewTag, validateUpdateTag } from "../validations/validateTag";
@@ -21,7 +22,8 @@ router.use(responseHelper);
 // public routes
 router
   .get("/", rateLimiter(1, 100), fetchTags)
-  .get("/:slug", rateLimiter(1, 100), fetchTag);
+  .get("/:slug", rateLimiter(1, 100), fetchTag)
+  .get("/search/:q", rateLimiter(1, 100), searchTag);
 // admin
 router
   .post(

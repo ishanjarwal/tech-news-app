@@ -32,6 +32,7 @@ interface CustomFormInputProps {
   error?: FieldError;
   autoFocus?: boolean;
   disabled?: boolean;
+  className?: string;
 }
 const CustomFormInput = ({
   labelText,
@@ -121,6 +122,7 @@ const CustomTextboxInput = ({
   error,
   autoFocus,
   disabled,
+  className,
 }: CustomFormInputProps) => {
   return (
     <div>
@@ -132,7 +134,8 @@ const CustomTextboxInput = ({
           className={cn(
             'peer max-h-[240px] min-h-[80px]',
             error &&
-              'border-destructive ring-destructive/50 focus-visible:ring-destructive/50 focus-visible:border-destructive'
+              'border-destructive ring-destructive/50 focus-visible:ring-destructive/50 focus-visible:border-destructive',
+            className
           )}
           placeholder=""
         />

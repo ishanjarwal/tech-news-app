@@ -36,16 +36,24 @@ export interface User {
 
 export type PublicUser = Omit<
   User,
-  'roles' | 'login_provider' | 'preferences' | 'updated_at'
->;
+  | 'roles'
+  | 'login_provider'
+  | 'preferences'
+  | 'email'
+  | 'updated_at'
+  | 'created_at'
+> & {
+  created_at?: Date;
+  updated_at?: Date;
+};
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  summary: string;
-  created_at: Date;
-  updated_at: Date;
+  summary?: string;
+  created_at?: Date;
+  updated_at?: Date;
   thumbnail?: string;
 }
 
@@ -54,10 +62,19 @@ export interface SubCategory {
   name: string;
   slug: string;
   summary: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at?: Date;
+  updated_at?: Date;
   thumbnail?: string;
-  category: Category;
+  category?: Category;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  summary?: string;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export interface Post {
@@ -65,10 +82,15 @@ export interface Post {
   title: string;
   slug: string;
   thumbnail?: string;
+  summary: string;
   content: string;
   author: PublicUser;
   category: Category;
+  tags: Tag[];
+  status: PostStatusValues;
   subCategory: SubCategory;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface Comment {
@@ -99,4 +121,11 @@ export interface ReduxSuccessPayload {
   data?: any;
 }
 
+export interface ImageValues {
+  public_id: string;
+  url: string;
+  format: string;
+}
+
 export type UserRoleValues = 'admin' | 'author' | 'user';
+export type PostStatusValues = 'draft' | 'published';

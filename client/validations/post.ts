@@ -1,5 +1,4 @@
-import { z } from 'zod';
-
+import { string, z } from 'zod';
 
 const isValidHTML = (value: string): boolean => {
   try {
@@ -37,24 +36,17 @@ export const NewPostSchema = z.object({
     })
     .min(100, { message: 'Content too short' })
     .max(20000, { message: 'Content too big' })
-   .refine(isValidHTML, { message: 'Invalid content format' }),
+    .refine(isValidHTML, { message: 'Invalid content format' }),
 
   tags: z
-    .array(
-      z.object({
-        value: z.string({
-          required_error: 'Tag value must be a string',
-        }),
-      })
-    )
+    .array(string())
     .min(5, { message: 'Minimum 5 tags are required' })
     .max(20, { message: 'Maximum 20 tags are allowed' }),
 
-  category: z
-    .string({
-      required_error: 'Category is required',
-      invalid_type_error: 'Invalid category',
-    }),
+  category: z.string({
+    required_error: 'Category is required',
+    invalid_type_error: 'Invalid category',
+  }),
 
   subCategory: z
     .string({ invalid_type_error: 'Invalid subcategory' })

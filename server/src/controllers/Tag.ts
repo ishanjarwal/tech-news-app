@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import slugify from "../utils/slugify";
-import Tag from "../models/Tag";
+import Tag, { TagValues } from "../models/Tag";
 import Post from "../models/Post";
 import { TAG_LIMIT } from "../constants/constants";
 
@@ -149,6 +149,54 @@ export const deleteTag: RequestHandler = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+// search tags
+export const searchTag: RequestHandler = async (req, res) => {
+  const { q } = req.params;
+
+  if (!q || typeof q !== "string") {
+    res.error(400, "error", "Invalid request", null);
+    return;
+  }
+
+  const searchRegex = (prefixOnly: boolean) => {
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(prefixOnly ? `^${escaped}` : escaped, "i");
+  };
+
+  try {
+    const startsWithResults: TagValues[] = await Tag.find({
+      $or: [
+        { name: searchRegex(true) },
+        { slug: searchRegex(true) },
+        { summary: searchRegex(true) },
+      ],
+    });
+
+    const startsWithIds = new Set(
+      startsWithResults.map((tag) => tag._id.toString())
+    );
+
+    const containsResults: TagValues[] = await Tag.find({
+      $or: [
+        { name: searchRegex(false) },
+        { slug: searchRegex(false) },
+        { summary: searchRegex(false) },
+      ],
+    });
+
+    const filteredContains = containsResults.filter(
+      (tag) => !startsWithIds.has(tag._id.toString())
+    );
+
+    const combined = [...startsWithResults, ...filteredContains];
+
+    res.success(200, "success", "Tags fetched", combined);
+  } catch (error) {
+    res.error(500, "error", "Something went wrong", null);
     return;
   }
 };

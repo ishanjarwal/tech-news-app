@@ -52,7 +52,7 @@ export const uploadProfilePicture = createAsyncThunk<
 
 export const deleteProfilePicture = createAsyncThunk<
   ReduxSuccessPayload,
-  any,
+  void,
   { rejectValue: ReduxErrorPayload }
 >('photo/delete-profile-picture', async (_, { dispatch, rejectWithValue }) => {
   try {
@@ -89,7 +89,7 @@ export const uploadCoverImage = createAsyncThunk<
 
 export const deleteCoverImage = createAsyncThunk<
   ReduxSuccessPayload,
-  any,
+  void,
   { rejectValue: ReduxErrorPayload }
 >('photo/delete-cover-image', async (_, { dispatch, rejectWithValue }) => {
   try {

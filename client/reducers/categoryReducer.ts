@@ -43,7 +43,7 @@ export const createCateogory = createAsyncThunk<
 
 export const fetchCategories = createAsyncThunk<
   ReduxSuccessPayload,
-  any,
+  void,
   { rejectValue: ReduxErrorPayload }
 >('category/fetch', async (_, { rejectWithValue }) => {
   try {

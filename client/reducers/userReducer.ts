@@ -91,7 +91,7 @@ export const loginUser = createAsyncThunk<
 
 export const userProfile = createAsyncThunk<
   ReduxSuccessPayload,
-  any,
+  void,
   { rejectValue: ReduxErrorPayload }
 >('user/user-profile', async (_, { rejectWithValue }) => {
   try {
@@ -105,7 +105,7 @@ export const userProfile = createAsyncThunk<
 
 export const logoutUser = createAsyncThunk<
   ReduxSuccessPayload,
-  any,
+  void,
   { rejectValue: ReduxErrorPayload }
 >('user/logout-user', async (_, { rejectWithValue }) => {
   try {

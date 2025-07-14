@@ -1,23 +1,20 @@
 import { env } from '@/config/env';
 import { reduxThunkErrorPaylod } from '@/lib/utils';
 import { RootState } from '@/stores/appstore';
-import { ReduxErrorPayload, ReduxSuccessPayload } from '@/types/types';
+import {
+  PublicUser,
+  ReduxErrorPayload,
+  ReduxSuccessPayload,
+} from '@/types/types';
 import fireToast from '@/utils/fireToast';
+import { mapPublicUser } from '@/utils/mappers';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface Follow {
-  id: string;
-  fullname: string;
-  email: string;
-  username: string;
-  avatar?: string;
-}
-
 interface FollowStateValues {
   loading: boolean;
-  followers?: Follow[];
-  following: Follow[];
+  followers?: PublicUser[];
+  following: PublicUser[];
   page: number;
   fetchedTillNow: number;
   totalCount: number;
@@ -35,7 +32,7 @@ const initialState: FollowStateValues = {
 
 export const fetchFollowing = createAsyncThunk<
   ReduxSuccessPayload,
-  {},
+  { page?: number },
   { rejectValue: ReduxErrorPayload }
 >('follow/following', async (data: { page?: number }, { rejectWithValue }) => {
   try {
@@ -54,7 +51,7 @@ export const fetchFollowing = createAsyncThunk<
 
 export const fetchFollowers = createAsyncThunk<
   ReduxSuccessPayload,
-  {},
+  { page?: number },
   { rejectValue: ReduxErrorPayload }
 >('follow/followers', async (data: { page?: number }, { rejectWithValue }) => {
   try {
@@ -122,15 +119,20 @@ const followSlice = createSlice({
       })
       .addCase(fetchFollowing.fulfilled, (state, action) => {
         state.loading = false;
-        const limit = action.payload?.data?.limit || 10;
-        const page = action.payload?.data?.page || 1;
-        const following = action.payload?.data?.following || [];
-        const fetchedTillNow = (page - 1) * limit + following.length;
-        const newFollowList = [...state.following, ...following];
-        const totalCount = action.payload?.data?.totalCount || 0;
-        state.following = newFollowList;
-        state.page = action.payload?.data?.page || 1;
-        state.fetchedTillNow = fetchedTillNow;
+
+        const payload = action.payload;
+        const limit = payload.data?.limit || 10;
+        const page = payload.data?.page || 1;
+        const totalCount = payload.data?.totalCount || 0;
+
+        const fetchedUsers = (payload.data?.following || []).map(mapPublicUser);
+
+        const existingFollowList = state.following ?? [];
+        const updatedFollowList = [...existingFollowList, ...fetchedUsers];
+
+        state.following = updatedFollowList;
+        state.fetchedTillNow = existingFollowList.length + fetchedUsers.length;
+        state.page = page;
         state.totalCount = totalCount;
         state.limit = limit;
       })
@@ -144,15 +146,20 @@ const followSlice = createSlice({
       })
       .addCase(fetchFollowers.fulfilled, (state, action) => {
         state.loading = false;
-        const limit = action.payload?.data?.limit || 10;
-        const page = action.payload?.data?.page || 1;
-        const followers = action.payload?.data?.followers || [];
-        const fetchedTillNow = (page - 1) * limit + followers.length;
-        const newFollowList = [...state.following, ...followers];
-        const totalCount = action.payload?.data?.totalCount || 0;
-        state.followers = newFollowList;
-        state.page = action.payload?.data?.page || 1;
-        state.fetchedTillNow = fetchedTillNow;
+
+        const payload = action.payload;
+        const limit = payload.data?.limit || 10;
+        const page = payload.data?.page || 1;
+        const totalCount = payload.data?.totalCount || 0;
+
+        const fetchedUsers = (payload.data?.followers || []).map(mapPublicUser);
+
+        const existingFollowList = state.followers ?? [];
+        const updatedFollowList = [...existingFollowList, ...fetchedUsers];
+
+        state.followers = updatedFollowList;
+        state.fetchedTillNow = existingFollowList.length + fetchedUsers.length;
+        state.page = page;
         state.totalCount = totalCount;
         state.limit = limit;
       })

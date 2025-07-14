@@ -9,3 +9,5 @@ import "./Follow";
 import "./auth/Verification";
 import "./auth/RefreshToken";
 import "./auth/PasswordResetToken";
+import "./Image";
+import "./TempImage";

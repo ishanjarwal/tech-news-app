@@ -12,7 +12,7 @@ export interface ImageValues {
 
 const imageSchema = new Schema<ImageValues>(
   {
-    public_id: { type: String, unique: true, index: true },
+    public_id: { type: String, unique: true, sparse: true },
     url: { type: String, required: true },
     format: { type: String, enum: IMAGE_FORMATS, reqired: true },
     created_at: {

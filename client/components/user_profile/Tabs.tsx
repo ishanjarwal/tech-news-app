@@ -15,6 +15,11 @@ const tabs = [
     icon: <Grid3X3 />,
   },
   {
+    name: 'Drafts',
+    href: '/me/drafts',
+    icon: <Grid3X3 />,
+  },
+  {
     name: 'Followers',
     href: '/me/followers',
     icon: <Grid3X3 />,

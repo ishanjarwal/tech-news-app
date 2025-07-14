@@ -1,26 +1,36 @@
 'use client';
+import {
+  removeThumbnail,
+  selectPostState,
+  uploadThumbnail,
+  uploadThumbnailTemp,
+} from '@/reducers/postReducer';
 import { AppDispatch } from '@/stores/appstore';
 import cropAndReturnImage from '@/utils/cropAndReturnImage';
 import fireToast from '@/utils/fireToast';
-import { Camera, Loader, Mouse, Pointer, Upload } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import {
+  Camera,
+  Loader,
+  Mouse,
+  Pen,
+  Pointer,
+  Trash,
+  Upload,
+} from 'lucide-react';
+import Image from 'next/image';
 import { MouseEventHandler, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import Cropper, { Area, Point } from 'react-easy-crop';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../ui/button';
-import { selectPostState, uploadThumbnailTemp } from '@/reducers/postReducer';
-import { ImageValues } from '@/types/types';
-import Image from 'next/image';
+import Tooltip from '../common/Tooltip';
 
 const ThumbnailInput = ({
   id,
-  tempThumbnailValue,
-  setTempThumbnailValue,
+  postImage,
 }: {
-  id?: string;
-  tempThumbnailValue?: ImageValues | null;
-  setTempThumbnailValue?: (value: ImageValues) => void;
+  id: string;
+  postImage?: string;
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector(selectPostState);
@@ -28,6 +38,9 @@ const ThumbnailInput = ({
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
+  const [existingImage, setExistingImage] = useState<string | undefined>(
+    postImage
+  );
 
   const onDrop = (files: File[], fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
@@ -64,21 +77,27 @@ const ThumbnailInput = ({
     if (croppedArea && imageSrc) {
       const finalImage = await cropAndReturnImage(imageSrc, croppedArea);
       if (finalImage) {
-        if (id) {
-          // update the thumbnail
-          console.log('update the thumbnail');
-        } else {
-          const result = await dispatch(
-            uploadThumbnailTemp({ photo: finalImage })
-          );
-          if (uploadThumbnailTemp.fulfilled.match(result)) {
-            console.log(result.payload.data);
-            setTempThumbnailValue && setTempThumbnailValue(result.payload.data);
-            setImageSrc(null);
-          }
+        // update the thumbnail
+        const result = await dispatch(
+          uploadThumbnail({ id, photo: finalImage })
+        );
+        if (uploadThumbnail.fulfilled.match(result)) {
+          setExistingImage(result.payload.data.url);
+          setCrop({ x: 0, y: 0 });
+          setImageSrc(null);
+          setZoom(1);
         }
-        // window.open(URL.createObjectURL(finalImage), '_blank');
       }
+    }
+  };
+
+  const handleRemoveThumbnail = async () => {
+    const result = await dispatch(removeThumbnail({ id }));
+    if (removeThumbnail.fulfilled.match(result)) {
+      setExistingImage(undefined);
+      setCrop({ x: 0, y: 0 });
+      setImageSrc(null);
+      setZoom(1);
     }
   };
 
@@ -130,7 +149,7 @@ const ThumbnailInput = ({
             </Button>
           </div>
         </div>
-      ) : !tempThumbnailValue ? (
+      ) : !existingImage ? (
         <div
           {...getRootProps()}
           className="bg-accent border-border flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-16 hover:brightness-75"
@@ -144,25 +163,40 @@ const ThumbnailInput = ({
           </span>
         </div>
       ) : (
-        <div
-          {...getRootProps()}
-          className="bg-accent border-border relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed"
-        >
-          <Image
-            src={tempThumbnailValue.url}
-            alt="thumbnail"
-            width={400}
-            height={300}
-            className="h-full w-full object-cover object-center duration-150 hover:brightness-50"
-          />
-          <input {...getInputProps()} />
-          <div className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center">
-            <span>
-              <Camera size={32} />
-            </span>
-            <span className="text-center text-xs text-balance">
-              Drag and drop or select to change.
-            </span>
+        <div className="relative">
+          <div className="absolute top-0 right-0 z-[2] flex overflow-hidden rounded-tr-lg rounded-bl-xl">
+            <Tooltip content="Remove thumbnail">
+              <Button
+                type="button"
+                onClick={handleRemoveThumbnail}
+                className="cursor-pointer rounded-none"
+                variant={'destructive'}
+                size={'lg'}
+              >
+                <Trash />
+              </Button>
+            </Tooltip>
+          </div>
+          <div
+            {...getRootProps()}
+            className="bg-accent border-border group relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed"
+          >
+            <Image
+              src={existingImage}
+              alt="thumbnail"
+              width={400}
+              height={300}
+              className="h-full w-full object-cover object-center duration-100 group-hover:brightness-50"
+            />
+            <input {...getInputProps()} />
+            <div className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center">
+              <span>
+                <Camera size={32} />
+              </span>
+              <span className="text-center text-xs text-balance">
+                Drag and drop or select to change.
+              </span>
+            </div>
           </div>
         </div>
       )}

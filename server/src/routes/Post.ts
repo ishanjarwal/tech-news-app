@@ -5,10 +5,12 @@ import {
   deletePostThumbnail,
   fetchAuthorPosts,
   fetchPost,
+  fetchPostById,
   fetchPostMetaData,
   fetchPosts,
   updatePost,
   uploadPostThumbnail,
+  uploadThumbnailTemporary,
 } from "../controllers/Post";
 import { handleValidation } from "../middlewares/handleValidation";
 import responseHelper from "../middlewares/responseHelper";
@@ -40,6 +42,7 @@ router
     handleValidation,
     createPost
   )
+  .get("/id/:id", rateLimiter(1, 25), fetchPostById)
   .get(
     "/myposts",
     rateLimiter(1, 10),
@@ -73,8 +76,8 @@ router
     passportAuthenticate,
     accessByRole(["author"]),
     validateThumbnailUpload,
-    handleValidation,
     handleUpload(["image/jpeg", "image/jpg"], 2, "image"),
+    handleValidation,
     uploadToCloudinary("post_thumbnails", "image", "thumbnail"),
     uploadPostThumbnail
   )
@@ -85,6 +88,17 @@ router
     passportAuthenticate,
     accessByRole(["author"]),
     deletePostThumbnail
+  )
+  .post(
+    "/thumbnail-temp",
+    rateLimiter(1, 5),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    handleUpload(["image/jpeg", "image/jpg"], 2, "image"),
+    handleValidation,
+    uploadToCloudinary("post_thumbnails", "image", "thumbnail"),
+    uploadThumbnailTemporary
   );
 
 // public routes

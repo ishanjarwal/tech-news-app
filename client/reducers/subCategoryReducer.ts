@@ -54,17 +54,20 @@ export const updateSubCategory = createAsyncThunk<
 
 export const fetchSubCategories = createAsyncThunk<
   ReduxSuccessPayload,
-  void,
+  { categorySlug: string },
   { rejectValue: ReduxErrorPayload }
->('subcategory/fetchAll', async (_, { rejectWithValue }) => {
-  try {
-    const url = `${env.NEXT_PUBLIC_BASE_URL}/sub-categories`;
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(reduxThunkErrorPaylod(error));
+>(
+  'subcategory/fetchAll',
+  async (data: { categorySlug: string }, { rejectWithValue }) => {
+    try {
+      const url = `${env.NEXT_PUBLIC_BASE_URL}/subcategory/${data.categorySlug}`;
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(reduxThunkErrorPaylod(error));
+    }
   }
-});
+);
 
 export const fetchSingleSubCategory = createAsyncThunk<
   ReduxSuccessPayload,
@@ -97,7 +100,9 @@ export const deleteSubCategory = createAsyncThunk<
 const subCategorySlice = createSlice({
   name: 'subcategory',
   initialState,
-  reducers: {},
+  reducers: {
+    resetSubCategoryState: (state: SubCategoryStateValues) => initialState,
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createSubCategory.pending, (state) => {
@@ -178,5 +183,6 @@ const subCategorySlice = createSlice({
   },
 });
 
+export const { resetSubCategoryState } = subCategorySlice.actions;
 export const selectSubCategoryState = (state: RootState) => state.subCategory;
 export default subCategorySlice.reducer;

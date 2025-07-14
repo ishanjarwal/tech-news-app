@@ -8,7 +8,7 @@ import {
   selectPostState,
 } from '@/reducers/postReducer';
 import { AppDispatch } from '@/stores/appstore';
-import { Loader, Pen, Save, Trash, Upload } from 'lucide-react';
+import { Loader, Pen, Trash, Upload } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,7 +25,7 @@ const page = () => {
 
   useEffect(() => {
     if (!hasFetched.current) {
-      dispatch(fetchAuthorPosts({ page: 1 }));
+      dispatch(fetchAuthorPosts({ page: 1, status: 'draft' }));
       hasFetched.current = true;
     }
   }, []);
@@ -37,11 +37,11 @@ const page = () => {
   }, []);
 
   const handleNext = () => {
-    dispatch(fetchAuthorPosts({ page: page + 1 }));
+    dispatch(fetchAuthorPosts({ page: page + 1, status: 'draft' }));
   };
 
-  const draftPost = (id: string) => {
-    dispatch(changePostStatus({ id, status: 'draft' }));
+  const uploadPost = (id: string) => {
+    dispatch(changePostStatus({ status: 'published', id }));
   };
 
   return (
@@ -85,14 +85,14 @@ const page = () => {
                         })}
                       </span>
                       <div className="flex items-center space-x-1">
-                        <Tooltip content="Draft this post">
+                        <Tooltip content="Upload this post">
                           <Button
-                            onClick={() => draftPost(el.id)}
+                            onClick={() => uploadPost(el.id)}
                             variant={'link'}
                             size={'icon'}
                             className="size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
                           >
-                            <Save />
+                            <Upload />
                           </Button>
                         </Tooltip>
                         <Tooltip content="Edit this post">

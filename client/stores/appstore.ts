@@ -8,6 +8,7 @@ import followReducer from '@/reducers/followReducer';
 import likeReducer from '@/reducers/likeReducer';
 import postReducer from '@/reducers/postReducer';
 import commentReducer from '@/reducers/commentReducer';
+import tagReducer from '@/reducers/tagReducer';
 
 export const appstore = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const appstore = configureStore({
     like: likeReducer,
     post: postReducer,
     comment: commentReducer,
+    tag: tagReducer,
   },
 });
 

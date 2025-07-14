@@ -67,8 +67,8 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
   };
 
   return (
-    <div className="border-muted mb-4 flex flex-wrap gap-2 rounded-md border p-2">
-      <ToggleGroup type="multiple" className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-2 p-2">
+      <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem
           value="paragraph"
           onClick={() => editor.chain().focus().setParagraph().run()}
@@ -120,7 +120,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           </span>
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple" className="flex flex-wrap gap-1">
+      <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem
           value="bold"
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -157,7 +157,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           <Strikethrough className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple" className="flex flex-wrap gap-1">
+      <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem
           value="blockquote"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -176,7 +176,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           <Code className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple" className="flex flex-wrap gap-1">
+      <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem
           value="bulletList"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -195,12 +195,12 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
           <ListOrdered className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <div className="flex flex-wrap gap-1 overflow-hidden rounded-lg">
+      <div className="flex flex-wrap overflow-hidden rounded-lg border">
         <AddLink onClick={addLink} />
         <AddImage onClick={addImage} />
       </div>
 
-      <ToggleGroup type="multiple" className="flex flex-wrap gap-1">
+      <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem
           value="undo"
           onClick={() => editor.chain().focus().undo().run()}
@@ -256,12 +256,17 @@ const MarkdownEditor = ({
   });
 
   return (
-    <div>
+    <div
+      className={cn(
+        'rounded-md border',
+        error ? 'border-destructive' : 'border-border'
+      )}
+    >
       {editor && <MenuBar editor={editor} />}
       <div
         className={cn(
-          'rounded-md p-3',
-          error ? 'border-destructive border' : 'border-border border'
+          'p-3'
+          // error ? 'border-destructive border' : 'border-border border'
         )}
       >
         {error && <p className="text-destructive text-xs">{error}</p>}

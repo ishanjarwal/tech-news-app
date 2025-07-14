@@ -7,6 +7,7 @@ import slugify from "../utils/slugify";
 import Post from "../models/Post";
 import { MongooseError } from "mongoose";
 import { optional } from "zod";
+import isHtml from "is-html";
 
 export const validateNewPost = [
   body("title")
@@ -46,7 +47,6 @@ export const validateNewPost = [
     .isLength({ max: 300 })
     .withMessage("Max length is 300 characters")
     .bail(),
-
   body("content")
     .exists({ checkFalsy: true })
     .withMessage("Content is required")
@@ -58,9 +58,9 @@ export const validateNewPost = [
     .withMessage("Content must be between 100 and 20,000 characters")
     .bail()
     .custom((value) => {
-      const markdownPatterns = [/#|\*|-|\[.*\]\(.*\)/];
-      const matches = markdownPatterns.some((pattern) => pattern.test(value));
-      if (!matches) throw new Error("Invalid content format");
+      if (!isHtml(value)) {
+        throw new Error("Content must be valid HTML");
+      }
       return true;
     })
     .bail(),
@@ -159,6 +159,32 @@ export const validateNewPost = [
     .isIn(["published", "draft"])
     .withMessage("Invalid status value")
     .bail(),
+  body("thumbnail")
+    .optional()
+    .custom((value) => {
+      if (typeof value !== "object" || Array.isArray(value) || value === null) {
+        throw new Error("Thumbnail must be an object");
+      }
+
+      const { public_id, url, format } = value;
+
+      if (typeof public_id !== "string" || !public_id.trim()) {
+        throw new Error("thumbnail public_id must be a non-empty string");
+      }
+
+      if (typeof url !== "string" || !isURL(url)) {
+        throw new Error("thumbnail url must be a valid URL");
+      }
+
+      const allowedFormats = ["jpeg", "jpg", "png"];
+      if (!allowedFormats.includes(format)) {
+        throw new Error(
+          `thumbnail format must be one of ${allowedFormats.join(", ")}`
+        );
+      }
+
+      return true;
+    }),
 ];
 
 export const validateUpdatePost = [
