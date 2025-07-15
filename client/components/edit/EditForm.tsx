@@ -23,13 +23,13 @@ import {
 } from '@/reducers/subCategoryReducer';
 import { AppDispatch } from '@/stores/appstore';
 import { Post } from '@/types/types';
+import { isEmpty } from 'lodash';
+import { X } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import MarkdownEditor from '../write/MarkdownEditor';
 import TagInput from '../write/TagsInput';
-import { isEmpty } from 'lodash';
-import { Delete, Trash, X } from 'lucide-react';
 import ThumbnailInput from './ThumbnailInput';
 
 const EditForm = ({ post }: { post: Post }) => {
@@ -88,11 +88,6 @@ const EditForm = ({ post }: { post: Post }) => {
     };
   }, [category]);
 
-  // Handle unsaved changes warning
-  useUnsavedChangesWarning(true, () => {
-    console.log('User attempted to navigate away');
-  });
-
   // Submit handler
   const onSubmit = async (data: NewPostValues) => {
     const sendable = getChangedProps(defaultValues, data);
@@ -109,6 +104,11 @@ const EditForm = ({ post }: { post: Post }) => {
   // Watch form for changes
   const watchedValues = watch();
   const isUnchanged = isEmpty(getChangedProps(watchedValues, defaultValues));
+
+  // Handle unsaved changes warning
+  useUnsavedChangesWarning(!isUnchanged, () => {
+    console.log('User attempted to navigate away');
+  });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

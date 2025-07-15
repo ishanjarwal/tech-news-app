@@ -1,8 +1,29 @@
 'use client';
 
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
+import {
+  fetchCategories,
+  selectCategoryState,
+} from '@/reducers/categoryReducer';
+import {
+  createPost,
+  resetPostState,
+  selectPostState,
+} from '@/reducers/postReducer';
+import {
+  fetchSubCategories,
+  resetSubCategoryState,
+  selectSubCategoryState,
+} from '@/reducers/subCategoryReducer';
+import { AppDispatch } from '@/stores/appstore';
+import { ImageValues } from '@/types/types';
 import { NewPostSchema, NewPostValues } from '@/validations/post';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   CustomSelectInput,
   CustomTextboxInput,
@@ -11,39 +32,32 @@ import { Button } from '../ui/button';
 import MarkdownEditor from './MarkdownEditor';
 import TagInput from './TagsInput';
 import ThumbnailInput from './ThumbnailInput';
-import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
-import {
-  fetchCategories,
-  selectCategoryState,
-} from '@/reducers/categoryReducer';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '@/stores/appstore';
-import { createPost, selectPostState } from '@/reducers/postReducer';
-import TurndownService from 'turndown';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ImageValues } from '@/types/types';
-import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning';
-import {
-  fetchSubCategories,
-  resetSubCategoryState,
-  selectSubCategoryState,
-} from '@/reducers/subCategoryReducer';
+import { isEmpty } from 'lodash';
+import { getChangedProps } from '@/lib/utils';
 
 const WriteForm = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { categories, loading: categoryLoading } =
     useSelector(selectCategoryState);
-  const { loading } = useSelector(selectPostState);
+  const { loading, errors: validation_errors } = useSelector(selectPostState);
   const { subcategories, loading: subCategoryLoading } = useSelector(
     selectSubCategoryState
   );
   const [tempThumbnailValue, setTempThumbnailValue] =
     useState<ImageValues | null>(null);
 
+  const defaultValues: NewPostValues = {
+    category: '',
+    content: '',
+    summary: '',
+    tags: [],
+    title: '',
+    status: 'draft',
+  };
+
   const {
-    formState: { errors },
+    formState: { errors, isDirty },
     register,
     handleSubmit,
     control,
@@ -51,17 +65,17 @@ const WriteForm = () => {
     setValue,
   } = useForm<NewPostValues>({
     resolver: zodResolver(NewPostSchema),
+    defaultValues,
   });
 
   const onSubmit = async (data: NewPostValues) => {
-    console.log(data);
     const sendable = {
       ...data,
       thumbnail: tempThumbnailValue || undefined,
     };
     const result = await dispatch(createPost(sendable));
     if (createPost.fulfilled.match(result)) {
-      router.push(`/post/${result.payload.data.data.slug}`);
+      router.push(`/post/${result.payload.data.slug}`);
     }
   };
 
@@ -69,20 +83,39 @@ const WriteForm = () => {
     dispatch(fetchCategories());
   }, []);
 
+  const category = watch('category');
   useEffect(() => {
     dispatch(resetSubCategoryState());
-    if (watch('category')) {
-      dispatch(fetchSubCategories({ categorySlug: watch('category') }));
+    if (category) {
+      dispatch(fetchSubCategories({ categorySlug: category }));
     }
-  }, [watch('category')]);
+  }, [category]);
 
-  useUnsavedChangesWarning(true, () => {
-    console.log(closed);
+  const watchedValues = watch();
+  const isUnchanged = isEmpty(getChangedProps(watchedValues, defaultValues));
+  useUnsavedChangesWarning(!isUnchanged || Boolean(tempThumbnailValue), () => {
+    console.log('User attempted to navigate away');
   });
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetPostState());
+    };
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col space-y-8 pb-16">
+        {validation_errors && (
+          <div className="border-destructive bg-destructive/10 text-destructive w-full rounded-lg px-3 py-2">
+            {validation_errors.map((el) => (
+              <p className="flex items-start justify-start space-x-1">
+                <X size={16} className="mt-[3px]" />
+                <span>{el.msg}</span>
+              </p>
+            ))}
+          </div>
+        )}
         <CustomTextboxInput
           name="title"
           register={register}

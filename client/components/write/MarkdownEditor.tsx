@@ -31,11 +31,10 @@ import {
   Undo,
 } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Popover } from '../ui/popover';
 import './MarkdownEditorStyles.css';
-import { Markdown } from 'tiptap-markdown';
-import { cn } from '@/lib/utils';
 
 const MenuBar = ({ editor }: { editor: Editor }) => {
   const addImage = (src: string) => {
@@ -236,7 +235,6 @@ const MarkdownEditor = ({
       onChange(editor.getHTML());
     },
     extensions: [
-      Markdown,
       StarterKit.configure({}),
       Underline,
       Link.configure({

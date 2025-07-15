@@ -24,6 +24,9 @@ const initialState: PostStateValues = {
   limit: 10,
   page: 1,
   totalCount: 0,
+  current: undefined,
+  posts: undefined,
+  errors: undefined,
 };
 
 export const createPost = createAsyncThunk<
