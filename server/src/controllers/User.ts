@@ -363,8 +363,8 @@ export const userProfile: RequestHandler = async (req, res) => {
       updated_at: user.updated_at,
       bio: user.bio,
       avatar: user.avatar?.url,
-      cover_image: user.cover_image?.url
-    }
+      cover_image: user.cover_image?.url,
+    };
     res.success(200, "success", "User details fetched", modifiled);
     return;
   } catch (error) {
@@ -413,7 +413,7 @@ export const updateUser: RequestHandler = async (req, res) => {
     const preferences = {
       ...(theme && { theme }),
       ...(language && { language }),
-      ...(newsletter && { newsletter }),
+      ...(newsletter != undefined && { newsletter }),
     };
     const roles = user.roles;
     let updates = {
@@ -481,7 +481,7 @@ export const uploadProfilePicture: RequestHandler = async (req, res) => {
       },
       { new: true }
     );
-    res.success(200, "success", "profile updated", {avatar: image.url});
+    res.success(200, "success", "profile updated", { avatar: image.url });
     return;
   } catch (error) {
     if (req.body?.image?.public_id) {
@@ -522,7 +522,9 @@ export const uploadCoverImage: RequestHandler = async (req, res) => {
       },
       { new: true }
     );
-    res.success(200, "success", "cover image updated", {cover_image: image.url});
+    res.success(200, "success", "cover image updated", {
+      cover_image: image.url,
+    });
     return;
   } catch (error) {
     if (req.body?.image?.public_id) {

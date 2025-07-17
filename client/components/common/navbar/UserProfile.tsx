@@ -86,7 +86,7 @@ const UserProfile = () => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" asChild>
-          <Link href={'/me/preferences'} className="group relative">
+          <Link href={'/me?tab=account-preferences'} className="group relative">
             <span>
               <SlidersHorizontal />
             </span>

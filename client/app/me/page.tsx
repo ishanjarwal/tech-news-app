@@ -3,7 +3,7 @@ import React from 'react';
 
 const page = () => {
   return (
-    <div className="max-w-md">
+    <div>
       <ProfileForm />
     </div>
   );

@@ -58,7 +58,7 @@ const page = () => {
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {posts.map((el) => (
                 <div className="bg-foreground/10 p-2 sm:rounded-lg">
-                  {el?.thumbnail && (
+                  {el?.thumbnail ? (
                     <Link
                       href={'/post/' + el.slug}
                       className="relative block aspect-[4/3] w-full overflow-hidden rounded-md"
@@ -70,6 +70,15 @@ const page = () => {
                         alt="postname"
                       />
                     </Link>
+                  ) : (
+                    <div className="relative block aspect-[4/3] w-full overflow-hidden rounded-md">
+                      <Image
+                        fill
+                        className="absolute h-full w-full object-cover object-center"
+                        src={'/images/banner-placeholder.jpg'}
+                        alt="postname"
+                      />
+                    </div>
                   )}
                   <div className="flex flex-col space-y-2 pt-2">
                     <Link href={'/post/' + el.slug}>
