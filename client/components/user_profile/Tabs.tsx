@@ -1,39 +1,61 @@
 'use client';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs as ShadTabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
+import { selectUserState } from '@/reducers/userReducer';
+import { UserRoleValues } from '@/types/types';
 import { Grid3X3 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-const tabs = [
+import { useSelector } from 'react-redux';
+const allTabs = [
   {
     name: 'Profile',
     href: '/me',
     icon: <Grid3X3 />,
+    roles: ['author', 'user'],
   },
   {
     name: 'Posts',
     href: '/me/posts',
     icon: <Grid3X3 />,
+    roles: ['author'],
   },
   {
     name: 'Drafts',
     href: '/me/drafts',
     icon: <Grid3X3 />,
+    roles: ['author'],
   },
   {
     name: 'Followers',
     href: '/me/followers',
     icon: <Grid3X3 />,
+    roles: ['author'],
   },
   {
     name: 'Following',
     href: '/me/following',
+    roles: ['author', 'user'],
   },
 ];
-export default function TabsUnderlinedDemo() {
+
+export default function Tabs() {
   const path = usePathname();
+
+  const { user } = useSelector(selectUserState);
+  const roles = user?.roles || [];
+  const tabs = allTabs.filter((tab) =>
+    roles.some((role) => tab.roles.includes(role as UserRoleValues))
+  );
+
   return (
-    <Tabs defaultValue={path}>
-      <TabsList className="sm:bg-muted bg-background border-border h-10 w-full justify-start rounded-none border-y sm:h-12 sm:rounded-lg sm:border-y-0">
+    <ShadTabs defaultValue={path}>
+      <TabsList
+        className={cn(
+          'sm:bg-muted bg-background border-border h-10 justify-start rounded-none border-y sm:h-12 sm:rounded-lg sm:border-y-0',
+          roles.includes('author') ? 'w-full' : 'w-full sm:w-max'
+        )}
+      >
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.href}
@@ -45,6 +67,6 @@ export default function TabsUnderlinedDemo() {
           </TabsTrigger>
         ))}
       </TabsList>
-    </Tabs>
+    </ShadTabs>
   );
 }

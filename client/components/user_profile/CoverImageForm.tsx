@@ -49,7 +49,7 @@ const CoverImageForm = () => {
           <Button
             size={'sm'}
             onClick={handleModal}
-            className="sm:hover:!bg-foreground text-foreground cursor-pointer bg-transparent !px-[8px] !py-[3px] text-xs opacity-75 hover:!bg-transparent hover:opacity-100 sm:bg-white sm:!px-4 sm:!py-2 sm:text-black sm:opacity-100"
+            className="sm:hover:!bg-foreground sm:hover:!text-background text-foreground cursor-pointer bg-transparent !px-[8px] !py-[3px] text-xs opacity-75 hover:!bg-transparent hover:opacity-100 sm:bg-white sm:!px-4 sm:!py-2 sm:text-black sm:opacity-100"
           >
             <Pen />
             <span className="hidden sm:inline">Edit</span>

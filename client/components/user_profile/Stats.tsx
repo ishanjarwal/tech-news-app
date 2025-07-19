@@ -1,5 +1,8 @@
+'use client';
 import { formatNumberShort } from '@/lib/utils';
+import { selectUserState } from '@/reducers/userReducer';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 const stats: Record<string, number> = {
   posts: 200,
@@ -9,6 +12,8 @@ const stats: Record<string, number> = {
 };
 
 const Stats = () => {
+  const { user } = useSelector(selectUserState);
+  if (!user?.roles.includes('author')) return null;
   return (
     <div className="">
       <div className="bg-muted grid grid-cols-4 py-2 sm:rounded-2xl">

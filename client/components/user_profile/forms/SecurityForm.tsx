@@ -114,7 +114,7 @@ const ChangePasswordForm = ({
               ))}
             </div>
           )}
-          <div className="flex flex-col space-y-8">
+          <div className="flex flex-col space-y-8 py-8">
             <CustomPasswordInput
               labelText="Old Password"
               name="old_password"

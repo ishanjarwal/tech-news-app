@@ -44,7 +44,7 @@ const ProfilePictureForm = () => {
 
   return (
     <div className="bg-accent ring-background h-full w-full flex-1 rounded-full ring-4 md:ring-8">
-      <div className="bg-accent/75 absolute right-[-60%] bottom-[10%] z-[2] flex cursor-pointer items-center space-x-[2px] overflow-hidden rounded-full backdrop-blur-xs sm:right-[4%] sm:bottom-0 md:right-[0%] lg:right-[8%]">
+      <div className="bg-accent/75 absolute bottom-[10%] left-[80%] z-[2] flex cursor-pointer items-center space-x-[2px] overflow-hidden rounded-full backdrop-blur-xs sm:right-[4%] sm:bottom-0 sm:left-auto md:right-[0%] lg:right-[8%]">
         <Tooltip content="Upload a new profile picture">
           <Button
             onClick={handleModal}

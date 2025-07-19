@@ -396,6 +396,7 @@ export const updateUser: RequestHandler = async (req, res) => {
       throw new Error();
     }
     const {
+      username,
       fullname,
       bio,
       github,
@@ -417,6 +418,7 @@ export const updateUser: RequestHandler = async (req, res) => {
     };
     const roles = user.roles;
     let updates = {
+      ...(username && { username }),
       ...(fullname && { fullname }),
       ...(bio && { bio }),
       ...(Object.keys(preferences).length > 0 && { preferences }),

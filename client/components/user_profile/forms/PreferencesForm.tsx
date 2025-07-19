@@ -74,13 +74,15 @@ const PreferencesForm = () => {
         <h2 className="text-2xl font-semibold">Preferences</h2>
         <Separator className="mt-4 mb-6" />
         <div className="flex w-full flex-col space-y-8">
-          <CustomCheckboxInput
-            disabled={loading}
-            label="Newsletter"
-            name="newsletter"
-            error={errors.newsletter}
-            control={control}
-          />
+          <div className="ps-2">
+            <CustomCheckboxInput
+              disabled={loading}
+              label="Newsletter"
+              name="newsletter"
+              error={errors.newsletter}
+              control={control}
+            />
+          </div>
           <div>
             <p className="mb-2">Prefered theme</p>
             <CustomRadioGroupInput

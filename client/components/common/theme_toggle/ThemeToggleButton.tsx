@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
@@ -12,9 +11,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Check, LaptopMinimal, Moon, Sun } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUserState, updateUser } from '@/reducers/userReducer';
+import { useEffect } from 'react';
+import { AppDispatch } from '@/stores/appstore';
 
 const ThemeToggleButton = () => {
   const { setTheme, theme } = useTheme();
+  const { user } = useSelector(selectUserState);
+  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    if (user && theme !== user.preferences?.theme) {
+      dispatch(updateUser({ theme }));
+    }
+  }, [theme]);
 
   return (
     <DropdownMenu>
