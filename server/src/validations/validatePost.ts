@@ -59,7 +59,7 @@ export const validateNewPost = [
     .bail()
     .custom((value) => {
       if (!isHtml(value)) {
-        throw new Error("Content must be valid HTML");
+        throw new Error("Invalid format");
       }
       return true;
     })
@@ -234,9 +234,9 @@ export const validateUpdatePost = [
     .withMessage("Content must be between 100 and 20,000 characters")
     .bail()
     .custom((value) => {
-      const markdownPatterns = [/#|\*|-|\[.*\]\(.*\)/];
-      const matches = markdownPatterns.some((pattern) => pattern.test(value));
-      if (!matches) throw new Error("Invalid content format");
+      if (!isHtml(value)) {
+        throw new Error("Invalid format");
+      }
       return true;
     })
     .bail(),

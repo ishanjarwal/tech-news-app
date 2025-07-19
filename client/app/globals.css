@@ -139,3 +139,7 @@
     animation: fade-out-delay 2s forwards;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}

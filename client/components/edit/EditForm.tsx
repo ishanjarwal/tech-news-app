@@ -25,18 +25,21 @@ import { AppDispatch } from '@/stores/appstore';
 import { Post } from '@/types/types';
 import { isEmpty } from 'lodash';
 import { X } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { redirect, useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import MarkdownEditor from '../write/MarkdownEditor';
+import Editor from '../write/Editor';
 import TagInput from '../write/TagsInput';
 import ThumbnailInput from './ThumbnailInput';
+import { selectUserState } from '@/reducers/userReducer';
 
 const EditForm = ({ post }: { post: Post }) => {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
   const dispatch = useDispatch<AppDispatch>();
+
+  const { user } = useSelector(selectUserState);
 
   const { categories, loading: categoryLoading } =
     useSelector(selectCategoryState);
@@ -110,6 +113,9 @@ const EditForm = ({ post }: { post: Post }) => {
     console.log('User attempted to navigate away');
   });
 
+  if (!user) return redirect('/');
+  if (post.author.username !== user.username) return redirect('/');
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col space-y-8 pb-16">
@@ -177,7 +183,7 @@ const EditForm = ({ post }: { post: Post }) => {
           name="content"
           control={control}
           render={({ field }) => (
-            <MarkdownEditor
+            <Editor
               error={errors.content?.message}
               value={field.value}
               onChange={field.onChange}

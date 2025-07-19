@@ -12,7 +12,9 @@ import { selectUserState } from '@/reducers/userReducer';
 import { User } from '@/types/types';
 import {
   ArrowRight,
+  Grid2X2,
   Pen,
+  Save,
   SlidersHorizontal,
   User as UserIcon,
 } from 'lucide-react';
@@ -22,7 +24,7 @@ import { useSelector } from 'react-redux';
 
 const UserProfile = () => {
   const { user } = useSelector(selectUserState);
-  const { username, fullname, email, avatar } = user as User;
+  const { username, fullname, email, avatar, roles } = user as User;
 
   return (
     <DropdownMenu>
@@ -74,6 +76,32 @@ const UserProfile = () => {
             </span>
           </Link>
         </DropdownMenuItem>
+        {roles.includes('author') && (
+          <>
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link href={'/me/posts'} className="group relative">
+                <span>
+                  <Grid2X2 />
+                </span>
+                <span>My Posts</span>
+                <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
+                  <ArrowRight />
+                </span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link href={'/me/drafts'} className="group relative">
+                <span>
+                  <Save />
+                </span>
+                <span>Drafts</span>
+                <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
+                  <ArrowRight />
+                </span>
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuItem className="cursor-pointer" asChild>
           <Link href={'/write'} className="group relative">
             <span>

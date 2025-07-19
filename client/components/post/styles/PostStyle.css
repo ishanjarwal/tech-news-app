@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+
+.rendered_post h1 {
+  @apply mt-12 mb-4 text-3xl leading-tight font-normal sm:text-4xl sm:leading-[3rem] md:text-5xl md:leading-[3.5rem] lg:text-[4rem] lg:leading-[4.5rem];
+}
+
+.rendered_post h2 {
+  @apply mb-4 text-2xl leading-snug sm:text-3xl sm:leading-[2.75rem] md:text-4xl md:leading-[3.25rem] lg:text-[3rem] lg:leading-[3.5rem];
+}
+
+.rendered_post h3 {
+  @apply mb-4 text-xl leading-snug sm:text-2xl sm:leading-8 md:text-[2.25rem] md:leading-[2.75rem] lg:text-[2.5rem] lg:leading-[2.5rem];
+}
+
+.rendered_post p {
+  @apply mb-4 text-base leading-relaxed sm:text-lg md:text-[1.1rem] md:leading-6;
+}
+
+.rendered_post ul {
+  @apply mb-4 list-disc pl-8;
+}
+
+.rendered_post ol {
+  @apply mb-4 list-decimal pl-8;
+}
+
+.rendered_post code:not(pre code) {
+  @apply rounded-sm bg-[var(--color-accent)] px-2 py-1 text-sm;
+}
+
+.rendered_post a {
+  @apply text-[var(--color-blue-500)] underline transition hover:opacity-80;
+}
+
+.rendered_post pre {
+  @apply max-w-full overflow-auto rounded-lg bg-[var(--color-accent)] p-4 text-sm;
+}
+
+.rendered_post table {
+  @apply my-6 block w-full min-w-[640px] overflow-x-auto rounded-2xl border border-[var(--color-border)];
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.rendered_post table p {
+  @apply m-0;
+}
+
+.rendered_post th,
+.rendered_post td {
+  @apply border border-[var(--color-border)] bg-[var(--color-background)] p-3 text-left text-sm text-[var(--color-foreground)];
+}
+
+.rendered_post th {
+  @apply bg-[var(--color-accent)] text-center font-semibold;
+}
+
+.rendered_post tr:last-child td {
+  border-bottom: none;
+}

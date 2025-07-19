@@ -8,7 +8,11 @@ import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
-import { Editor, EditorContent, useEditor } from '@tiptap/react';
+import {
+  Editor as EditorValues,
+  EditorContent,
+  useEditor,
+} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useState } from 'react';
 
@@ -18,6 +22,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
   Bold,
   Code,
+  Columns2,
+  Grid3X3,
   Heading,
   Image as ImageIcon,
   Italic,
@@ -26,7 +32,9 @@ import {
   ListOrdered,
   Quote,
   Redo,
+  Rows2,
   Strikethrough,
+  Trash,
   Underline as UnderlineIcon,
   Undo,
 } from 'lucide-react';
@@ -34,9 +42,10 @@ import {
 import { cn } from '@/lib/utils';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Popover } from '../ui/popover';
-import './MarkdownEditorStyles.css';
+import './EditorStyles.css';
+import Tooltip from '../common/Tooltip';
 
-const MenuBar = ({ editor }: { editor: Editor }) => {
+const MenuBar = ({ editor }: { editor: EditorValues }) => {
   const addImage = (src: string) => {
     if (src) {
       editor.chain().focus().setImage({ src }).run();
@@ -199,6 +208,91 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
         <AddImage onClick={addImage} />
       </div>
 
+      {/* Table */}
+      <div className="flex flex-wrap overflow-hidden rounded-lg border">
+        <Tooltip content="Insert a table">
+          <Button
+            type="button"
+            className="cursor-pointer !px-2"
+            variant={'ghost'}
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run()
+            }
+          >
+            <Grid3X3 />
+          </Button>
+        </Tooltip>
+
+        <Tooltip content="Add a row">
+          <Button
+            type="button"
+            variant={'ghost'}
+            className="cursor-pointer rounded-none !px-2"
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+          >
+            <span className="flex items-center text-xs">
+              +<Rows2 />
+            </span>
+          </Button>
+        </Tooltip>
+
+        <Tooltip content="Delete this row">
+          <Button
+            type="button"
+            variant={'ghost'}
+            className="cursor-pointer rounded-none !px-2"
+            onClick={() => editor.chain().focus().deleteRow().run()}
+          >
+            <span className="flex items-center text-xs">
+              −<Rows2 />
+            </span>
+          </Button>
+        </Tooltip>
+
+        <Tooltip content="Add a column">
+          <Button
+            type="button"
+            variant={'ghost'}
+            className="cursor-pointer rounded-none !px-2"
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+          >
+            <span className="flex items-center text-xs">
+              +<Columns2 />
+            </span>
+          </Button>
+        </Tooltip>
+
+        <Tooltip content="Delete this column">
+          <Button
+            type="button"
+            variant={'ghost'}
+            className="cursor-pointer rounded-none !px-2"
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+          >
+            <span className="flex items-center text-xs">
+              −<Columns2 />
+            </span>
+          </Button>
+        </Tooltip>
+
+        <Tooltip content="Delete this Table">
+          <Button
+            type="button"
+            variant={'ghost'}
+            className="cursor-pointer rounded-none !px-2"
+            onClick={() => editor.chain().focus().deleteTable().run()}
+          >
+            <span className="text-xs">
+              <Trash />
+            </span>
+          </Button>
+        </Tooltip>
+      </div>
+
       <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem
           value="undo"
@@ -220,7 +314,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
   );
 };
 
-const MarkdownEditor = ({
+const Editor = ({
   value,
   onChange,
   error,
@@ -260,7 +354,11 @@ const MarkdownEditor = ({
         error ? 'border-destructive' : 'border-border'
       )}
     >
-      {editor && <MenuBar editor={editor} />}
+      {editor && (
+        <div className="bg-background sticky top-0 z-[2]">
+          <MenuBar editor={editor} />
+        </div>
+      )}
       <div
         className={cn(
           'p-3'
@@ -270,7 +368,7 @@ const MarkdownEditor = ({
         {error && <p className="text-destructive text-xs">{error}</p>}
         <EditorContent
           editor={editor}
-          className="mdeditor max-w-none border-none outline-none focus-within:border-none"
+          className="editor max-w-none border-none outline-none focus-within:border-none"
         />
       </div>
     </div>
@@ -327,4 +425,4 @@ const AddImage = ({ onClick }: { onClick: (value: string) => void }) => {
   );
 };
 
-export default MarkdownEditor;
+export default Editor;

@@ -71,25 +71,92 @@ export const createPost: RequestHandler = async (req, res) => {
 export const fetchPost: RequestHandler = async (req, res) => {
   try {
     const { slug } = req.params;
-    const post = await Post.findOne({ slug })
-      .populate({ path: "category", select: "slug name -_id" })
-      .populate({ path: "subCategory", select: "slug name -_id" })
-      .populate({
-        path: "author_id",
-        select: "fullname username avatarURL -_id",
-      })
-      .populate({ path: "tags", select: "name slug -_id" });
+
+    const result = await Post.aggregate([
+      { $match: { slug, status: "published" } },
+      { $limit: 1 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullname: 1,
+                avatar: "$avatar.url",
+                cover_image: "$cover_image.url",
+                bio: 1,
+                joined: "$created_at",
+                _id: 0,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+          pipeline: [
+            {
+              $project: { name: 1, slug: 1, _id: 0, thumbnail: 1, summary: 1 },
+            },
+          ],
+        },
+      },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "subcategories",
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategory",
+          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+        },
+      },
+      { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "tags",
+          localField: "tags",
+          foreignField: "_id",
+          as: "tags",
+          pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
+        },
+      },
+      {
+        $addFields: {
+          thumbnail: "$thumbnail.url",
+        },
+      },
+      {
+        $project: {
+          // _id: 0,
+          __v: 0,
+          author_id: 0,
+        },
+      },
+    ]);
+
+    const post = result.length > 0 ? result[0] : null;
+
     if (!post) {
       res.error(400, "error", "Post not found", null);
       return;
     }
-    const likeCount = await Like.countDocuments({ post_id: post._id });
-    post.views_count += 1;
-    await post.save();
-    res.success(200, "success", "Post fetched", {
-      ...post.toObject(),
-      likes: likeCount,
-    });
+    // const likeCount = await Like.countDocuments({ post_id: post._id });
+    // post.views_count += 1;
+    // await post.save();
+    res.success(200, "success", "Post fetched", post);
     return;
   } catch (error) {
     console.log(error);

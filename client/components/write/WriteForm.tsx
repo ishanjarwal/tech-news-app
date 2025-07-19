@@ -29,11 +29,12 @@ import {
   CustomTextboxInput,
 } from '../common/CustomFormElements';
 import { Button } from '../ui/button';
-import MarkdownEditor from './MarkdownEditor';
+import Editor from './Editor';
 import TagInput from './TagsInput';
 import ThumbnailInput from './ThumbnailInput';
 import { isEmpty } from 'lodash';
 import { getChangedProps } from '@/lib/utils';
+import { sanitizeHtml } from '@/utils/sanitizePostContent';
 
 const WriteForm = () => {
   const router = useRouter();
@@ -72,11 +73,13 @@ const WriteForm = () => {
     const sendable = {
       ...data,
       thumbnail: tempThumbnailValue || undefined,
+      content: sanitizeHtml(data.content),
     };
-    const result = await dispatch(createPost(sendable));
-    if (createPost.fulfilled.match(result)) {
-      router.push(`/post/${result.payload.data.slug}`);
-    }
+    console.log(sendable);
+    // const result = await dispatch(createPost(sendable));
+    // if (createPost.fulfilled.match(result)) {
+    //   router.push(`/post/${result.payload.data.slug}`);
+    // }
   };
 
   useEffect(() => {
@@ -173,7 +176,7 @@ const WriteForm = () => {
             name="content"
             control={control}
             render={({ field }) => (
-              <MarkdownEditor
+              <Editor
                 error={errors.content?.message}
                 value={field.value}
                 onChange={field.onChange}

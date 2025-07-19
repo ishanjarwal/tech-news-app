@@ -1,0 +1,77 @@
+.editor .tiptap {
+  outline: none;
+  height: 100%;
+  min-height: 400px;
+}
+
+.editor .tiptap p {
+  font-size: 16px;
+}
+
+.editor .tiptap h1 {
+  font-size: 48px;
+}
+
+.editor .tiptap h2 {
+  font-size: 32px;
+}
+
+.editor .tiptap h3 {
+  font-size: 24px;
+}
+
+.editor .tiptap code {
+  padding: 16px;
+  background-color: var(--color-accent);
+  border-radius: 8px;
+  width: 100%;
+  display: block;
+}
+
+.editor .tiptap ul {
+  padding-left: 2rem;
+  list-style-type: disc;
+}
+
+.editor .tiptap ol {
+  padding-left: 2rem;
+  list-style-type: decimal;
+}
+
+.editor .tiptap blockquote {
+  padding: 1rem 0rem 1rem 1rem;
+  background-color: var(--color-accent);
+  border-left: 2px solid var(--color-foreground);
+}
+
+.editor .tiptap a {
+  text-decoration: underline;
+  color: var(--color-blue-500);
+}
+
+.editor .tiptap img {
+  display: block;
+  margin: 32 auto;
+  max-width: 75%;
+}
+
+.editor .tiptap .tableWrapper {
+  overflow: auto;
+  max-width: 100%;
+}
+
+.editor .tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.editor .tiptap th,
+.editor .tiptap td {
+  border: 1px solid var(--color-muted-foreground);
+  padding: 0.5rem;
+}
+
+.editor .tiptap th {
+  background: var(--color-accent);
+  font-weight: bold;
+}

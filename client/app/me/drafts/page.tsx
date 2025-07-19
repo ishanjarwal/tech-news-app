@@ -61,7 +61,7 @@ const page = () => {
                   {el?.thumbnail ? (
                     <Link
                       href={'/post/' + el.slug}
-                      className="relative block aspect-[4/3] w-full overflow-hidden rounded-md"
+                      className="relative block aspect-[16/9] w-full overflow-hidden rounded-md"
                     >
                       <Image
                         fill
@@ -71,7 +71,7 @@ const page = () => {
                       />
                     </Link>
                   ) : (
-                    <div className="relative block aspect-[4/3] w-full overflow-hidden rounded-md">
+                    <div className="relative block aspect-[16/9] w-full overflow-hidden rounded-md">
                       <Image
                         fill
                         className="absolute h-full w-full object-cover object-center"
