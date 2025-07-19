@@ -100,3 +100,33 @@ export const VerifySchema = z.object({
 });
 
 export type VerifyValues = z.infer<typeof VerifySchema>;
+
+export const ChangePasswordSchema = z
+  .object({
+    old_password: z
+      .string()
+      .nonempty({ message: 'Please enter your password' })
+      .min(8, { message: 'Password must be at least 8 characters long' })
+      .max(50, { message: 'Password must be at most 50 characters long' })
+      .regex(/^[A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|]+$/, {
+        message: 'Password must not contain spaces',
+      }),
+    password: z
+      .string()
+      .nonempty({ message: 'Please enter your password' })
+      .min(8, { message: 'Password must be at least 8 characters long' })
+      .max(50, { message: 'Password must be at most 50 characters long' })
+      .regex(/^[A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|]+$/, {
+        message: 'Password must not contain spaces',
+      }),
+
+    password_confirmation: z
+      .string()
+      .nonempty({ message: 'Please confirm your password' }),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    path: ['password_confirmation'],
+    message: 'Passwords do not match',
+  });
+
+export type ChangePasswordValues = z.infer<typeof ChangePasswordSchema>;

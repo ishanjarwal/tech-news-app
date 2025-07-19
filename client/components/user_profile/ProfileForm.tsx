@@ -6,6 +6,7 @@ import SocialLinksForm from './forms/SocialLinksForm';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { setSearchParam } from '@/lib/utils';
+import SecurityForm from './forms/SecurityForm';
 
 const tabsList = [
   {
@@ -23,12 +24,18 @@ const tabsList = [
     value: 'account-preferences',
     render: <PreferencesForm />,
   },
+  {
+    title: 'Security',
+    value: 'security',
+    render: <SecurityForm />,
+  },
 ];
 
 const validTabValues = [
   'basic-details',
   'social-links',
   'account-preferences',
+  'security',
 ] as const;
 type TabValue = (typeof validTabValues)[number];
 const ProfileForm = () => {
@@ -45,7 +52,7 @@ const ProfileForm = () => {
   }, [tab]);
 
   return (
-    <div className="flex w-full flex-col gap-6 sm:max-w-sm">
+    <div className="flex w-full flex-col gap-6 sm:max-w-md">
       <Tabs defaultValue="basic-details" value={active}>
         <TabsList className="text-muted-foreground inline-flex h-9 w-full items-center justify-start rounded-none border-b bg-transparent p-0">
           {tabsList.map((el) => (
