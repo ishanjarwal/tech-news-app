@@ -1,12 +1,22 @@
+'use client';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  followStatus,
+  selectFollowState,
+  toggleFollow,
+} from '@/reducers/followReducer';
+import { selectUserState } from '@/reducers/userReducer';
+import { AppDispatch } from '@/stores/appstore';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface AuthorProfileProps {
   author: {
+    id: string;
     fullname: string;
     username: string;
     avatar?: string;
@@ -17,6 +27,18 @@ interface AuthorProfileProps {
 }
 
 const AuthorProfile = ({ author }: AuthorProfileProps) => {
+  const { user } = useSelector(selectUserState);
+  const { loading, follows } = useSelector(selectFollowState);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const toggleFollowAuthor = () => {
+    dispatch(toggleFollow({ username: author.username }));
+  };
+
+  useEffect(() => {
+    dispatch(followStatus({ author_id: author.id }));
+  }, []);
+
   return (
     <div className="bg-accent overflow-hidden rounded-lg">
       <AspectRatio ratio={3} className="w-full">
@@ -41,9 +63,17 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
           <p className="text-sm font-semibold">{author.fullname}</p>
           <p className="text-muted-foreground text-xs">@{author.username}</p>
         </div>
-        <Button className="cursor-pointer">Follow</Button>
       </div>
       <div className="flex flex-col space-y-6 p-4">
+        {user && user.username != author.username && (
+          <Button
+            onClick={toggleFollowAuthor}
+            disabled={loading}
+            className="w-full cursor-pointer"
+          >
+            {follows ? 'Unfollow' : 'Follow'}
+          </Button>
+        )}
         {author.bio && (
           <div>
             <p className="text-muted-foreground text-xs">About</p>

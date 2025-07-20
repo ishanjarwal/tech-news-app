@@ -6,6 +6,8 @@ export interface ThumbnailProps {
 }
 
 export function Thumbnail({ src, alt }: ThumbnailProps) {
+  if (!src) return null;
+
   return (
     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl">
       <Image src={src} alt={alt} fill className="object-cover" />

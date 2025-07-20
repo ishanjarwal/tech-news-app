@@ -53,4 +53,5 @@ export function sanitizeHtml(htmlString: string) {
     FORBID_TAGS: ['style', 'script'],
     USE_PROFILES: { html: true },
   });
+  return cleanHtml;
 }

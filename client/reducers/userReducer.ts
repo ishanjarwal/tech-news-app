@@ -194,7 +194,7 @@ export const updateUser = createAsyncThunk<
     const url = `${env.NEXT_PUBLIC_BASE_URL}/user/`;
     const formattedData = {
       ...data,
-      websites: data.websites?.map((el) => el.value),
+      websites: data.websites?.map((el: any) => el.value),
     };
     const response = await axios.put(url, formattedData, {
       withCredentials: true,
@@ -311,6 +311,7 @@ const userSlice = createSlice({
           fullname,
           email,
           username,
+          bio,
           roles,
           login_provider,
           avatar,
@@ -334,6 +335,7 @@ const userSlice = createSlice({
           preferences,
           socialLinks,
           cover_image,
+          bio,
         };
       })
       .addCase(userProfile.rejected, (state, action) => {

@@ -13,6 +13,7 @@ import axios from 'axios';
 
 interface FollowStateValues {
   loading: boolean;
+  follows: boolean; // to indicate if the user follows the current author
   followers?: PublicUser[];
   following: PublicUser[];
   page: number;
@@ -23,6 +24,7 @@ interface FollowStateValues {
 
 const initialState: FollowStateValues = {
   loading: false,
+  follows: false,
   following: [],
   page: 1,
   fetchedTillNow: 0,
@@ -106,6 +108,27 @@ export const removeFollow = createAsyncThunk<
   }
 });
 
+export const followStatus = createAsyncThunk<
+  ReduxSuccessPayload,
+  { author_id: string },
+  { rejectValue: ReduxErrorPayload }
+>(
+  'follow/follow-status',
+  async (data: { author_id: string }, { rejectWithValue }) => {
+    try {
+      const url = new URL(
+        `${env.NEXT_PUBLIC_BASE_URL}/follow/follow-status/${data.author_id}`
+      );
+      const response = await axios.get(url.toString(), {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(reduxThunkErrorPaylod(error));
+    }
+  }
+);
+
 const followSlice = createSlice({
   name: 'follow',
   initialState,
@@ -176,11 +199,14 @@ const followSlice = createSlice({
         const intent = action.payload?.data?.action;
         const username = action.payload?.data?.username;
         if (intent === 'unfollow') {
+          state.follows = false;
           const newFollowing = state.following.filter(
             (el) => el.username !== username
           );
           state.following = newFollowing;
           state.fetchedTillNow -= 1;
+        } else {
+          state.follows = true;
         }
         const message = action.payload?.message;
         fireToast('success', message, 1500);
@@ -210,6 +236,18 @@ const followSlice = createSlice({
           (action.payload as ReduxErrorPayload).message ||
           'Something went wrong';
         fireToast('error', message, 2000);
+      })
+      .addCase(followStatus.pending, (state, action) => {
+        state.loading = true;
+        state.follows = false;
+      })
+      .addCase(followStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.follows = action.payload.data?.follows ?? false;
+      })
+      .addCase(followStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.follows = false;
       });
   },
 });

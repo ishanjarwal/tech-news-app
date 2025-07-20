@@ -85,3 +85,8 @@ export const PreferencesSchema = z.object({
 });
 
 export type PreferencesValues = z.infer<typeof PreferencesSchema>;
+
+export interface UpdateUserValues
+  extends BasicDetailsValues,
+    SocialLinksValues,
+    PreferencesValues {}

@@ -14,7 +14,7 @@ const Header = () => {
   return (
     <>
       {isAuthor ? (
-        <div className="relative mb-32 h-48 w-full sm:h-64 lg:mb-48">
+        <div className="relative mb-32 aspect-[3] w-full lg:mb-48">
           <CoverImageForm />
           <div className="absolute top-full left-[24px] z-[1] aspect-square w-[120px] -translate-y-1/2 sm:w-[148px] md:left-[32px] lg:left-[48px] lg:w-[192px]">
             <ProfilePictureForm />

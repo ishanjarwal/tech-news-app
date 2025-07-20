@@ -44,15 +44,15 @@ const CoverImageForm = () => {
 
   return (
     <div className="bg-accent h-full w-full overflow-hidden sm:rounded-2xl">
-      <div className="bg-background/75 absolute right-0 bottom-0 z-[2] flex items-center rounded-tl-lg sm:me-4 sm:mb-4 sm:space-x-2 sm:!bg-transparent">
+      <div className="bg-background/75 absolute top-full right-0 z-[2] flex items-center">
         <Tooltip content="Upload a new cover image">
           <Button
             size={'sm'}
+            variant={'ghost'}
             onClick={handleModal}
-            className="sm:hover:!bg-foreground sm:hover:!text-background text-foreground cursor-pointer bg-transparent !px-[8px] !py-[3px] text-xs opacity-75 hover:!bg-transparent hover:opacity-100 sm:bg-white sm:!px-4 sm:!py-2 sm:text-black sm:opacity-100"
+            className="cursor-pointer"
           >
             <Pen />
-            <span className="hidden sm:inline">Edit</span>
           </Button>
         </Tooltip>
         {user?.cover_image && (
@@ -110,11 +110,10 @@ const DeleteCoverImageForm = ({
           <Button
             size={'sm'}
             onClick={() => setOpen(true)}
-            variant={'destructive'}
-            className="text-foreground cursor-pointer !bg-transparent !px-[4px] !py-[3px] text-xs opacity-75 hover:opacity-100 sm:!px-4 sm:!py-2 sm:text-white sm:opacity-100"
+            variant={'ghost'}
+            className="text-destructive hover:text-destructive cursor-pointer"
           >
             <Trash size={6} />
-            <span className="hidden sm:inline">Remove</span>
           </Button>
         </Tooltip>
       </DialogTrigger>

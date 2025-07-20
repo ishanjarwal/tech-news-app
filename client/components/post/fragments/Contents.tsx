@@ -15,6 +15,8 @@ export interface ContentsProps {
 }
 
 export function Contents({ tocItems }: ContentsProps) {
+  if (tocItems.length === 0) return null;
+
   return (
     <Accordion
       defaultValue="toc"

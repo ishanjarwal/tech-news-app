@@ -2,6 +2,7 @@ import express from "express";
 import {
   fetchAuthorFollowers,
   fetchUserFollowing,
+  followStatus,
   removeFollow,
   toggleFollow,
 } from "../controllers/Follow";
@@ -25,13 +26,21 @@ router.get(
 );
 
 // user routes
-router.post(
-  "/:author_username",
-  rateLimiter(1, 10),
-  accessTokenAutoRefresh,
-  passportAuthenticate,
-  toggleFollow
-);
+router
+  .post(
+    "/:author_username",
+    rateLimiter(1, 10),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    toggleFollow
+  )
+  .get(
+    "/follow-status/:author_id",
+    rateLimiter(1, 10),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    followStatus
+  );
 
 // author routes
 router

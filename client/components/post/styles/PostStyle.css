@@ -33,7 +33,11 @@
 }
 
 .rendered_post pre {
-  @apply max-w-full overflow-auto rounded-lg bg-[var(--color-accent)] p-4 text-sm;
+  @apply max-w-full overflow-auto p-4 text-sm;
+}
+
+.rendered_post pre code {
+  @apply rounded-md;
 }
 
 .rendered_post table {
@@ -57,4 +61,12 @@
 
 .rendered_post tr:last-child td {
   border-bottom: none;
+}
+
+html.dark .rendered_post {
+  @import './hljs-dark.css';
+}
+
+html.light .rendered_post {
+  @import './hljs-light.css';
 }

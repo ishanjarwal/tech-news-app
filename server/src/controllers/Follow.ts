@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import Follow from "../models/Follow";
 import User, { UserValues } from "../models/User";
 
@@ -178,6 +178,29 @@ export const removeFollow: RequestHandler = async (req, res) => {
         username: follower.username,
       }
     );
+    return;
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+export const followStatus: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+
+    const author_id = new mongoose.Types.ObjectId(req.params.author_id);
+    const relation = await Follow.findOne({
+      user_id: author_id,
+      follower_id: user._id,
+    });
+    if (relation) {
+      res.success(200, "success", "", { follows: true });
+      return;
+    }
+    res.success(200, "success", "", { follows: false });
     return;
   } catch (error) {
     console.error(error);

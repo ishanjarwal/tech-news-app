@@ -1,6 +1,5 @@
 import React from 'react';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/github-dark.min.css'; // or any theme you like
 import '../styles/PostStyle.css';
 import * as cheerio from 'cheerio';
 
@@ -13,6 +12,7 @@ const Content = ({ rawHtml }: { rawHtml: string }) => {
     const codeText = codeElement.text(); // Get raw code
     const highlighted = hljs.highlightAuto(codeText).value;
     codeElement.html(highlighted);
+    codeElement.addClass('hljs');
   });
 
   // Wrap all <table> elements in <div class="overflow-auto">

@@ -6,10 +6,9 @@ export interface AuthorProps {
   avatarUrl?: string;
   fullname: string;
   username: string;
-  date: Date;
 }
 
-export function Author({ avatarUrl, fullname, username, date }: AuthorProps) {
+export function Author({ avatarUrl, fullname, username }: AuthorProps) {
   return (
     <div className="flex items-start space-x-2">
       <div className="text-muted-foreground flex items-center space-x-4 text-sm">
@@ -24,11 +23,6 @@ export function Author({ avatarUrl, fullname, username, date }: AuthorProps) {
           <p className="text-foreground text-base font-medium">{fullname}</p>
           <p className="text-xs">@{username}</p>
         </div>
-      </div>
-      <div className="pt-1.5">
-        <p className="text-muted-foreground text-sm">
-          on&nbsp;&nbsp;{format(date, 'PPP')}
-        </p>
       </div>
     </div>
   );

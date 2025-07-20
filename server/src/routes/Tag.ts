@@ -4,6 +4,7 @@ import responseHelper from "../middlewares/responseHelper";
 import {
   createTag,
   deleteTag,
+  fetchPopularTags,
   fetchTag,
   fetchTags,
   searchTag,
@@ -22,8 +23,9 @@ router.use(responseHelper);
 // public routes
 router
   .get("/", rateLimiter(1, 100), fetchTags)
-  .get("/:slug", rateLimiter(1, 100), fetchTag)
-  .get("/search/:q", rateLimiter(1, 100), searchTag);
+  .get("/popular", rateLimiter(1, 100), fetchPopularTags)
+  .get("/search/:q", rateLimiter(1, 100), searchTag)
+  .get("/:slug", rateLimiter(1, 100), fetchTag);
 // admin
 router
   .post(

@@ -8,6 +8,7 @@ import {
   fetchPostById,
   fetchPostMetaData,
   fetchPosts,
+  fetchTrendingPosts,
   updatePost,
   uploadPostThumbnail,
   uploadThumbnailTemporary,
@@ -104,6 +105,7 @@ router
 // public routes
 router
   .get("/", rateLimiter(1, 25), fetchPosts)
+  .get("/trending", rateLimiter(1, 25), fetchTrendingPosts)
   .get("/metadata/:slug", rateLimiter(1, 25), fetchPostMetaData)
   .get("/:slug", rateLimiter(1, 25), fetchPost);
 

@@ -200,3 +200,77 @@ export const searchTag: RequestHandler = async (req, res) => {
     return;
   }
 };
+
+// fetch popular tags
+export const fetchPopularTags: RequestHandler = async (req, res) => {
+  try {
+    const now = new Date();
+
+    const tags = await Post.aggregate([
+      {
+        $match: {
+          status: "published",
+          tags: { $exists: true, $ne: [] },
+        },
+      },
+      {
+        $addFields: {
+          ageInHours: {
+            $divide: [{ $subtract: [now, "$created_at"] }, 1000 * 60 * 60],
+          },
+        },
+      },
+      {
+        $addFields: {
+          popularityScore: {
+            $cond: [
+              { $lte: ["$ageInHours", 1] },
+              "$views_count",
+              { $divide: ["$views_count", "$ageInHours"] },
+            ],
+          },
+        },
+      },
+      {
+        $unwind: "$tags",
+      },
+      {
+        $group: {
+          _id: "$tags",
+          totalScore: { $sum: "$popularityScore" },
+        },
+      },
+      {
+        $sort: { totalScore: -1 },
+      },
+      {
+        $limit: 20, // Top 20 tags
+      },
+      {
+        $lookup: {
+          from: "tags", // collection name in MongoDB (should match actual collection)
+          localField: "_id",
+          foreignField: "_id",
+          as: "tagInfo",
+        },
+      },
+      {
+        $unwind: "$tagInfo",
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$tagInfo.name",
+          slug: "$tagInfo.slug",
+        },
+      },
+    ]);
+
+    res.success(200, "success", "fetched tags", tags);
+    return;
+  } catch (err) {
+    console.error(err);
+    res.error(500, "error", "Something went wrong", null);
+    return;
+  }
+};

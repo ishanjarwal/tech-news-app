@@ -19,7 +19,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { env } from '@/config/env';
 import { Copy, Mail, Share2 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { toast } from 'react-hot-toast'; // Optional: replace with your toast library
 
 interface ShareProps {
@@ -27,7 +29,11 @@ interface ShareProps {
 }
 
 export function Share({ message = 'Check this out!' }: ShareProps) {
-  const encodedUrl = encodeURIComponent(window.location.toString());
+  const pathname = usePathname();
+
+  const encodedUrl = encodeURIComponent(
+    `${env.NEXT_PUBLIC_CLIENT_URL + pathname}`
+  );
   const encodedTitle = encodeURIComponent(message);
 
   const copyToClipboard = async () => {

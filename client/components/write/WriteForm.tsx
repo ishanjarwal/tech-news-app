@@ -75,11 +75,10 @@ const WriteForm = () => {
       thumbnail: tempThumbnailValue || undefined,
       content: sanitizeHtml(data.content),
     };
-    console.log(sendable);
-    // const result = await dispatch(createPost(sendable));
-    // if (createPost.fulfilled.match(result)) {
-    //   router.push(`/post/${result.payload.data.slug}`);
-    // }
+    const result = await dispatch(createPost(sendable));
+    if (createPost.fulfilled.match(result)) {
+      router.push(`/post/${result.payload.data.slug}`);
+    }
   };
 
   useEffect(() => {

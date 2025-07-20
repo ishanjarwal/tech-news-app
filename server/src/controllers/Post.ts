@@ -84,13 +84,13 @@ export const fetchPost: RequestHandler = async (req, res) => {
           pipeline: [
             {
               $project: {
+                _id: 1,
                 username: 1,
                 fullname: 1,
                 avatar: "$avatar.url",
                 cover_image: "$cover_image.url",
                 bio: 1,
                 joined: "$created_at",
-                _id: 0,
               },
             },
           ],
@@ -723,6 +723,76 @@ export const uploadThumbnailTemporary: RequestHandler = async (req, res) => {
     if (req.body?.image?.public_id) {
       await cloudinary.uploader.destroy(req.body.image.public_id);
     }
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};
+
+export const fetchTrendingPosts: RequestHandler = async (req, res) => {
+  try {
+    const now = new Date();
+
+    const trendingPosts = await Post.aggregate([
+      {
+        $match: {
+          status: "published", // Only published posts
+        },
+      },
+      {
+        $lookup: {
+          localField: "author_id",
+          foreignField: "_id",
+          from: "users",
+          as: "author",
+          pipeline: [{ $project: { fullname: 1, username: 1 } }],
+        },
+      },
+      {
+        $unwind: { path: "$author", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: {
+          ageInHours: {
+            $divide: [
+              { $subtract: [now, "$created_at"] },
+              1000 * 60 * 60, // Convert ms to hours
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          trendingScore: {
+            $cond: {
+              if: { $lte: ["$ageInHours", 1] },
+              then: "$views_count",
+              else: { $divide: ["$views_count", "$ageInHours"] },
+            },
+          },
+        },
+      },
+      {
+        $sort: { trendingScore: -1 },
+      },
+      {
+        $limit: 5,
+      },
+      {
+        $project: {
+          slug: 1,
+          title: 1,
+          _id: 1,
+          thumbnail: "$thumbnail.url",
+          author: 1,
+          updated_at: 1,
+        },
+      },
+    ]);
+
+    res.success(200, "success", "Fetched posts", trendingPosts);
+    return;
+  } catch (error) {
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
     return;

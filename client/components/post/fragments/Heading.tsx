@@ -4,7 +4,7 @@ export interface HeadingProps {
 
 export function Heading({ title }: HeadingProps) {
   return (
-    <h1 className="text-2xl leading-tight font-bold tracking-tight text-balance sm:text-4xl md:text-6xl">
+    <h1 className="text-3xl leading-tight font-bold tracking-tight text-balance sm:text-4xl md:text-6xl">
       {title}
     </h1>
   );
