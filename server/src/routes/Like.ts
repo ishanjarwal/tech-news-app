@@ -2,6 +2,7 @@ import express from "express";
 import {
   fetchPostLikers,
   fetchUserLikedPosts,
+  likedStatus,
   togglePostLike,
 } from "../controllers/Like";
 import responseHelper from "../middlewares/responseHelper";
@@ -22,6 +23,13 @@ router
     accessTokenAutoRefresh,
     passportAuthenticate,
     fetchUserLikedPosts
+  )
+  .get(
+    "/status/:id",
+    rateLimiter(1, 255),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    likedStatus
   )
   .get(
     "/toggle/:id",

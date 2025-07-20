@@ -4,6 +4,27 @@ import Post from "../models/Post";
 import mongoose from "mongoose";
 import { UserValues } from "../models/User";
 
+//  fetch post liked status
+export const likedStatus: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const userId = user._id;
+    const id = req.params.id;
+
+    const check = await Like.findOne({ post_id: id, user_id: userId });
+    if (check) {
+      res.success(200, "success", "Likes", { liked: true });
+      return;
+    }
+    res.success(200, "success", "Doesn't like", { liked: false });
+    return;
+  } catch (error) {
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+  }
+};
+
 // toggle post like
 export const togglePostLike: RequestHandler = async (req, res) => {
   try {
@@ -20,7 +41,7 @@ export const togglePostLike: RequestHandler = async (req, res) => {
     const check = await Like.findOne({ post_id: id, user_id: userId });
     if (check) {
       await check.deleteOne();
-      res.success(200, "success", "Post Unliked", null);
+      res.success(200, "success", "Post Unliked", { liked: false });
       return;
     }
 
@@ -30,7 +51,7 @@ export const togglePostLike: RequestHandler = async (req, res) => {
       author_id: post?.author_id,
     });
     await newLike.save();
-    res.success(200, "success", "Post liked", null);
+    res.success(200, "success", "Post liked", { liked: true });
     return;
   } catch (error) {
     console.log(error);
