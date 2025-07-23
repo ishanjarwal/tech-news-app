@@ -10,6 +10,7 @@ import {
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { env } from '@/config/env';
+import { formatNumberShort } from '@/lib/utils';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { BadgeCheck, Globe } from 'lucide-react';
@@ -66,13 +67,13 @@ const AuthorDetails = async ({ username }: { username: string }) => {
             <div className="flex flex-col items-center justify-center space-y-1">
               <p className="text-muted-foreground text-sm sm:text-lg">Posts</p>
               <p className="text-sm font-bold sm:text-lg">
-                {author.totalPosts}
+                {formatNumberShort(author.totalPosts)}
               </p>
             </div>
             <div className="flex flex-col items-center justify-center space-y-1">
               <p className="text-muted-foreground text-sm sm:text-lg">Likes</p>
               <p className="text-sm font-bold sm:text-lg">
-                {author.totalLikes}
+                {formatNumberShort(author.totalLikes)}
               </p>
             </div>
             <div className="flex flex-col items-center justify-center space-y-1">
@@ -80,7 +81,7 @@ const AuthorDetails = async ({ username }: { username: string }) => {
                 Followers
               </p>
               <p className="text-sm font-bold sm:text-lg">
-                {author.totalFollowers}
+                {formatNumberShort(author.totalFollowers)}
               </p>
             </div>
           </div>

@@ -1,9 +1,8 @@
 import Protected from '@/components/auth/Protected';
-import PhotoUploader from '@/components/photo_upload/PhotoUploader';
 import Header from '@/components/user_profile/Header';
 import Stats from '@/components/user_profile/Stats';
 import Tabs from '@/components/user_profile/Tabs';
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 const layout = ({ children }: { children: ReactNode }) => {
   return (

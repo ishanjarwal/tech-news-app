@@ -671,11 +671,11 @@ export const fetchAuthor: RequestHandler = async (req, res) => {
     const authorId = author._id;
 
     const [totalPosts, totalLikes, totalFollowers] = await Promise.all([
-      Post.countDocuments({ author: authorId }),
+      Post.countDocuments({ author_id: authorId }),
       Like.countDocuments({
-        post: { $in: await Post.find({ author: authorId }).distinct("_id") },
+        post: { $in: await Post.find({ author_id: authorId }).distinct("_id") },
       }),
-      Follow.countDocuments({ following: authorId }),
+      Follow.countDocuments({ user_id: authorId }),
     ]);
 
     res.success(200, "success", "author fetched", {
