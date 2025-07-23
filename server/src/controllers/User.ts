@@ -12,6 +12,9 @@ import sendPasswordResetEmailUtil from "../utils/auth/sendPasswordResetEmail";
 import setAuthCookies from "../utils/auth/setAuthCookies";
 import { genericMailSender } from "../utils/genericMailSender";
 import cloudinary from "../config/cloudinary";
+import Post from "../models/Post";
+import Like from "../models/Like";
+import Follow from "../models/Follow";
 // User Registration
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -393,8 +396,10 @@ export const updateUser: RequestHandler = async (req, res) => {
   try {
     const user = req.user as UserValues;
     if (!user) {
-      throw new Error();
+      res.error(401, "error", "Unauthorized", {});
+      return;
     }
+
     const {
       username,
       fullname,
@@ -411,41 +416,65 @@ export const updateUser: RequestHandler = async (req, res) => {
       language,
       newsletter,
     } = req.body;
-    const preferences = {
-      ...(theme && { theme }),
-      ...(language && { language }),
-      ...(newsletter != undefined && { newsletter }),
-    };
-    const roles = user.roles;
-    let updates = {
-      ...(username && { username }),
-      ...(fullname && { fullname }),
-      ...(bio && { bio }),
-      ...(Object.keys(preferences).length > 0 && { preferences }),
-    };
-    if (roles.includes("author")) {
-      const socialLinks = {
-        ...(github && { github }),
-        ...(x && { x }),
-        ...(youtube && { youtube }),
-        ...(instagram && { instagram }),
-        ...(linkedin && { linkedin }),
-        ...(threads && { threads }),
-        ...(facebook && { facebook }),
-        ...(websites && websites?.length > 0 && { websites }),
-      };
-      updates.socialLinks = socialLinks;
+
+    // Fetch full user to access existing preferences and socialLinks
+    const existingUser = await User.findById(user._id).lean();
+    if (!existingUser) {
+      res.error(404, "error", "User not found", {});
+      return;
     }
-    if (Object.keys(updates).length <= 0) {
+
+    const updates: Record<string, any> = {};
+
+    // Basic fields
+    if (username) updates.username = username;
+    if (fullname) updates.fullname = fullname;
+    if (bio) updates.bio = bio;
+
+    // Merge preferences
+    const newPreferences = {
+      ...(theme !== undefined && { theme }),
+      ...(language !== undefined && { language }),
+      ...(newsletter !== undefined && { newsletter }),
+    };
+    if (Object.keys(newPreferences).length > 0) {
+      updates.preferences = {
+        ...existingUser.preferences,
+        ...newPreferences,
+      };
+    }
+
+    // Author-only: Merge socialLinks
+    if (user.roles.includes("author")) {
+      const newSocialLinks = {
+        ...(github && { github }),
+        ...(linkedin && { linkedin }),
+        ...(instagram && { instagram }),
+        ...(x && { x }),
+        ...(threads && { threads }),
+        ...(youtube && { youtube }),
+        ...(facebook && { facebook }),
+        ...(Array.isArray(websites) && websites.length > 0 && { websites }),
+      };
+
+      if (Object.keys(newSocialLinks).length > 0) {
+        updates.socialLinks = {
+          ...(existingUser.socialLinks || {}),
+          ...newSocialLinks,
+        };
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
       res.error(400, "warning", "Nothing to update", {});
       return;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       user._id,
       { $set: updates },
       { new: true, runValidators: true }
-    ).select("-password");
+    );
 
     res.success(200, "success", "Details updated", {});
     return;
@@ -621,5 +650,44 @@ export const requestAuthorPrivilleges: RequestHandler = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.error(200, "error", "Something went wrong", error);
+  }
+};
+
+// fetch author details
+
+export const fetchAuthor: RequestHandler = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const author = await User.findOne({ username, roles: "author" }).select(
+      "-_id -__v -login_provider -roles -preferences -email -password -updated_at -status"
+    );
+
+    if (!author) {
+      res.error(400, "error", "Invalid Request", null);
+      return;
+    }
+
+    const authorId = author._id;
+
+    const [totalPosts, totalLikes, totalFollowers] = await Promise.all([
+      Post.countDocuments({ author: authorId }),
+      Like.countDocuments({
+        post: { $in: await Post.find({ author: authorId }).distinct("_id") },
+      }),
+      Follow.countDocuments({ following: authorId }),
+    ]);
+
+    res.success(200, "success", "author fetched", {
+      ...author.toObject(),
+      avatar: author.avatar?.url,
+      cover_image: author.cover_image?.url,
+      totalPosts,
+      totalLikes,
+      totalFollowers,
+    });
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", error);
   }
 };

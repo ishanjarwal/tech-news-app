@@ -129,3 +129,16 @@ export interface ImageValues {
 
 export type UserRoleValues = 'admin' | 'author' | 'user';
 export type PostStatusValues = 'draft' | 'published';
+
+export interface PostCardValues {
+  thumbnail?: string;
+  title: string;
+  slug: string;
+  summary: string;
+  created_at: Date;
+  author: { username: string; fullname: string; avatar?: string };
+  category: { name: string; slug: string };
+  subCategory?: { name: string; slug: string };
+  reading_time_sec: number;
+  tags: { name: string; slug: string }[];
+}

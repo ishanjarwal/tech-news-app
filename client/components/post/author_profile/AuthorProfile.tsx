@@ -11,6 +11,7 @@ import { selectUserState } from '@/reducers/userReducer';
 import { AppDispatch } from '@/stores/appstore';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -50,18 +51,24 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
         />
       </AspectRatio>
       <div className="relative">
-        <Avatar className="absolute left-[5%] size-24 -translate-y-1/2">
-          <AvatarImage
-            src={author.avatar || '/images/profile-placeholder.png'}
-            className="object-cover object-center"
-            alt="Author Profile"
-          />
-        </Avatar>
+        <Link href={`/author/${author.username}`}>
+          <Avatar className="absolute left-[5%] size-24 -translate-y-1/2">
+            <AvatarImage
+              src={author.avatar || '/images/profile-placeholder.png'}
+              className="object-cover object-center"
+              alt="Author Profile"
+            />
+          </Avatar>
+        </Link>
       </div>
       <div className="flex items-center justify-between ps-32 pe-2 pt-2">
         <div>
-          <p className="text-sm font-semibold">{author.fullname}</p>
-          <p className="text-muted-foreground text-xs">@{author.username}</p>
+          <Link href={`/author/${author.username}`}>
+            <p className="text-sm font-semibold">{author.fullname}</p>
+          </Link>
+          <Link href={`/author/${author.username}`}>
+            <p className="text-muted-foreground text-xs">@{author.username}</p>
+          </Link>
         </div>
       </div>
       <div className="flex flex-col space-y-6 p-4">

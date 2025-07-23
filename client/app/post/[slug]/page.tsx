@@ -22,10 +22,50 @@ import { addIdsForContents } from '@/utils/addIdsForContents';
 import axios from 'axios';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+import { Metadata } from 'next';
 
 interface PageProps {
   params: {
     slug: string;
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const slug = params.slug;
+  const response = await axios.get(
+    `${env.NEXT_PUBLIC_BASE_URL}/post/metadata/${slug}`
+  );
+
+  if (response.status !== 200) {
+    return redirect('/error');
+  }
+
+  const data = response.data.data;
+  console.log(data);
+  const { metaTitle, metaDescription, metaImage, metaTags } = data;
+
+  return {
+    title: metaTitle,
+    description: metaDescription,
+    keywords: metaTags,
+    openGraph: {
+      title: metaTitle,
+      description: metaDescription,
+      images: [
+        {
+          url: metaImage,
+          alt: metaTitle,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: metaTitle,
+      description: metaDescription,
+      images: [metaImage],
+    },
   };
 }
 

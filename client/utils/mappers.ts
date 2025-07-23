@@ -1,4 +1,11 @@
-import { Category, Post, PublicUser, SubCategory, Tag } from '@/types/types';
+import {
+  Category,
+  Post,
+  PostCardValues,
+  PublicUser,
+  SubCategory,
+  Tag,
+} from '@/types/types';
 
 export function mapPost(apiPost: any): Post {
   return {
@@ -62,3 +69,60 @@ function mapSubCategory(sub: any): SubCategory {
     category: mapCategory(sub.category),
   };
 }
+
+type RawPost = {
+  _id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  thumbnail?: string;
+  created_at: string;
+  author: {
+    username: string;
+    fullname: string;
+    avatar?: string;
+  };
+  category: {
+    name: string;
+    slug: string;
+  };
+  subCategory?: {
+    name: string;
+    slug: string;
+  };
+  reading_time_sec: number;
+  tags: {
+    name: string;
+    slug: string;
+  }[];
+};
+
+export const mapCardPost = (post: RawPost): PostCardValues => {
+  return {
+    title: post.title,
+    slug: post.slug,
+    summary: post.summary,
+    thumbnail: post.thumbnail,
+    created_at: new Date(post.created_at),
+    author: {
+      username: post.author.username,
+      fullname: post.author.fullname,
+      avatar: post.author.avatar,
+    },
+    category: {
+      name: post.category.name,
+      slug: post.category.slug,
+    },
+    subCategory: post.subCategory
+      ? {
+          name: post.subCategory.name,
+          slug: post.subCategory.slug,
+        }
+      : undefined,
+    reading_time_sec: post.reading_time_sec,
+    tags: post.tags.map((tag) => ({
+      name: tag.name,
+      slug: tag.slug,
+    })),
+  };
+};

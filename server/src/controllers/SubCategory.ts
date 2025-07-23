@@ -60,7 +60,10 @@ export const fetchSubCategoryBySlug: RequestHandler = async (req, res) => {
       res.error(404, "error", "Subcategory not found", null);
       return;
     }
-    res.success(200, "success", "Subcategory fetched", subCategory);
+    res.success(200, "success", "Subcategory fetched", {
+      ...subCategory.toObject(),
+      category: { name: category.name, slug: category.slug },
+    });
     return;
   } catch (error) {
     res.error(500, "error", "Something went wrong", error);

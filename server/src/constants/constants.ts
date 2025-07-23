@@ -1,4 +1,4 @@
-export const POST_LIMIT = 10;
+export const POST_LIMIT = 25;
 export const POST_STATUS = ["draft", "published", "archived"] as const;
 export const AVG_READ_RATE = 200; // wpm
 export const USER_ROLES = ["user", "admin", "author"] as const;

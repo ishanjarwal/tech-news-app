@@ -266,99 +266,113 @@ export const fetchPostById: RequestHandler = async (req, res) => {
 export const fetchPosts: RequestHandler = async (req, res) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = POST_LIMIT || 10;
-    const sortField = (req.query.sort as string) || "created_at";
-    const sortOrder = (req.query.order as string) === "desc" ? -1 : 1;
-
+    const limit = POST_LIMIT;
     const skip = (page - 1) * limit;
 
-    const { category, subcategory, tag } = req.query; // as slugs
-    const categoryId = category
-      ? (await Category.findOne({ slug: category }))?._id
-      : null;
-    const subCategoryId = subcategory
-      ? (await SubCategory.findOne({ slug: subcategory }))?._id
-      : null;
-    const tagId = tag ? (await Tag.findOne({ slug: tag }))?._id : null;
+    const sortField = (req.query.sort as string) || "created_at";
+    const sortOrder = (req.query.order as string) === "asc" ? 1 : -1;
 
-    const pipeline: any[] = [];
-    const matchStage: any = {};
-    if (categoryId) matchStage.category = categoryId;
-    if (subCategoryId) matchStage.subCategory = subCategoryId;
-    if (tagId) matchStage.tags = { $in: [tagId] };
+    const { category, subcategory, tag, author } = req.query as Record<
+      string,
+      string
+    >;
 
-    if (Object.keys(matchStage).length > 0) {
-      pipeline.push({ $match: matchStage });
-    }
+    // Pre-fetch related IDs only if slugs exist
+    const [categoryDoc, tagDoc] = await Promise.all([
+      category ? Category.findOne({ slug: category }).select("_id") : null,
+      tag ? Tag.findOne({ slug: tag }).select("_id") : null,
+    ]);
+
+    const subCategoryDoc =
+      categoryDoc && subcategory
+        ? await SubCategory.findOne({
+            slug: subcategory,
+            category: categoryDoc._id,
+          }).select("_id")
+        : null;
+
+    const matchStage: Record<string, any> = { status: "published" };
+    if (categoryDoc) matchStage.category = categoryDoc._id;
+    if (subCategoryDoc) matchStage.subCategory = subCategoryDoc._id;
+    if (tagDoc) matchStage.tags = { $in: [tagDoc._id] };
+
+    const pipeline: any[] = [{ $match: matchStage }];
+
+    // Lookups and optional author match
     pipeline.push(
-      ...[
-        {
-          $lookup: {
-            from: "users",
-            localField: "author_id",
-            foreignField: "_id",
-            as: "author",
-            pipeline: [
-              { $project: { username: 1, fullname: 1, avatarURL: 1, _id: 0 } },
-            ],
-          },
+      {
+        $lookup: {
+          from: "users",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullname: 1,
+                avatar: "$avatar.url",
+                _id: 0,
+              },
+            },
+          ],
         },
-        { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+      },
+      { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } }
+    );
 
-        {
-          $lookup: {
-            from: "categories",
-            localField: "category",
-            foreignField: "_id",
-            as: "category",
-            // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
-          },
-        },
-        { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+    if (author) {
+      pipeline.push({ $match: { "author.username": author } });
+    }
 
-        {
-          $lookup: {
-            from: "subcategories",
-            localField: "subCategory",
-            foreignField: "_id",
-            as: "subCategory",
-            // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
-          },
+    pipeline.push(
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
         },
-        { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
+      },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
 
-        {
-          $lookup: {
-            from: "tags",
-            localField: "tags",
-            foreignField: "_id",
-            as: "tags",
-            // pipeline: [{ $project: { name: 1, slug: 1, _id: 0 } }],
-          },
+      {
+        $lookup: {
+          from: "subcategories",
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategory",
         },
-        {
-          $project: {
-            // _id: 0,
-            __v: 0,
-            author_id: 0,
-          },
+      },
+      { $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "tags",
+          localField: "tags",
+          foreignField: "_id",
+          as: "tags",
         },
-        { $sort: { [sortField]: sortOrder } },
-        { $skip: skip },
-        { $limit: limit },
-      ]
+      },
+
+      { $addFields: { thumbnail: "$thumbnail.url" } },
+
+      {
+        $project: {
+          __v: 0,
+          author_id: 0,
+        },
+      },
+
+      { $sort: { [sortField]: sortOrder } },
+      { $skip: skip },
+      { $limit: limit }
     );
 
     const posts = await Post.aggregate(pipeline);
 
-    const countPipeline = [];
-    if (Object.keys(matchStage).length > 0) {
-      countPipeline.push({ $match: matchStage });
-    }
-    countPipeline.push({ $count: "total" });
-
-    const countResult = await Post.aggregate(countPipeline);
-    const total = countResult[0]?.total || 0;
+    // Count total matching documents
+    const total = await Post.countDocuments(matchStage);
 
     res.success(200, "success", "Posts fetched", {
       posts,
@@ -368,7 +382,7 @@ export const fetchPosts: RequestHandler = async (req, res) => {
       limit,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.error(500, "error", "Something went wrong", {});
   }
 };
@@ -481,7 +495,7 @@ export const changePostStatus: RequestHandler = async (req, res) => {
 export const fetchPostMetaData: RequestHandler = async (req, res) => {
   try {
     const slug = req.params.slug;
-    const post = await Post.findOne({ slug });
+    const post = await Post.findOne({ slug }).populate("tags");
     if (!post) {
       res.error(400, "error", "Invalid request", null);
       return;
@@ -489,8 +503,8 @@ export const fetchPostMetaData: RequestHandler = async (req, res) => {
     res.success(200, "success", "Post metadata fetched", {
       metaTitle: post.title,
       metaDescription: post.summary,
-      metaImage: post.thumbnail,
-      metaTags: post.tags,
+      metaImage: post.thumbnail?.url,
+      metaTags: post.tags.map((tag: any) => tag.name),
     });
     return;
   } catch (error) {

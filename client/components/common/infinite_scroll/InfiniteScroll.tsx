@@ -30,7 +30,7 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
     <div
       id="scrollableDiv"
       className={cn('overflow-auto p-2 sm:rounded-md sm:border', className)}
-      style={{ height }}
+      // style={{ height }}
     >
       <ReactInfiniteScroll
         dataLength={total} // otal items currently rendered
@@ -41,7 +41,7 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = ({
             <Loader className="text-muted-foreground h-5 w-5 animate-spin" />
           </div>
         }
-        scrollableTarget="scrollableDiv"
+        // scrollableTarget="scrollableDiv"
       >
         {children}
       </ReactInfiniteScroll>
