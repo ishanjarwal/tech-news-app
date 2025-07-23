@@ -7,6 +7,7 @@ import {
   deleteCoverImage,
   deleteProfilePicture,
   fetchAuthor,
+  fetchAuthors,
   loginUser,
   logoutUser,
   requestAuthorPrivilleges,
@@ -86,6 +87,7 @@ router
     handleValidation,
     resetPassword
   )
+  .get("/authors", rateLimiter(1, 25), fetchAuthors)
   .get("/author/:username", rateLimiter(1, 10), fetchAuthor);
 
 // auth user

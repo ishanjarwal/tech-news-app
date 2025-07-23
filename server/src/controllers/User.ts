@@ -15,6 +15,7 @@ import cloudinary from "../config/cloudinary";
 import Post from "../models/Post";
 import Like from "../models/Like";
 import Follow from "../models/Follow";
+import { AUTHOR_LIMIT } from "../constants/constants";
 // User Registration
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -685,6 +686,64 @@ export const fetchAuthor: RequestHandler = async (req, res) => {
       totalPosts,
       totalLikes,
       totalFollowers,
+    });
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", error);
+  }
+};
+
+// fetch authors
+
+export const fetchAuthors: RequestHandler = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = AUTHOR_LIMIT;
+    const skip = (page - 1) * limit;
+
+    const pipeline: any[] = [
+      {
+        $match: {
+          roles: "author",
+        },
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "_id",
+          foreignField: "author_id",
+          as: "authoredPosts",
+        },
+      },
+      {
+        $addFields: {
+          totalPosts: { $size: "$authoredPosts" },
+        },
+      },
+      {
+        $project: {
+          username: 1,
+          fullname: 1,
+          avatar: "$avatar.url",
+          bio: 1,
+          totalPosts: 1,
+        },
+      },
+      { $sort: { totalPosts: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    const authors = await User.aggregate(pipeline);
+
+    const total = await User.countDocuments({ roles: "author" });
+
+    res.success(200, "success", "Authors fetched", {
+      authors,
+      total,
+      count: authors.length,
+      page,
+      limit,
     });
   } catch (error) {
     console.error(error);
