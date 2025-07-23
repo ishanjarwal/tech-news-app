@@ -661,7 +661,7 @@ export const fetchAuthor: RequestHandler = async (req, res) => {
     const { username } = req.params;
 
     const author = await User.findOne({ username, roles: "author" }).select(
-      "-_id -__v -login_provider -roles -preferences -email -password -updated_at -status"
+      "-__v -login_provider -roles -preferences -email -password -updated_at -status"
     );
 
     if (!author) {
@@ -670,7 +670,7 @@ export const fetchAuthor: RequestHandler = async (req, res) => {
     }
 
     const authorId = author._id;
-
+    console.log(authorId, typeof authorId);
     const [totalPosts, totalLikes, totalFollowers] = await Promise.all([
       Post.countDocuments({ author_id: authorId }),
       Like.countDocuments({
@@ -678,7 +678,6 @@ export const fetchAuthor: RequestHandler = async (req, res) => {
       }),
       Follow.countDocuments({ user_id: authorId }),
     ]);
-
     res.success(200, "success", "author fetched", {
       ...author.toObject(),
       avatar: author.avatar?.url,

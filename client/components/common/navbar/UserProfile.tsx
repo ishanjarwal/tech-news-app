@@ -45,7 +45,7 @@ const UserProfile = () => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[200px]">
+      <DropdownMenuContent align="end" className="min-w-[300px]">
         <div className="bg-accent mb-1 flex space-x-2 rounded-md p-4">
           <div>
             <Avatar>

@@ -63,7 +63,7 @@ const AutoLoadMorePosts = ({
       // endMessage={<p className="mt-4 text-center">No more posts</p>}
     >
       {initialPosts.length > 0 ? (
-        <div className="columns-md gap-8 pb-8">
+        <div className="columns-md gap-8 px-2 pb-8 sm:px-0">
           {initialPosts.map((post: any) => (
             <div key={post.slug} className="mb-4 sm:mb-8">
               <Card post={mapCardPost(post)} />

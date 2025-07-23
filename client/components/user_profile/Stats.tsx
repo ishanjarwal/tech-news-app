@@ -35,7 +35,6 @@ const Stats = () => {
   };
 
   useEffect(() => {
-    console.log(user.username);
     fetchStats(user.username);
   }, []);
 
