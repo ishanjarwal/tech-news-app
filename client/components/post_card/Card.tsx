@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { Calendar, Clock, Heart, MessageCircle } from 'lucide-react';
 import { PostCardValues } from '@/types/types';
+import { formatReadingTime } from '@/lib/utils';
 
 const Card = ({ post }: { post: PostCardValues }) => {
   return (
@@ -25,7 +26,9 @@ const Card = ({ post }: { post: PostCardValues }) => {
       )}
       <div className="p-3 sm:p-6">
         <div className="flex flex-col space-y-4">
-          <p className="w-full text-start text-xs">4 mins read</p>
+          <p className="w-full text-start text-xs">
+            {formatReadingTime(post.reading_time_sec)}
+          </p>
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap items-center justify-start gap-1">
               <Link

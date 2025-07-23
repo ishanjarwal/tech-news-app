@@ -812,3 +812,139 @@ export const fetchTrendingPosts: RequestHandler = async (req, res) => {
     return;
   }
 };
+
+export const fetchPagePosts: RequestHandler = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = POST_LIMIT;
+    const skip = (page - 1) * limit;
+
+    const filter = (req.query.filter as string)?.toLowerCase() || "latest";
+
+    const matchStage = { status: "published" };
+
+    const pipeline: any[] = [{ $match: matchStage }];
+
+    // Join likes to compute total likes per post
+    pipeline.push({
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "post_id",
+        as: "likes",
+      },
+    });
+
+    pipeline.push({
+      $addFields: {
+        likeCount: { $size: "$likes" },
+      },
+    });
+
+    // Apply sorting based on filter
+    switch (filter) {
+      case "most-viewed":
+        pipeline.push({ $sort: { views_count: -1 } });
+        break;
+      case "most-liked":
+        pipeline.push({ $sort: { likeCount: -1 } });
+        break;
+      case "latest":
+      default:
+        pipeline.push({ $sort: { created_at: -1 } });
+        break;
+    }
+
+    // Lookup and enrich author
+    pipeline.push(
+      {
+        $lookup: {
+          from: "users",
+          localField: "author_id",
+          foreignField: "_id",
+          as: "author",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullname: 1,
+                avatar: "$avatar.url",
+                _id: 0,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } }
+    );
+
+    // Lookup and enrich tags
+    pipeline.push({
+      $lookup: {
+        from: "tags",
+        localField: "tags",
+        foreignField: "_id",
+        as: "tags",
+      },
+    });
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: { path: "$category", preserveNullAndEmptyArrays: true },
+      }
+    );
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "subcategories",
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategory",
+        },
+      },
+      {
+        $unwind: { path: "$subCategory", preserveNullAndEmptyArrays: true },
+      }
+    );
+
+    pipeline.push(
+      {
+        $addFields: {
+          thumbnail: "$thumbnail.url",
+        },
+      },
+      {
+        $project: {
+          __v: 0,
+          author_id: 0,
+          likes: 0,
+        },
+      },
+      { $skip: skip },
+      { $limit: limit }
+    );
+
+    const posts = await Post.aggregate(pipeline);
+    const total = await Post.countDocuments(matchStage);
+
+    res.success(200, "success", "Posts fetched", {
+      posts,
+      total,
+      count: posts.length,
+      page,
+      limit,
+    });
+  } catch (error) {
+    console.error(error);
+    res.error(500, "error", "Something went wrong", {});
+  }
+};

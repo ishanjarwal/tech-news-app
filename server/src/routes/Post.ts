@@ -4,6 +4,7 @@ import {
   createPost,
   deletePostThumbnail,
   fetchAuthorPosts,
+  fetchPagePosts,
   fetchPost,
   fetchPostById,
   fetchPostMetaData,
@@ -105,6 +106,7 @@ router
 // public routes
 router
   .get("/", rateLimiter(1, 25), fetchPosts)
+  .get("/page-posts", rateLimiter(1, 25), fetchPagePosts)
   .get("/trending", rateLimiter(1, 25), fetchTrendingPosts)
   .get("/metadata/:slug", rateLimiter(1, 25), fetchPostMetaData)
   .get("/:slug", rateLimiter(1, 25), fetchPost);

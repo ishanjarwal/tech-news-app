@@ -7,6 +7,8 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import numeral from 'numeral';
 import _ from 'lodash';
+import { formatDuration } from 'date-fns/formatDuration';
+import { intervalToDuration } from 'date-fns/intervalToDuration';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -68,4 +70,18 @@ export function getChangedProps<T extends Record<string, any>>(
   }
 
   return changedProps;
+}
+
+export function formatReadingTime(seconds: number): string {
+  if (seconds <= 0 || isNaN(seconds)) return 'Less than a minute read';
+
+  const duration = intervalToDuration({ start: 0, end: seconds * 1000 });
+
+  const { hours = 0, minutes = 0 } = duration;
+
+  if (hours >= 2) return '2+ hours read';
+  if (hours === 1) return '1 hour read';
+  if (minutes >= 1) return `${minutes} minute${minutes > 1 ? 's' : ''} read`;
+
+  return 'Less than a minute read';
 }

@@ -23,6 +23,8 @@ import axios from 'axios';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
+import ReadTime from '@/components/post/fragments/ReadTime';
+import { Dot } from 'lucide-react';
 
 interface PageProps {
   params: {
@@ -99,6 +101,8 @@ const page = async ({ params }: PageProps) => {
       post.content
     );
 
+    const reading_time_sec = post.reading_time_sec;
+
     return (
       <div className="grid grid-cols-6 gap-y-24 px-2 py-4 sm:px-4 sm:py-16 md:py-24 lg:gap-x-32 lg:gap-y-0">
         <div className="col-span-6 lg:col-span-4">
@@ -111,7 +115,11 @@ const page = async ({ params }: PageProps) => {
                   title={title}
                 />
                 <Heading title={title} />
-                <Date date={updatedAt} />
+                <div className="flex items-center justify-start space-x-1">
+                  <Date date={updatedAt} />
+                  <Dot />
+                  <ReadTime reading_time_sec={reading_time_sec} />
+                </div>
                 <div className="bg-background sticky top-0 z-[1] flex items-start justify-between py-2">
                   <Author
                     avatarUrl={author.avatar}

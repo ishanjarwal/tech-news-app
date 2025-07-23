@@ -20,6 +20,21 @@ import { useSelector } from 'react-redux';
 import { selectUserState } from '@/reducers/userReducer';
 import LogoutButton from '@/components/auth/logout/LogoutButton';
 
+const navLinks = [
+  {
+    text: 'Archive',
+    href: '/archive',
+  },
+  {
+    text: 'Most viewed',
+    href: '/most-viewed',
+  },
+  {
+    text: 'Most liked',
+    href: '/most-liked',
+  },
+];
+
 const Navbar = () => {
   const { user } = useSelector(selectUserState);
 
@@ -43,6 +58,14 @@ const Navbar = () => {
             <SearchBar />
           </div>
           <div className="flex items-center justify-end space-x-1 md:space-x-2">
+            <div className="hidden items-center md:flex">
+              {navLinks.map((link, index) => (
+                <Button key={'navlink-' + index} asChild variant={'link'}>
+                  <Link href={link.href}>{link.text}</Link>
+                </Button>
+              ))}
+            </div>
+
             <div className="flex items-center justify-center">
               <ThemeToggleButton />
             </div>
@@ -114,6 +137,19 @@ const MobileNavbar = ({ open, setOpen, theme }: MobilenavProps) => {
           </SheetDescription>
         </SheetHeader>
         <div>
+          <div className="mb-8 flex flex-col">
+            {navLinks.map((link, index) => (
+              <Button
+                onClick={() => setOpen(false)}
+                key={'navlink-' + index}
+                className="justify-start"
+                asChild
+                variant={'link'}
+              >
+                <Link href={link.href}>{link.text}</Link>
+              </Button>
+            ))}
+          </div>
           {user ? (
             <div className="px-4">
               <LogoutButton
