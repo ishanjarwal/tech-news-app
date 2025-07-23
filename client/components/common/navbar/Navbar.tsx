@@ -33,6 +33,14 @@ const navLinks = [
     text: 'Most liked',
     href: '/most-liked',
   },
+  {
+    text: 'Popular topics',
+    href: '/topics',
+  },
+  {
+    text: 'Categories',
+    href: '/categories',
+  },
 ];
 
 const Navbar = () => {
@@ -58,7 +66,7 @@ const Navbar = () => {
             <SearchBar />
           </div>
           <div className="flex items-center justify-end space-x-1 md:space-x-2">
-            <div className="hidden items-center md:flex">
+            <div className="hidden items-center lg:flex">
               {navLinks.map((link, index) => (
                 <Button key={'navlink-' + index} asChild variant={'link'}>
                   <Link href={link.href}>{link.text}</Link>
@@ -75,7 +83,7 @@ const Navbar = () => {
                 <UserProfile />
               </div>
             ) : (
-              <div className="hidden items-center gap-2 md:flex">
+              <div className="hidden items-center gap-2 lg:flex">
                 <Button asChild variant="outline" size="sm">
                   <Link href={auth.login.href}>{auth.login.title}</Link>
                 </Button>
@@ -84,7 +92,7 @@ const Navbar = () => {
                 </Button>
               </div>
             )}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <Button
                 onClick={() => setMobileNav(true)}
                 variant={'ghost'}
@@ -99,7 +107,7 @@ const Navbar = () => {
       </div>
 
       {/* mobile nav */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <MobileNavbar
           theme={theme}
           open={mobileNav}

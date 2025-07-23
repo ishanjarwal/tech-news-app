@@ -28,17 +28,45 @@ export const createTag: RequestHandler = async (req, res) => {
 export const fetchTags: RequestHandler = async (req, res) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = TAG_LIMIT || 100;
-    const sortField = (req.query.sort as string) || "created_at";
-    const sortOrder = (req.query.order as string) === "desc" ? -1 : 1;
-    const search = (req.params.slug as string) || "";
+    const limit = TAG_LIMIT;
     const skip = (page - 1) * limit;
+    const search = (req.query.search as string) || "";
 
-    const tags = await Tag.find({ name: { $regex: search, $options: "i" } })
-      .sort({ [sortField]: sortOrder })
-      .skip(skip)
-      .limit(limit)
-      .select("-_id -__v");
+    const pipeline: any[] = [
+      {
+        $match: {
+          name: { $regex: search, $options: "i" },
+        },
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "_id",
+          foreignField: "tags",
+          as: "associatedPosts",
+        },
+      },
+      {
+        $addFields: {
+          totalPosts: { $size: "$associatedPosts" },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          slug: 1,
+          summary: 1,
+          totalPosts: 1,
+        },
+      },
+      {
+        $sort: { totalPosts: -1 },
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    const tags = await Tag.aggregate(pipeline);
 
     const total = await Tag.countDocuments({
       name: { $regex: search, $options: "i" },
@@ -51,11 +79,9 @@ export const fetchTags: RequestHandler = async (req, res) => {
       page,
       limit,
     });
-    return;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.error(500, "error", "Something went wrong", {});
-    return;
   }
 };
 

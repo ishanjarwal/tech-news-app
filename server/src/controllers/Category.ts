@@ -30,27 +30,16 @@ export const createCategory: RequestHandler = async (req, res) => {
 // fetch all categories
 export const fetchCategories: RequestHandler = async (req, res) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = CATEGORY_LIMIT || 100;
     const sortField = (req.query.sort as string) || "created_at";
     const sortOrder = (req.query.order as string) === "desc" ? -1 : 1;
-    const skip = (page - 1) * limit;
 
     const categories = await Category.find()
       .sort({ [sortField]: sortOrder })
-      .skip(skip)
-      .limit(limit)
       .select("-__v");
 
     const total = await Category.countDocuments();
 
-    res.success(200, "success", "Categories fetched", {
-      categories,
-      total,
-      count: categories.length,
-      page,
-      limit,
-    });
+    res.success(200, "success", "Categories fetched", categories);
     return;
   } catch (error) {
     console.log(error);
