@@ -60,6 +60,7 @@ export const createPost: RequestHandler = async (req, res) => {
       newPost.status === "published" ? "Post published" : "Draft Saved";
     res.success(200, "success", message, {
       slug: newPost.slug,
+      status: newPost.status,
     });
   } catch (error) {
     console.log(error);

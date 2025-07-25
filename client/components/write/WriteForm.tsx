@@ -77,7 +77,11 @@ const WriteForm = () => {
     };
     const result = await dispatch(createPost(sendable));
     if (createPost.fulfilled.match(result)) {
-      router.push(`/post/${result.payload.data.slug}`);
+      if (result.payload.data.status === 'published') {
+        router.push(`/post/${result.payload.data.slug}`);
+      } else {
+        router.push(`/me/posts`);
+      }
     }
   };
 
@@ -188,10 +192,25 @@ const WriteForm = () => {
         </div>
       </div>
       <div className="border-border flex items-center justify-end space-x-2 border-t pt-4">
-        <Button className="cursor-pointer" variant={'secondary'} size={'sm'}>
+        <Button
+          onClick={() => {
+            setValue('status', 'draft');
+            handleSubmit(onSubmit);
+          }}
+          className="cursor-pointer"
+          variant={'secondary'}
+          size={'sm'}
+        >
           Save Draft
         </Button>
-        <Button type="submit" className="cursor-pointer" size={'sm'}>
+        <Button
+          onClick={() => {
+            setValue('status', 'published');
+            handleSubmit(onSubmit);
+          }}
+          className="cursor-pointer"
+          size={'sm'}
+        >
           Publish
         </Button>
       </div>
