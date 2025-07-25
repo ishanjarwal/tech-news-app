@@ -56,10 +56,7 @@ const CategoryPosts = ({ categoryPosts }: CategoryPostProps) => {
           </button>
         ))}
       </div>
-      <div
-        className="pointer-events-none !h-[450px] flex-1 overflow-auto"
-        ref={scrollContainerRef}
-      >
+      <div className="!h-[450px] flex-1 overflow-auto" ref={scrollContainerRef}>
         {categoryPosts.map((categorypost, index) => {
           return (
             <div

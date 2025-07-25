@@ -11,6 +11,7 @@ import {
   fetchPosts,
   fetchTrendingPosts,
   updatePost,
+  uploadContentImage,
   uploadPostThumbnail,
   uploadThumbnailTemporary,
 } from "../controllers/Post";
@@ -101,6 +102,17 @@ router
     handleValidation,
     uploadToCloudinary("post_thumbnails", "image", "thumbnail"),
     uploadThumbnailTemporary
+  )
+  .post(
+    "/content-image",
+    rateLimiter(1, 5),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    handleUpload(["image/jpeg", "image/jpg", "image/gif"], 2, "image"),
+    handleValidation,
+    uploadToCloudinary("content_images", "image", "content"),
+    uploadContentImage
   );
 
 // public routes

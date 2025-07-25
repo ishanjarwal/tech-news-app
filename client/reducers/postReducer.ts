@@ -223,6 +223,24 @@ export const removeThumbnail = createAsyncThunk<
   }
 );
 
+export const uploadContentImage = createAsyncThunk<
+  ReduxSuccessPayload,
+  { photo: Blob },
+  { rejectValue: ReduxErrorPayload }
+>('post/content-image', async (data: { photo: Blob }, { rejectWithValue }) => {
+  try {
+    const url = new URL(`${env.NEXT_PUBLIC_BASE_URL}/post/content-image/`);
+    const formData = new FormData();
+    formData.append('image', data.photo);
+    const response = await axios.post(url.toString(), formData, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(reduxThunkErrorPaylod(error));
+  }
+});
+
 const postSlice = createSlice({
   name: 'post',
   initialState,
@@ -372,6 +390,27 @@ const postSlice = createSlice({
         }
         const message = error.message;
         fireToast('error', message);
+      })
+      .addCase(uploadContentImage.pending, (state, action) => {
+        state.loading = true;
+        state.errors = undefined;
+      })
+      .addCase(uploadContentImage.fulfilled, (state, action) => {
+        const payload = action.payload;
+        state.loading = false;
+        const message = payload.message;
+        fireToast('success', message);
+      })
+      .addCase(uploadContentImage.rejected, (state, action) => {
+        const error = action.payload as ReduxErrorPayload;
+        state.loading = false;
+        if (error.status === 'validation_error') {
+          const message = error.error.map((er: any) => er.msg).join(', ');
+          fireToast('error', message);
+        } else {
+          const message = error.message;
+          fireToast('error', message);
+        }
       });
   },
 });

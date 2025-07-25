@@ -147,7 +147,7 @@ const categorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
-        const categories = action.payload.data.categories.map((el: any) => ({
+        const categories = action.payload.data.map((el: any) => ({
           id: el._id,
           name: el.name,
           slug: el.slug,

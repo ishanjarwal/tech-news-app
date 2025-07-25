@@ -127,7 +127,10 @@ const page = async ({ params }: PageProps) => {
                     username={author.username}
                   />
                   <div className="flex items-center space-x-1 sm:space-x-2">
-                    <LikeButton id={post._id} />
+                    <LikeButton
+                      id={post._id}
+                      author_username={author.username}
+                    />
                     <CommentButton />
                     <EditButton
                       author_username={author.username}

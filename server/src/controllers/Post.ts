@@ -948,3 +948,26 @@ export const fetchPagePosts: RequestHandler = async (req, res) => {
     res.error(500, "error", "Something went wrong", {});
   }
 };
+
+export const uploadContentImage: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user as UserValues;
+    if (!user) throw new Error();
+    const image = req.body.image;
+    if (!image) throw new Error();
+
+    res.success(200, "success", "Image uploaded", {
+      public_id: image.public_id,
+      url: image.secure_url,
+      format: image.format,
+    });
+    return;
+  } catch (error) {
+    if (req.body?.image?.public_id) {
+      await cloudinary.uploader.destroy(req.body.image.public_id);
+    }
+    console.log(error);
+    res.error(500, "error", "Something went wrong", {});
+    return;
+  }
+};

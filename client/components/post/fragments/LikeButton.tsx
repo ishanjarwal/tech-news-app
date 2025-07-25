@@ -12,7 +12,13 @@ import { Heart } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-const LikeButton = ({ id }: { id: string }) => {
+const LikeButton = ({
+  id,
+  author_username,
+}: {
+  id: string;
+  author_username: string;
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector(selectUserState);
   const { loading, liked } = useSelector(selectLikeState);
@@ -22,7 +28,7 @@ const LikeButton = ({ id }: { id: string }) => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && user.username != author_username) {
       dispatch(likedStatus({ id }));
     }
   }, [user]);

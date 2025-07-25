@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
   Bold,
+  Camera,
   Code,
   Columns2,
   Grid3X3,
@@ -30,6 +31,7 @@ import {
   Link2,
   List,
   ListOrdered,
+  Loader,
   Quote,
   Redo,
   Rows2,
@@ -44,12 +46,17 @@ import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { Popover } from '../ui/popover';
 import './EditorStyles.css';
 import Tooltip from '../common/Tooltip';
+import { Label } from '../ui/label';
+import fireToast from '@/utils/fireToast';
+import { FileRejection, useDropzone } from 'react-dropzone';
+import NextImage from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectPostState, uploadContentImage } from '@/reducers/postReducer';
+import { AppDispatch } from '@/stores/appstore';
 
 const MenuBar = ({ editor }: { editor: EditorValues }) => {
   const addImage = (src: string) => {
-    if (src) {
-      editor.chain().focus().setImage({ src }).run();
-    }
+    editor.chain().focus().setImage({ src }).run();
   };
 
   const addLink = (url: string) => {
@@ -401,25 +408,107 @@ const AddLink = ({ onClick }: { onClick: (value: string) => void }) => {
 };
 
 const AddImage = ({ onClick }: { onClick: (value: string) => void }) => {
-  const [link, setLink] = useState<string>('');
-  const handleClick = () => {
-    onClick(link);
+  const { loading } = useSelector(selectPostState);
+  const dispatch = useDispatch<AppDispatch>();
+  const [imageSrc, setImageSrc] = useState<string>('');
+  const [file, setFile] = useState<File | null>(null);
+  const handleUpload = async () => {
+    if (!file) return;
+    const result = await dispatch(uploadContentImage({ photo: file }));
+    if (uploadContentImage.fulfilled.match(result)) {
+      const url = result.payload.data.url;
+      onClick(url);
+    }
   };
+
+  const handleCancel = () => {
+    setFile(null);
+    setImageSrc('');
+  };
+
+  const onDrop = (files: File[], fileRejections: FileRejection[]) => {
+    if (fileRejections.length > 0) {
+      fireToast('error', fileRejections[0].errors[0].message, 2000);
+      return;
+    }
+    const file = files[0];
+    const src = URL.createObjectURL(file);
+    if (!src) {
+      fireToast('error', 'Something went wrong', 2000);
+      return;
+    }
+    setImageSrc(src);
+    setFile(file);
+  };
+
+  const { getRootProps, getInputProps, acceptedFiles, fileRejections } =
+    useDropzone({
+      accept: {
+        'image/png': ['.png'],
+        'image/jpg': ['.jpg, .jpeg'],
+        'image/gif': ['.gif'],
+      },
+      maxFiles: 1,
+      maxSize: 2 * 1024 * 1024, // 2mb
+      multiple: false,
+      onDrop,
+    });
+
   return (
-    <Popover>
+    <Popover
+      onOpenChange={(open) => {
+        if (open) {
+          handleCancel();
+        }
+      }}
+    >
       <PopoverTrigger className="hover:bg-accent cursor-pointer px-2">
         <ImageIcon className="h-4 w-4" />
       </PopoverTrigger>
-      <PopoverContent className="bg-background border-border z-[1] w-[350px] rounded-lg border p-2">
-        <div className="flex items-center space-x-1">
-          <Input
-            className="focus-visible:ring-0"
-            onChange={(e) => setLink(e.target.value)}
-          />
-          <Button type="button" onClick={handleClick}>
-            Add
-          </Button>
-        </div>
+      <PopoverContent className="bg-background border-border ring-ring/50 z-[1] mt-4 w-[350px] rounded-lg p-2 ring-2">
+        {imageSrc ? (
+          <div className="flex flex-col space-y-4">
+            <NextImage
+              src={imageSrc}
+              width={400}
+              height={400}
+              alt="content-image"
+              className="w-full"
+            />
+            <div className="flex items-center justify-end space-x-2">
+              <Button
+                disabled={loading}
+                onClick={handleCancel}
+                type="button"
+                size={'sm'}
+                variant={'secondary'}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUpload}
+                disabled={loading}
+                type="button"
+                size={'sm'}
+              >
+                {!loading ? 'Upload' : <Loader className="animate-spin" />}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div
+            {...getRootProps()}
+            className="bg-accent border-border flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-16 hover:brightness-75"
+          >
+            <input {...getInputProps()} />
+            <span>
+              <Camera size={32} />
+            </span>
+            <span className="text-center text-xs text-balance">
+              Drag and drop or select thumbnail.
+            </span>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );
