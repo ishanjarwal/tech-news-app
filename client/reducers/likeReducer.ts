@@ -6,14 +6,21 @@ import fireToast from '@/utils/fireToast';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface LikedPost {
-  id: string;
+export interface LikedPost {
   title: string;
-  summary: string;
-  thumbnail?: string;
   slug: string;
   created_at: Date;
-  updated_at: Date;
+  author: {
+    fullname: string;
+    username: string;
+    avatar?: string;
+  };
+  thumbnail?: string;
+  category: {
+    name: string;
+    slug: string;
+  };
+  reading_time_sec: number;
 }
 
 interface PostLiker {
@@ -69,6 +76,19 @@ export const likedStatus = createAsyncThunk<
   }
 );
 
+export const fetchLikedPosts = createAsyncThunk<
+  ReduxSuccessPayload,
+  void,
+  { rejectValue: ReduxErrorPayload }
+>('like/liked-posts', async (_, { rejectWithValue }) => {
+  try {
+    const url = `${env.NEXT_PUBLIC_BASE_URL}/like`;
+    const response = await axios.get(url, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(reduxThunkErrorPaylod(error));
+  }
+});
 const likeSlice = createSlice({
   name: 'like',
   initialState,
@@ -108,6 +128,35 @@ const likeSlice = createSlice({
         }
       })
       .addCase(likedStatus.rejected, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as ReduxErrorPayload;
+        const message = payload.message;
+        fireToast('error', message);
+      })
+      .addCase(fetchLikedPosts.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(fetchLikedPosts.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload;
+        state.likedPosts = payload.data.map((post: any) => ({
+          title: post.title,
+          summary: post.summary,
+          thumbnail: post?.thumbnail,
+          category: {
+            name: post.category.name,
+            slug: post.category.slug,
+          },
+          author: {
+            fullname: post.author.fullname,
+            username: post.author.username,
+            avatar: post.author.avatar,
+          },
+          slug: post.slug,
+          created_at: post.created_at,
+        }));
+      })
+      .addCase(fetchLikedPosts.rejected, (state, action) => {
         state.loading = false;
         const payload = action.payload as ReduxErrorPayload;
         const message = payload.message;

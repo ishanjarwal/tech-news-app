@@ -23,7 +23,7 @@ const MinimalCard = ({ post }: MinimalCardProps) => {
           </AspectRatio>
         </div>
       )}
-      <div className="p-3 sm:p-6">
+      <div className="flex flex-col justify-between p-3 sm:p-6">
         <div className="flex flex-col space-y-4">
           <p className="w-full text-start text-xs">
             {formatReadingTime(post.reading_time_sec)}
@@ -51,27 +51,27 @@ const MinimalCard = ({ post }: MinimalCardProps) => {
               {post.title}
             </h1>
           </Link>
-          <div className="flex items-center justify-between">
-            <div className="text-muted-foreground flex items-center space-x-4 text-sm">
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-muted-foreground flex items-center space-x-4 text-sm">
+            <Link href={`/author/${post.author.username}`}>
+              <Image
+                src={post.author.avatar ?? '/images/profile-placeholder.png'}
+                alt={post.author.fullname}
+                width={48}
+                height={48}
+                className="rounded-full object-cover"
+              />
+            </Link>
+            <div>
               <Link href={`/author/${post.author.username}`}>
-                <Image
-                  src={post.author.avatar ?? '/images/profile-placeholder.png'}
-                  alt={post.author.fullname}
-                  width={48}
-                  height={48}
-                  className="rounded-full object-cover"
-                />
+                <p className="text-foreground text-base font-medium">
+                  {post.author.fullname}
+                </p>
               </Link>
-              <div>
-                <Link href={`/author/${post.author.username}`}>
-                  <p className="text-foreground text-base font-medium">
-                    {post.author.fullname}
-                  </p>
-                </Link>
-                <Link href={`/author/${post.author.username}`}>
-                  <p className="text-xs">@{post.author.username}</p>
-                </Link>
-              </div>
+              <Link href={`/author/${post.author.username}`}>
+                <p className="text-xs">@{post.author.username}</p>
+              </Link>
             </div>
           </div>
         </div>

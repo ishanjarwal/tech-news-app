@@ -28,7 +28,7 @@ const LikeButton = ({
   };
 
   useEffect(() => {
-    if (user && user.username != author_username) {
+    if (user) {
       dispatch(likedStatus({ id }));
     }
   }, [user]);

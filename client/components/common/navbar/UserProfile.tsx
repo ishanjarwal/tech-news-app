@@ -13,6 +13,7 @@ import { User } from '@/types/types';
 import {
   ArrowRight,
   Grid2X2,
+  Heart,
   Pen,
   Save,
   SlidersHorizontal,
@@ -71,6 +72,17 @@ const UserProfile = () => {
               <UserIcon />
             </span>
             <span>Profile</span>
+            <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
+              <ArrowRight />
+            </span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" asChild>
+          <Link href={'/liked'} className="group relative">
+            <span>
+              <Heart />
+            </span>
+            <span>Liked Posts</span>
             <span className="absolute top-1/2 right-1 -translate-x-1 -translate-y-1/2 opacity-0 duration-150 group-hover:translate-x-0 group-hover:opacity-100">
               <ArrowRight />
             </span>

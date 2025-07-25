@@ -7,11 +7,14 @@ interface LikeValues extends Document {
   created_at: Date;
 }
 
-const likeSchema = new Schema<LikeValues>({
-  author_id: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-  post_id: { type: Schema.Types.ObjectId, required: true, ref: "Post" },
-  user_id: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-});
+const likeSchema = new Schema<LikeValues>(
+  {
+    author_id: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    post_id: { type: Schema.Types.ObjectId, required: true, ref: "Post" },
+    user_id: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+  },
+  { timestamps: { createdAt: "created_at" } }
+);
 
 const Like = model<LikeValues>("Like", likeSchema);
 export default Like;
