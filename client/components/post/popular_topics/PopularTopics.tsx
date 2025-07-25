@@ -32,7 +32,6 @@ const PopularTopics = async () => {
       <div className="mt-4 flex flex-wrap gap-2">
         {tags.map((tag: any, index: number) => {
           const color = getRandomTagColor();
-          console.log(color);
           return (
             <Link
               key={'popular-tag-' + index}

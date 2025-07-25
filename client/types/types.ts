@@ -142,3 +142,22 @@ export interface PostCardValues {
   reading_time_sec: number;
   tags: { name: string; slug: string }[];
 }
+
+export interface MinimalCardProps {
+  post: {
+    title: string;
+    slug: string;
+    created_at: Date;
+    author: {
+      fullname: string;
+      username: string;
+      avatar?: string;
+    };
+    thumbnail?: string;
+    category: {
+      name: string;
+      slug: string;
+    };
+    reading_time_sec: number;
+  };
+}

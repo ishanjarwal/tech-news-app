@@ -11,6 +11,7 @@ import subCategoryRouter from "./routes/SubCategory";
 import tagRouter from "./routes/Tag";
 import userRouter from "./routes/User";
 import followRouter from "./routes/Follow";
+import homepageRouter from "./routes/Homepage";
 import passport from "passport";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -40,6 +41,7 @@ app.use("/api/v1/comment", commentRouter);
 app.use("/api/v1/follow", followRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/homepage", homepageRouter);
 
 app.listen(env.PORT, (error) => {
   if (error) {
