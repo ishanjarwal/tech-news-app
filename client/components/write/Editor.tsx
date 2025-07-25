@@ -9,8 +9,8 @@ import TableRow from '@tiptap/extension-table-row';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import {
-  EditorContent,
   Editor as EditorValues,
+  EditorContent,
   useEditor,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -42,16 +42,17 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { selectPostState, uploadContentImage } from '@/reducers/postReducer';
-import { AppDispatch } from '@/stores/appstore';
-import fireToast from '@/utils/fireToast';
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import NextImage from 'next/image';
-import { FileRejection, useDropzone } from 'react-dropzone';
-import { useDispatch, useSelector } from 'react-redux';
-import Tooltip from '../common/Tooltip';
 import { Popover } from '../ui/popover';
 import './EditorStyles.css';
+import Tooltip from '../common/Tooltip';
+import { Label } from '../ui/label';
+import fireToast from '@/utils/fireToast';
+import { FileRejection, useDropzone } from 'react-dropzone';
+import NextImage from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectPostState, uploadContentImage } from '@/reducers/postReducer';
+import { AppDispatch } from '@/stores/appstore';
 
 const MenuBar = ({ editor }: { editor: EditorValues }) => {
   const addImage = (src: string) => {
