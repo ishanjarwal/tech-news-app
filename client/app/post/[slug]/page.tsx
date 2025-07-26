@@ -146,7 +146,7 @@ const page = async ({ params }: PageProps) => {
               </div>
             </Suspense>
             <Suspense fallback={<div>Loading. . .</div>}>
-              <Comments />
+              <Comments id={post._id} />
             </Suspense>
           </div>
         </div>

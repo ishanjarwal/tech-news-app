@@ -40,6 +40,10 @@
   @apply rounded-md;
 }
 
+.rendered_post blockquote {
+  @apply border-s-4 border-[var(--color-primary)] bg-[var(--color-accent)] py-6 ps-4 pe-2;
+}
+
 .rendered_post table {
   @apply my-6 block w-full min-w-[640px] overflow-x-auto rounded-2xl border border-[var(--color-border)];
   border-collapse: separate;

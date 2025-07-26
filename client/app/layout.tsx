@@ -9,9 +9,37 @@ import InitializeUser from '@/components/auth/InitializeUser';
 import PhotoUploader from '@/components/photo_upload/PhotoUploader';
 
 export const metadata: Metadata = {
-  title: 'Tech News | Stay ahead in the Tech Space',
+  title: 'Tech Newz | Stay Ahead in the Tech Space',
   description:
-    "A community-driven platform for developers, tech enthusiasts, and innovators to discover the latest in technology, share insights, publish ideas, and grow together. Whether you're learning to code, following industry trends, or contributing your expertise — this is your space to connect and thrive",
+    'Tech Newz delivers the latest technology news, coding tutorials, developer insights, product reviews, and industry analysis to keep tech enthusiasts and programmers ahead of the curve.',
+  keywords:
+    'technology news, coding tutorials, programming, developer news, software development, tech reviews, startups, AI, web development, mobile development, cybersecurity, tech trends, programming tips',
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tech Newz | Stay Ahead in the Tech Space',
+    description:
+      'Latest tech news, developer tutorials, product reviews, and industry insights for tech enthusiasts and programmers.',
+    site: '@TechNewzOfficial',
+    creator: '@TechNewzOfficial',
+    images: ['https://yourdomain.com/og-image.jpg'],
+  },
+  openGraph: {
+    title: 'Tech Newz | Stay Ahead in the Tech Space',
+    description:
+      'Explore the latest technology trends, coding tutorials, and in-depth developer content at Tech Newz.',
+    url: 'https://yourdomain.com/',
+    siteName: 'Tech Newz',
+    images: [
+      {
+        url: 'https://yourdomain.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Tech Newz - Stay Ahead in the Tech Space',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

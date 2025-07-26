@@ -25,7 +25,16 @@ export const createComment: RequestHandler = async (req, res) => {
       parent_comment_id: null,
     });
     await newComment.save();
-    res.success(200, "success", "comment saved", null);
+    res.success(200, "success", "comment added", {
+      _id: newComment._id,
+      content: newComment.content,
+      created_at: newComment.created_at,
+      user: {
+        username: user.username,
+        fullname: user.fullname,
+        avatar: user.avatar?.url ?? undefined,
+      },
+    });
   } catch (error) {
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
@@ -63,7 +72,17 @@ export const replyComment: RequestHandler = async (req, res) => {
       parent_comment_id,
     });
     await newComment.save();
-    res.success(200, "success", "replied", null);
+    res.success(200, "success", "replied", {
+      parent_id: parentComment._id,
+      _id: newComment._id,
+      content: newComment.content,
+      created_at: newComment.created_at,
+      user: {
+        username: user.username,
+        fullname: user.fullname,
+        avatar: user.avatar?.url ?? undefined,
+      },
+    });
   } catch (error) {
     console.log(error);
     res.error(500, "error", "Something went wrong", {});
@@ -89,6 +108,16 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
           localField: "user_id",
           foreignField: "_id",
           as: "user",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullname: 1,
+                avatar: "$avatar.url",
+                _id: 0,
+              },
+            },
+          ],
         },
       },
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
@@ -108,6 +137,16 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
                 localField: "user_id",
                 foreignField: "_id",
                 as: "user",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      fullname: 1,
+                      avatar: "$avatar.url",
+                      _id: 0,
+                    },
+                  },
+                ],
               },
             },
             { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
@@ -116,9 +155,7 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
                 content: 1,
                 created_at: 1,
                 updated_at: 1,
-                "user.username": 1,
-                "user.fullname": 1,
-                "user.avatar": 1,
+                user: 1,
               },
             },
             { $sort: { updated_at: -1 } },
@@ -133,9 +170,7 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
           content: 1,
           created_at: 1,
           updated_at: 1,
-          "user.username": 1,
-          "user.fullname": 1,
-          "user.avatar": 1,
+          user: 1,
           replies: 1,
         },
       },
@@ -192,11 +227,7 @@ export const deleteComment: RequestHandler = async (req, res) => {
     if (!user) throw new Error();
     const userId = user._id;
     const id = new mongoose.Types.ObjectId(req.params.id);
-    const post = await Post.findById(id);
-    if (!post) {
-      res.error(400, "error", "Invalid request", {});
-      return;
-    }
+
     const comment = await Comment.findOne({ _id: id, user_id: userId });
     if (!comment) {
       res.error(400, "error", "invalid request", null);
@@ -206,10 +237,13 @@ export const deleteComment: RequestHandler = async (req, res) => {
       await Comment.deleteMany({ parent_comment_id: id });
     }
     const message = comment.parent_comment_id
-      ? "reply deleted"
-      : "comment deleted";
+      ? "reply removed"
+      : "comment removed";
     await comment.deleteOne();
-    res.success(200, "success", message, null);
+    res.success(200, "success", message, {
+      comment_id: comment._id,
+      parent_comment_id: comment.parent_comment_id ?? undefined,
+    });
     return;
   } catch (error) {
     console.log(error);

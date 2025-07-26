@@ -36,6 +36,7 @@ import {
   Redo,
   Rows2,
   Strikethrough,
+  Terminal,
   Trash,
   Underline as UnderlineIcon,
   Undo,
@@ -173,23 +174,37 @@ const MenuBar = ({ editor }: { editor: EditorValues }) => {
         </ToggleGroupItem>
       </ToggleGroup>
       <ToggleGroup type="multiple" className="flex flex-wrap border">
-        <ToggleGroupItem
-          value="blockquote"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          data-state={editor.isActive('blockquote') ? 'on' : 'off'}
-          aria-label="Blockquote"
-        >
-          <Quote className="h-4 w-4" />
-        </ToggleGroupItem>
+        <Tooltip content="Blockquote">
+          <ToggleGroupItem
+            value="blockquote"
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            data-state={editor.isActive('blockquote') ? 'on' : 'off'}
+            aria-label="Blockquote"
+          >
+            <Quote className="h-4 w-4" />
+          </ToggleGroupItem>
+        </Tooltip>
 
-        <ToggleGroupItem
-          value="codeBlock"
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          data-state={editor.isActive('codeBlock') ? 'on' : 'off'}
-          aria-label="Code Block"
-        >
-          <Code className="h-4 w-4" />
-        </ToggleGroupItem>
+        <Tooltip content="Code Block">
+          <ToggleGroupItem
+            value="codeBlock"
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            data-state={editor.isActive('codeBlock') ? 'on' : 'off'}
+            aria-label="Code Block"
+          >
+            <Code className="h-4 w-4" />
+          </ToggleGroupItem>
+        </Tooltip>
+        <Tooltip content="Inline code">
+          <ToggleGroupItem
+            value="inlineCode"
+            onClick={() => editor.chain().focus().toggleCode().run()}
+            data-state={editor.isActive('code') ? 'on' : 'off'}
+            aria-label="Inline code"
+          >
+            <Terminal className="h-4 w-4" />
+          </ToggleGroupItem>
+        </Tooltip>
       </ToggleGroup>
       <ToggleGroup type="multiple" className="flex flex-wrap border">
         <ToggleGroupItem

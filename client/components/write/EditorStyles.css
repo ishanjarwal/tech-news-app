@@ -20,12 +20,19 @@
   font-size: 24px;
 }
 
-.editor .tiptap code {
+.editor .tiptap pre code {
   padding: 16px;
   background-color: var(--color-accent);
   border-radius: 8px;
   width: 100%;
   display: block;
+}
+
+.editor .tiptap code {
+  padding: 2px;
+  background-color: var(--color-accent);
+  border-radius: 8px;
+  display: inline;
 }
 
 .editor .tiptap ul {

@@ -1,18 +1,14 @@
 import { Metadata } from 'next';
 import HomePageContent from './HomePageContent';
-
-export const metadata: Metadata = {
-  title: 'Tech Newz | Stay ahead in the tech space.',
-  description: '',
-  keywords: '',
-  twitter: {},
-  openGraph: {},
-};
+import { Suspense } from 'react';
+import CardListSkeleton from '@/components/skeletons/list/CardListSkeleton';
 
 const page = async () => {
   return (
     <main>
-      <HomePageContent />
+      <Suspense fallback={<CardListSkeleton />}>
+        <HomePageContent />
+      </Suspense>
     </main>
   );
 };

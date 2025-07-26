@@ -95,12 +95,15 @@ export interface Post {
 
 export interface Comment {
   id: string;
-  post_id: string;
-  user: PublicUser;
-  message: string;
+  user: {
+    fullname: string;
+    username: string;
+    avatar?: string;
+  };
+  content: string;
   created_at: Date;
-  updated_at: Date;
-  replies: Comment[] | [];
+  updated_at?: Date;
+  replies: Omit<Comment, 'replies'>[] | [];
 }
 
 export type InfoTypeValues =
