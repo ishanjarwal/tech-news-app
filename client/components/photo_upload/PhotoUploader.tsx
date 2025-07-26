@@ -56,7 +56,6 @@ const PhotoUploader = () => {
     });
 
   const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
-    console.log(croppedArea, croppedAreaPixels);
     setCroppedArea(croppedAreaPixels);
   };
 

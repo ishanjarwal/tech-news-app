@@ -42,7 +42,6 @@ const BasicDetailsForm = () => {
 
   const onSubmit = (data: BasicDetailsValues) => {
     const sendable = getChangedProps(defaultValues, data);
-    console.log(sendable);
     dispatch(updateUser(sendable));
   };
 

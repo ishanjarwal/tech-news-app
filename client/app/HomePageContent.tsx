@@ -88,7 +88,7 @@ const TopPosts = ({ posts }: { posts: MinimalCardProps['post'][] }) => {
       <h2 className="mb-4 border-b pb-4 text-3xl font-semibold sm:mb-8 sm:pb-8 lg:text-4xl">
         🔥Top Stories
       </h2>
-      <div className="grid grid-cols-3 gap-4 md:gap-8">
+      <div className="xl:grid-cols -3 grid grid-cols-1 gap-4 md:gap-8 lg:grid-cols-2">
         {posts.map((post: MinimalCardProps['post'], index: number) => (
           <div
             key={'top-post-' + index}

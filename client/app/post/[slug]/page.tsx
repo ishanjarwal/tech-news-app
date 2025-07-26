@@ -45,7 +45,6 @@ export async function generateMetadata({
   }
 
   const data = response.data.data;
-  console.log(data);
   const { metaTitle, metaDescription, metaImage, metaTags } = data;
 
   return {

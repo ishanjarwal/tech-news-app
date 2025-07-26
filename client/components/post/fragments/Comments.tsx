@@ -38,13 +38,11 @@ import z from 'zod';
 
 const Comments = ({ id }: { id: string }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { comments, loading, replyParentCommentId } =
-    useSelector(selectCommentState);
+  const { comments } = useSelector(selectCommentState);
 
   const [showAll, setShowAll] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(id);
     dispatch(fetchComments({ post_id: id }));
   }, []);
 

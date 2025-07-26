@@ -14,7 +14,6 @@ const EditButton = ({
   author_username: string;
 }) => {
   const { user } = useSelector(selectUserState);
-  console.log(user?.username, author_username);
   if (author_username !== user?.username) return null;
 
   return (

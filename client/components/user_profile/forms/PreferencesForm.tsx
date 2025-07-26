@@ -55,7 +55,6 @@ const PreferencesForm = () => {
 
   const onSubmit = (data: PreferencesValues) => {
     const sendable = getChangedProps(defaultValues, data);
-    console.log(sendable);
     dispatch(updateUser(sendable));
   };
 

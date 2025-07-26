@@ -228,7 +228,7 @@ const commentSlice = createSlice({
         state.loading = false;
         const payload = action.payload as ReduxErrorPayload;
         const message = payload.message;
-        fireToast('success', message);
+        fireToast('error', message);
       })
       .addCase(deleteComment.pending, (state, action) => {
         state.loading = true;

@@ -72,7 +72,6 @@ const ThumbnailInput = ({
             uploadThumbnailTemp({ photo: finalImage })
           );
           if (uploadThumbnailTemp.fulfilled.match(result)) {
-            console.log(result.payload.data);
             setTempThumbnailValue && setTempThumbnailValue(result.payload.data);
             setImageSrc(null);
           }

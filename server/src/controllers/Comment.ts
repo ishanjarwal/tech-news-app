@@ -96,7 +96,6 @@ export const fetchPostComments: RequestHandler = async (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = COMMENT_LIMIT || 10;
     const id = new mongoose.Types.ObjectId(req.params.id);
-
     const matchStage = { $match: { post_id: id, parent_comment_id: null } };
 
     const comments = await Comment.aggregate([
