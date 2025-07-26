@@ -13,6 +13,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import CategoryPosts from '@/components/homepage/CategoryPosts';
+import Masonry from '@/components/masonry/Masonry';
 
 const fetchHomepage = async () => {
   try {
@@ -88,18 +89,17 @@ const TopPosts = ({ posts }: { posts: MinimalCardProps['post'][] }) => {
       <h2 className="mb-4 border-b pb-4 text-3xl font-semibold sm:mb-8 sm:pb-8 lg:text-4xl">
         🔥Top Stories
       </h2>
-      <div className="xl:grid-cols -3 grid grid-cols-1 gap-4 md:gap-8 lg:grid-cols-2">
-        {posts.map((post: MinimalCardProps['post'], index: number) => (
-          <div
-            key={'top-post-' + index}
-            className="relative mb-4 break-inside-avoid md:mb-8"
-          >
-            <span className="bg-accent text-foreground absolute top-0 right-0 z-[1] rounded-tr-md rounded-bl-md px-3 py-2">
-              #{index + 1}
-            </span>
-            <MinimalCard post={post} />
-          </div>
-        ))}
+      <div>
+        <Masonry>
+          {posts.map((post: MinimalCardProps['post'], index: number) => (
+            <div key={'top-post-' + post.slug} className="relative w-full">
+              <span className="bg-accent text-foreground absolute top-0 right-0 z-[1] rounded-tr-md rounded-bl-md px-3 py-2">
+                #{index + 1}
+              </span>
+              <MinimalCard post={post} />
+            </div>
+          ))}
+        </Masonry>
       </div>
     </div>
   );
@@ -113,7 +113,7 @@ const Topics = ({ topics }: { topics: { name: string; slug: string }[] }) => {
       </h2>
       <div className="hidden flex-wrap gap-2 lg:flex">
         {topics.map((tag: { name: string; slug: string }, index: number) => (
-          <Button key={'topic-button' + index} asChild variant={'secondary'}>
+          <Button key={'topic-button' + tag.slug} asChild variant={'secondary'}>
             <Link href={`/tag/${tag.slug}`}># {tag.name}</Link>
           </Button>
         ))}
@@ -129,7 +129,7 @@ const Topics = ({ topics }: { topics: { name: string; slug: string }[] }) => {
             {topics.map(
               (tag: { name: string; slug: string }, index: number) => (
                 <CarouselItem
-                  key={'topic-' + index}
+                  key={'topic-' + tag.slug}
                   className="basis-auto pl-2"
                 >
                   <Button asChild variant={'secondary'}>
@@ -163,12 +163,14 @@ const RecentPosts = ({ posts }: { posts: MinimalCardProps['post'][] }) => {
       <h2 className="mb-4 border-b pb-4 text-3xl font-semibold sm:mb-8 sm:pb-8 lg:text-4xl">
         Recently
       </h2>
-      <div className="columns-sm gap-4 md:gap-8">
-        {posts.map((post: MinimalCardProps['post'], index: number) => (
-          <div key={'recent-post-' + index} className="mb-4 md:mb-8">
-            <MinimalCard post={post} />
-          </div>
-        ))}
+      <div>
+        <Masonry>
+          {posts.map((post: MinimalCardProps['post'], index: number) => (
+            <div key={'recent-post-' + post.slug} className="w-full">
+              <MinimalCard post={post} />
+            </div>
+          ))}
+        </Masonry>
       </div>
     </div>
   );

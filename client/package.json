@@ -66,6 +66,7 @@
     "react-image-crop": "^11.0.10",
     "react-infinite-scroll-component": "^6.1.0",
     "react-redux": "^9.2.0",
+    "react-responsive-masonry": "^2.7.1",
     "slugify": "^1.6.6",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.67"
@@ -79,6 +80,7 @@
     "@types/numeral": "^2.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-responsive-masonry": "^2.6.0",
     "@types/turndown": "^5.0.5",
     "prettier": "^3.6.1",
     "prettier-plugin-tailwindcss": "^0.6.13",

@@ -69,8 +69,8 @@ const CategoryPosts = ({ categoryPosts }: CategoryPostProps) => {
               <div className="grid grid-cols-1 gap-2 p-4 lg:grid-cols-2 xl:grid-cols-3">
                 {categorypost.posts.map((post) => (
                   <div
-                    key={categorypost.category.slug + '-post-' + index}
-                    className="flex space-x-4"
+                    key={post.slug}
+                    className="bg-card flex space-x-4 rounded-md p-4"
                   >
                     {post.thumbnail && (
                       <div className="relative aspect-[16/9] h-20 overflow-hidden rounded-md">

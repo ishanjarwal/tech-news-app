@@ -383,8 +383,16 @@ export const logoutUser: RequestHandler = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
     await RefreshToken.deleteMany({ token: refreshToken });
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: env.ENVIRONMENT === "production", // Set to true if using HTTPS
+      sameSite: env.ENVIRONMENT === "production" ? "none" : "lax",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: env.ENVIRONMENT === "production", // Set to true if using HTTPS
+      sameSite: env.ENVIRONMENT === "production" ? "none" : "lax",
+    });
     res.status(200).json({ status: "success", message: "Logged out" });
   } catch (error) {
     console.log(error);

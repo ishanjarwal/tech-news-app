@@ -153,9 +153,11 @@ export const fetchPost: RequestHandler = async (req, res) => {
       res.error(400, "error", "Post not found", null);
       return;
     }
-    // const likeCount = await Like.countDocuments({ post_id: post._id });
-    // post.views_count += 1;
-    // await post.save();
+    await Post.updateOne(
+      { _id: post._id },
+      { $inc: { views_count: 1 } },
+      { timestamps: false }
+    );
     res.success(200, "success", "Post fetched", post);
     return;
   } catch (error) {
