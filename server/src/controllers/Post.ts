@@ -139,10 +139,42 @@ export const fetchPost: RequestHandler = async (req, res) => {
         },
       },
       {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "totalLikes",
+        },
+      },
+      {
+        $addFields: {
+          totalLikes: { $size: "$totalLikes" },
+        },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "totalComments",
+        },
+      },
+      {
+        $addFields: {
+          totalComments: { $size: "$totalComments" },
+        },
+      },
+      {
+        $addFields: {
+          totalViews: "$views_count",
+        },
+      },
+      {
         $project: {
           // _id: 0,
           __v: 0,
           author_id: 0,
+          views_count: 0,
         },
       },
     ]);
@@ -360,9 +392,42 @@ export const fetchPosts: RequestHandler = async (req, res) => {
       { $addFields: { thumbnail: "$thumbnail.url" } },
 
       {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "totalLikes",
+        },
+      },
+      {
+        $addFields: {
+          totalLikes: { $size: "$totalLikes" },
+        },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "totalComments",
+        },
+      },
+      {
+        $addFields: {
+          totalComments: { $size: "$totalComments" },
+        },
+      },
+      {
+        $addFields: {
+          totalViews: "$views_count",
+        },
+      },
+
+      {
         $project: {
           __v: 0,
           author_id: 0,
+          views_count: 0,
         },
       },
 
@@ -920,8 +985,37 @@ export const fetchPagePosts: RequestHandler = async (req, res) => {
 
     pipeline.push(
       {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "totalLikes",
+        },
+      },
+      {
+        $addFields: { totalLikes: { $size: "$totalLikes" } },
+      }
+    );
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "totalComments",
+        },
+      },
+      {
+        $addFields: { totalComments: { $size: "$totalComments" } },
+      }
+    );
+
+    pipeline.push(
+      {
         $addFields: {
           thumbnail: "$thumbnail.url",
+          totalViews: "$views_count",
         },
       },
       {

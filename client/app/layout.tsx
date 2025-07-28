@@ -7,6 +7,13 @@ import ToastContainer, { Toaster } from 'react-hot-toast';
 import './globals.css';
 import InitializeUser from '@/components/auth/InitializeUser';
 import PhotoUploader from '@/components/photo_upload/PhotoUploader';
+import { Manrope } from 'next/font/google';
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-manrope',
+});
 
 export const metadata: Metadata = {
   title: 'Tech Newz | Stay Ahead in the Tech Space',
@@ -49,7 +56,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
+      <body className={`antialiased ${manrope.variable}`}>
         <AppStoreProvider>
           <InitializeUser>
             <ThemeProvider

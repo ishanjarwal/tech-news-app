@@ -1,5 +1,6 @@
 'use client';
 
+import Masonry from '@/components/masonry/Masonry';
 import Card from '@/components/post_card/Card';
 import { mapCardPost } from '@/utils/mappers';
 import axios from 'axios';
@@ -63,17 +64,19 @@ const AutoLoadMorePosts = ({
       // endMessage={<p className="mt-4 text-center">No more posts</p>}
     >
       {initialPosts.length > 0 ? (
-        <div className="columns-md gap-8 pb-8">
-          {initialPosts.map((post: any) => (
-            <div key={post.slug} className="mb-4 sm:mb-8">
-              <Card post={mapCardPost(post)} />
-            </div>
-          ))}
-          {posts.map((post: any) => (
-            <div key={post.slug} className="mb-4 sm:mb-8">
-              <Card post={mapCardPost(post)} />
-            </div>
-          ))}
+        <div>
+          <Masonry>
+            {initialPosts.map((post: any) => (
+              <div key={post.slug}>
+                <Card post={mapCardPost(post)} />
+              </div>
+            ))}
+            {posts.map((post: any) => (
+              <div key={post.slug}>
+                <Card post={mapCardPost(post)} />
+              </div>
+            ))}
+          </Masonry>
         </div>
       ) : (
         <div className="flex items-center justify-center pt-48 pb-64">

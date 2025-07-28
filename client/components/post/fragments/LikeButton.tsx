@@ -1,6 +1,7 @@
 'use client';
 import Tooltip from '@/components/common/Tooltip';
 import { Button } from '@/components/ui/button';
+import { formatNumberShort } from '@/lib/utils';
 import {
   likedStatus,
   selectLikeState,
@@ -9,22 +10,34 @@ import {
 import { selectUserState } from '@/reducers/userReducer';
 import { AppDispatch } from '@/stores/appstore';
 import { Heart } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const LikeButton = ({
   id,
   author_username,
+  like_count,
 }: {
   id: string;
   author_username: string;
+  like_count: number;
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector(selectUserState);
   const { loading, liked } = useSelector(selectLikeState);
+  const [totalLikes, setTotalLikes] = useState<number>(like_count);
 
-  const toggleLike = () => {
-    dispatch(togglePostLike({ id }));
+  const toggleLike = async () => {
+    if (!user) return;
+    const result = await dispatch(togglePostLike({ id }));
+    if (togglePostLike.fulfilled.match(result)) {
+      const liked = result.payload.data.liked;
+      if (liked) {
+        setTotalLikes((prev) => prev + 1);
+      } else {
+        setTotalLikes((prev) => prev - 1);
+      }
+    }
   };
 
   useEffect(() => {
@@ -33,18 +46,18 @@ const LikeButton = ({
     }
   }, [user]);
 
-  if (!user) return null;
-
   return (
     <Tooltip content={liked ? 'Unlike this post' : 'Like this post'}>
       <Button
         onClick={toggleLike}
         disabled={loading}
         variant={'ghost'}
-        className="cursor-pointer flex-col gap-0"
+        className="cursor-pointer flex-col gap-0 px-2"
       >
         <span>{liked ? LikedHeart : <Heart />}</span>
-        <span className="text-[8px] sm:!text-[10px]">1.1K</span>
+        <span className="text-[8px] sm:!text-[10px]">
+          {formatNumberShort(totalLikes)}
+        </span>
       </Button>
     </Tooltip>
   );

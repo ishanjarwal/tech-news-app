@@ -48,7 +48,7 @@ export function Share({ message = 'Check this out!' }: ShareProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="cursor-pointer">
+        <Button variant="ghost" className="cursor-pointer !px-2">
           <Share2 />
           <span className="hidden sm:block">Share</span>
         </Button>

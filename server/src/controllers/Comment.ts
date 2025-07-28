@@ -198,20 +198,19 @@ export const updateComment: RequestHandler = async (req, res) => {
     if (!user) throw new Error();
     const userId = user._id;
     const id = new mongoose.Types.ObjectId(req.params.id);
-    const post = await Post.findById(id);
-    if (!post) {
-      res.error(400, "error", "Invalid request", {});
-      return;
-    }
     const comment = await Comment.findOne({ _id: id, user_id: userId });
+    const content = req.body.content;
     if (!comment) {
       res.error(400, "error", "Invalid request", {});
       return;
     }
-    comment.content = req.body.content;
-    comment.updated_at = new Date(Date.now());
+    comment.content = content;
     await comment.save();
-    res.success(200, "success", "comment updated", null);
+    res.success(200, "success", "comment updated", {
+      id: comment._id,
+      content: content,
+      parent_comment_id: comment.parent_comment_id ?? undefined,
+    });
     return;
   } catch (error) {
     console.log(error);
@@ -232,16 +231,20 @@ export const deleteComment: RequestHandler = async (req, res) => {
       res.error(400, "error", "invalid request", null);
       return;
     }
+    let totalDeleted = 0;
     if (!comment.parent_comment_id) {
-      await Comment.deleteMany({ parent_comment_id: id });
+      const deleted = await Comment.deleteMany({ parent_comment_id: id });
+      totalDeleted += deleted.deletedCount;
     }
     const message = comment.parent_comment_id
       ? "reply removed"
       : "comment removed";
     await comment.deleteOne();
+    totalDeleted += 1;
     res.success(200, "success", message, {
       comment_id: comment._id,
       parent_comment_id: comment.parent_comment_id ?? undefined,
+      totalDeleted,
     });
     return;
   } catch (error) {

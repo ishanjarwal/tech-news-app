@@ -12,6 +12,10 @@ interface CommentStateValues {
   errors?: any[];
   replyParentCommentId?: string;
   deleteCommentId?: string;
+  editCommentId?: {
+    id: string;
+    defaultContent: string;
+  };
 }
 
 const initialState: CommentStateValues = {
@@ -101,6 +105,31 @@ export const deleteComment = createAsyncThunk<
   }
 );
 
+export const editComment = createAsyncThunk<
+  ReduxSuccessPayload,
+  { comment_id: string; content: string },
+  { rejectValue: ReduxErrorPayload }
+>(
+  'comment/edit-comment',
+  async (
+    data: { comment_id: string; content: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { comment_id, content } = data;
+      const url = `${env.NEXT_PUBLIC_BASE_URL}/comment/${comment_id}`;
+      const response = await axios.put(
+        url,
+        { content },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(reduxThunkErrorPaylod(error));
+    }
+  }
+);
+
 const commentSlice = createSlice({
   name: 'comment',
   initialState,
@@ -119,6 +148,15 @@ const commentSlice = createSlice({
     },
     resetDeleteCommentId: (state) => {
       state.deleteCommentId = undefined;
+    },
+    setEditCommentId: (
+      state,
+      action: { payload: { id: string; defaultContent: string } }
+    ) => {
+      state.editCommentId = action.payload;
+    },
+    resetEditCommentId: (state) => {
+      state.editCommentId = undefined;
     },
   },
   extraReducers: (builder) => {
@@ -266,6 +304,44 @@ const commentSlice = createSlice({
         state.loading = false;
         const message = payload.message;
         fireToast('error', message);
+      })
+      .addCase(editComment.pending, (state, action) => {
+        state.loading = true;
+        state.errors = undefined;
+      })
+      .addCase(editComment.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload;
+        const message = payload.message;
+        const { content, id, parent_comment_id } = payload.data;
+        const comments = state.comments ? state.comments : [];
+        if (parent_comment_id) {
+          const parentIndex = comments.findIndex(
+            (comment: Comment) => comment.id === parent_comment_id
+          );
+          if (parentIndex === -1) return;
+          const index = comments[parentIndex].replies.findIndex(
+            (reply) => reply.id === id
+          );
+          if (index == -1) return;
+          comments[parentIndex].replies[index].content = content;
+        } else {
+          const index = comments.findIndex(
+            (comment: Comment) => comment.id === id
+          );
+          if (index == -1) return;
+          comments[index].content = content;
+        }
+        fireToast('success', message);
+      })
+      .addCase(editComment.rejected, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as ReduxErrorPayload;
+        if (payload.status == 'validation_error') {
+          state.errors = payload.error;
+        }
+        const message = payload.message;
+        fireToast('error', message);
       });
   },
 });
@@ -277,5 +353,7 @@ export const {
   setReplyParentCommentId,
   setDeleteCommentId,
   resetDeleteCommentId,
+  setEditCommentId,
+  resetEditCommentId,
 } = commentSlice.actions;
 export default commentSlice.reducer;

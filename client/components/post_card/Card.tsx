@@ -3,9 +3,9 @@ import { AspectRatio } from '../ui/aspect-ratio';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
-import { Calendar, Clock, Heart, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
 import { PostCardValues } from '@/types/types';
-import { formatReadingTime } from '@/lib/utils';
+import { formatNumberShort, formatReadingTime } from '@/lib/utils';
 
 const Card = ({ post }: { post: PostCardValues }) => {
   return (
@@ -99,12 +99,16 @@ const Card = ({ post }: { post: PostCardValues }) => {
             </div>
             <div className="flex items-center space-x-4">
               <p className="flex items-center space-x-[2px] text-xs">
+                <Eye size={12} />
+                <span>{formatNumberShort(post.totalViews)}</span>
+              </p>
+              <p className="flex items-center space-x-[2px] text-xs">
                 <Heart size={12} />
-                <span>1.1K</span>
+                <span>{formatNumberShort(post.totalLikes)}</span>
               </p>
               <p className="flex items-center space-x-[2px] text-xs">
                 <MessageCircle size={12} />
-                <span>300</span>
+                <span>{formatNumberShort(post.totalComments)}</span>
               </p>
             </div>
           </div>

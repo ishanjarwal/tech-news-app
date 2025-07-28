@@ -95,6 +95,9 @@ type RawPost = {
     name: string;
     slug: string;
   }[];
+  totalViews: number;
+  totalLikes: number;
+  totalComments: number;
 };
 
 export const mapCardPost = (post: RawPost): PostCardValues => {
@@ -124,5 +127,8 @@ export const mapCardPost = (post: RawPost): PostCardValues => {
       name: tag.name,
       slug: tag.slug,
     })),
+    totalViews: post.totalViews,
+    totalLikes: post.totalLikes,
+    totalComments: post.totalComments,
   };
 };

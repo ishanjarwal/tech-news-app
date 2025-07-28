@@ -24,7 +24,10 @@ import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import ReadTime from '@/components/post/fragments/ReadTime';
-import { Dot } from 'lucide-react';
+import { Dot, Eye } from 'lucide-react';
+import Tags from '@/components/post/fragments/Tags';
+import { Button } from '@/components/ui/button';
+import { formatNumberShort } from '@/lib/utils';
 
 interface PageProps {
   params: {
@@ -95,6 +98,10 @@ const page = async ({ params }: PageProps) => {
     const updatedAt = post.updated_at;
     const summary = post.summary;
     const thumbnail = post?.thumbnail ?? undefined;
+    const tags = post?.tags.map((el: any) => ({
+      slug: el.slug,
+      name: el.name,
+    }));
 
     const { modifiedHtml: formatted, headings } = addIdsForContents(
       post.content
@@ -125,12 +132,22 @@ const page = async ({ params }: PageProps) => {
                     fullname={author.fullname}
                     username={author.username}
                   />
-                  <div className="flex items-center space-x-1 sm:space-x-2">
+                  <div className="flex items-center space-x-[2px] sm:space-x-2">
+                    <Button
+                      variant={'ghost'}
+                      className="cursor-pointer flex-col gap-0 px-2"
+                    >
+                      <span>{<Eye />}</span>
+                      <span className="text-[8px] sm:!text-[10px]">
+                        {formatNumberShort(post.totalViews)}
+                      </span>
+                    </Button>
                     <LikeButton
                       id={post._id}
                       author_username={author.username}
+                      like_count={post.totalLikes}
                     />
-                    <CommentButton />
+                    <CommentButton comments_count={post.totalComments} />
                     <EditButton
                       author_username={author.username}
                       post_id={post._id}
@@ -139,13 +156,14 @@ const page = async ({ params }: PageProps) => {
                   </div>
                 </div>
                 <Thumbnail src={thumbnail} alt={slug} />
+                <Tags tags={tags} />
                 <Summary summary={summary} />
                 <Contents tocItems={headings} />
                 <Content rawHtml={formatted} />
               </div>
             </Suspense>
             <Suspense fallback={<div>Loading. . .</div>}>
-              <Comments id={post._id} />
+              <Comments id={post._id} comments_count={post.totalComments} />
             </Suspense>
           </div>
         </div>

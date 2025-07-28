@@ -144,6 +144,9 @@ export interface PostCardValues {
   subCategory?: { name: string; slug: string };
   reading_time_sec: number;
   tags: { name: string; slug: string }[];
+  totalViews: number;
+  totalLikes: number;
+  totalComments: number;
 }
 
 export interface MinimalCardProps {

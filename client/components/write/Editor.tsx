@@ -9,8 +9,8 @@ import TableRow from '@tiptap/extension-table-row';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import {
-  Editor as EditorValues,
   EditorContent,
+  Editor as EditorValues,
   useEditor,
 } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -32,6 +32,7 @@ import {
   List,
   ListOrdered,
   Loader,
+  PlaySquare,
   Quote,
   Redo,
   Rows2,
@@ -43,17 +44,17 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
-import { Popover } from '../ui/popover';
-import './EditorStyles.css';
-import Tooltip from '../common/Tooltip';
-import { Label } from '../ui/label';
-import fireToast from '@/utils/fireToast';
-import { FileRejection, useDropzone } from 'react-dropzone';
-import NextImage from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
 import { selectPostState, uploadContentImage } from '@/reducers/postReducer';
 import { AppDispatch } from '@/stores/appstore';
+import fireToast from '@/utils/fireToast';
+import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
+import NextImage from 'next/image';
+import { FileRejection, useDropzone } from 'react-dropzone';
+import { useDispatch, useSelector } from 'react-redux';
+import Tooltip from '../common/Tooltip';
+import { Popover } from '../ui/popover';
+import './EditorStyles.css';
+import YoutubeExtension from './tiptap_extensions/YoutubeExtension';
 
 const MenuBar = ({ editor }: { editor: EditorValues }) => {
   const addImage = (src: string) => {
@@ -80,6 +81,18 @@ const MenuBar = ({ editor }: { editor: EditorValues }) => {
     } else {
       editor.chain().toggleLink({ href: url }).run();
     }
+  };
+
+  const addVideoLink = (src: string) => {
+    if (!src) return;
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'youtubeEmbed',
+        attrs: { src },
+      })
+      .run();
   };
 
   return (
@@ -228,6 +241,7 @@ const MenuBar = ({ editor }: { editor: EditorValues }) => {
       <div className="flex flex-wrap overflow-hidden rounded-lg border">
         <AddLink onClick={addLink} />
         <AddImage onClick={addImage} />
+        <AddYouTubeVideo onClick={addVideoLink} />
       </div>
 
       {/* Table */}
@@ -366,6 +380,7 @@ const Editor = ({
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      YoutubeExtension,
     ],
   });
 
@@ -524,6 +539,44 @@ const AddImage = ({ onClick }: { onClick: (value: string) => void }) => {
             </span>
           </div>
         )}
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+const AddYouTubeVideo = ({ onClick }: { onClick: (src: string) => void }) => {
+  const [url, setUrl] = useState('');
+
+  const handleClick = () => {
+    const embedUrl = convertToEmbedUrl(url);
+    if (embedUrl) {
+      onClick(embedUrl);
+    }
+  };
+
+  const convertToEmbedUrl = (url: string) => {
+    const match = url.match(
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^\s&]+)/
+    );
+    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger className="hover:bg-accent cursor-pointer px-2">
+        <PlaySquare className="h-4 w-4" />
+      </PopoverTrigger>
+      <PopoverContent className="bg-background border-border z-[1] w-[350px] rounded-lg border p-2">
+        <div className="flex items-center space-x-1">
+          <Input
+            className="focus-visible:ring-0"
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Paste YouTube URL"
+          />
+          <Button type="button" onClick={handleClick}>
+            Add
+          </Button>
+        </div>
       </PopoverContent>
     </Popover>
   );

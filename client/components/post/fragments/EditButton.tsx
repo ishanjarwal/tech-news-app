@@ -18,7 +18,7 @@ const EditButton = ({
 
   return (
     <Button variant={'ghost'} asChild>
-      <Link href={`/edit/${post_id}`}>
+      <Link href={`/edit/${post_id}`} className="!px-2">
         <Pen />
         <span className="hidden sm:block">Edit</span>
       </Link>

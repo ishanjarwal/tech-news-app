@@ -25,8 +25,8 @@ const Stats = () => {
       const response = await axios.get(url);
       const data = {
         posts: response.data.data.totalPosts,
-        followers: response.data.data.totalLikes,
-        likes: response.data.data.totalFollowers,
+        followers: response.data.data.totalFollowers,
+        likes: response.data.data.totalLikes,
       };
       setStats(data);
     } catch (error) {

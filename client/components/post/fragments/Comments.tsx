@@ -4,23 +4,26 @@ import { CustomTextboxInput } from '@/components/common/CustomFormElements';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
+  DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogContent,
   DialogTitle,
-  DialogClose,
 } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+import { cn, formatNumberShort } from '@/lib/utils';
 import {
   createComment,
   deleteComment,
+  editComment,
   fetchComments,
   replyComment,
   resetCommentErrors,
   resetDeleteCommentId,
+  resetEditCommentId,
   resetReplyParentCommentId,
   selectCommentState,
   setDeleteCommentId,
+  setEditCommentId,
   setReplyParentCommentId,
 } from '@/reducers/commentReducer';
 import { selectUserState } from '@/reducers/userReducer';
@@ -31,14 +34,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { X } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import z from 'zod';
 
-const Comments = ({ id }: { id: string }) => {
+const Comments = ({
+  id,
+  comments_count,
+}: {
+  id: string;
+  comments_count: number;
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const { comments } = useSelector(selectCommentState);
+
+  const [totalComments, setTotalComments] = useState<number>(comments_count);
 
   const [showAll, setShowAll] = useState<boolean>(false);
 
@@ -48,11 +58,14 @@ const Comments = ({ id }: { id: string }) => {
 
   return (
     <div className="mt-16" id="comments">
-      <ReplyDialog post_id={id} />
-      <DeleteCommentDialog />
-      <h2 className="pb-2 text-3xl font-semibold">Comments</h2>
+      <EditCommentDialog />
+      <ReplyDialog post_id={id} setTotalComments={setTotalComments} />
+      <DeleteCommentDialog setTotalComments={setTotalComments} />
+      <h2 className="pb-2 text-3xl font-semibold">
+        Comments ({formatNumberShort(totalComments)})
+      </h2>
       <hr />
-      <CommentForm id={id} />
+      <CommentForm id={id} setTotalComments={setTotalComments} />
       <div
         className={cn(
           showAll
@@ -176,6 +189,18 @@ const CommentItem = ({
                 Remove
               </button>
             )}
+            {user.username === me?.username && (
+              <button
+                onClick={() =>
+                  dispatch(
+                    setEditCommentId({ id: id, defaultContent: content })
+                  )
+                }
+                className="text-muted-foreground hover:text-foreground cursor-pointer bg-transparent text-xs"
+              >
+                Edit
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -183,7 +208,13 @@ const CommentItem = ({
   );
 };
 
-const CommentForm = ({ id }: { id: string }) => {
+const CommentForm = ({
+  id,
+  setTotalComments,
+}: {
+  id: string;
+  setTotalComments: Dispatch<SetStateAction<number>>;
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, errors: validation_errors } =
     useSelector(selectCommentState);
@@ -205,6 +236,7 @@ const CommentForm = ({ id }: { id: string }) => {
       createComment({ content: data.content, post_id: id })
     );
     if (createComment.fulfilled.match(result)) {
+      setTotalComments((prev: number) => prev + 1);
       reset();
     }
   };
@@ -235,7 +267,13 @@ const CommentForm = ({ id }: { id: string }) => {
   );
 };
 
-const ReplyDialog = ({ post_id }: { post_id: string }) => {
+const ReplyDialog = ({
+  post_id,
+  setTotalComments,
+}: {
+  post_id: string;
+  setTotalComments: Dispatch<SetStateAction<number>>;
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
     loading,
@@ -267,6 +305,7 @@ const ReplyDialog = ({ post_id }: { post_id: string }) => {
     if (replyComment.fulfilled.match(result)) {
       reset();
       dispatch(resetReplyParentCommentId());
+      setTotalComments((prev) => prev + 1);
     }
   };
 
@@ -329,7 +368,11 @@ const ReplyDialog = ({ post_id }: { post_id: string }) => {
   );
 };
 
-const DeleteCommentDialog = () => {
+const DeleteCommentDialog = ({
+  setTotalComments,
+}: {
+  setTotalComments: Dispatch<SetStateAction<number>>;
+}) => {
   const { loading, deleteCommentId } = useSelector(selectCommentState);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -339,7 +382,9 @@ const DeleteCommentDialog = () => {
       deleteComment({ comment_id: deleteCommentId })
     );
     if (deleteComment.fulfilled.match(result)) {
+      const totalDeleted = result.payload.data.totalDeleted;
       dispatch(resetDeleteCommentId());
+      setTotalComments((prev) => prev - totalDeleted);
     }
   };
 
@@ -367,6 +412,107 @@ const DeleteCommentDialog = () => {
             Delete
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const EditCommentDialog = () => {
+  const {
+    loading,
+    editCommentId,
+    errors: validation_errors,
+  } = useSelector(selectCommentState);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { user } = useSelector(selectUserState);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+    watch,
+  } = useForm<CommentValues>({
+    defaultValues: { content: '' },
+    resolver: zodResolver(commentSchema),
+  });
+
+  const onSubmit = async (data: CommentValues) => {
+    if (!editCommentId) return;
+    const result = await dispatch(
+      editComment({ comment_id: editCommentId.id, content: data.content })
+    );
+    if (editComment.fulfilled.match(result)) {
+      dispatch(resetEditCommentId());
+    }
+  };
+
+  useEffect(() => {
+    if (editCommentId) {
+      setValue('content', editCommentId.defaultContent);
+    }
+  }, [editCommentId]);
+
+  if (!user) return null;
+
+  return (
+    <Dialog
+      open={editCommentId ? true : false}
+      onOpenChange={(value: boolean) => {
+        if (!value) {
+          dispatch(resetEditCommentId());
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit your comment</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            {validation_errors && (
+              <div className="border-destructive bg-destructive/10 text-destructive mb-8 w-full rounded-lg px-3 py-2">
+                {validation_errors.map((el) => (
+                  <p className="flex items-start justify-start space-x-1">
+                    <X size={16} className="mt-[3px]" />
+                    <span>{el.msg}</span>
+                  </p>
+                ))}
+              </div>
+            )}
+            <div className="mt-4">
+              <CustomTextboxInput
+                labelText="Your comment"
+                register={register}
+                name="content"
+                disabled={loading}
+                error={errors.content}
+              />
+            </div>
+          </div>
+          <DialogFooter className="mt-8">
+            <DialogClose asChild>
+              <Button
+                disabled={loading}
+                className="cursor-pointer"
+                type="button"
+                variant={'destructive'}
+              >
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              disabled={
+                loading || editCommentId?.defaultContent === watch('content')
+              }
+              className="cursor-pointer"
+              type="submit"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

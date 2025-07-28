@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import InfiniteScroll from '@/components/common/infinite_scroll/InfiniteScroll';
 import Link from 'next/link';
+import Masonry from '@/components/masonry/Masonry';
 
 const page = () => {
   const { posts, loading, fetchedTillNow, totalCount, page, limit } =
@@ -55,67 +56,69 @@ const page = () => {
       >
         <div>
           {posts && posts.length > 0 ? (
-            <div className="columns-xs gap-1 sm:gap-4">
-              {posts.map((el) => (
-                <div className="bg-foreground/10 mb-1 break-inside-avoid p-2 sm:mb-4 sm:rounded-lg">
-                  {el?.thumbnail && (
-                    <div className="relative block aspect-[16/9] w-full overflow-hidden rounded-md">
-                      <Image
-                        fill
-                        className="absolute h-full w-full object-cover object-center"
-                        src={el.thumbnail}
-                        alt="postname"
-                      />
-                    </div>
-                  )}
-                  <div className="flex flex-col space-y-2 pt-2">
-                    <h3 className="line-clamp-2 overflow-hidden text-lg font-semibold text-balance text-ellipsis sm:text-xl">
-                      {el.title}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-xs">
-                        Updated{' '}
-                        {formatDistanceToNow(el.updated_at, {
-                          addSuffix: true,
-                        })}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Tooltip content="Upload this post">
-                          <Button
-                            onClick={() => uploadPost(el.id)}
-                            variant={'link'}
-                            size={'icon'}
-                            className="size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
-                          >
-                            <Upload />
-                          </Button>
-                        </Tooltip>
-                        <Tooltip content="Edit this post">
-                          <Button
-                            variant={'link'}
-                            size={'icon'}
-                            className="size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
-                            asChild
-                          >
-                            <Link href={`/edit/${el.id}`}>
-                              <Pen />
-                            </Link>
-                          </Button>
-                        </Tooltip>
-                        <Tooltip content="Delete this post">
-                          <Button
-                            size={'icon'}
-                            className="text-destructive size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
-                            variant={'link'}
-                          >
-                            <Trash />
-                          </Button>
-                        </Tooltip>
+            <div>
+              <Masonry gutters={{ 0: '8px' }}>
+                {posts.map((el) => (
+                  <div className="bg-foreground/10 w-full break-inside-avoid p-2 sm:rounded-lg">
+                    {el?.thumbnail && (
+                      <div className="relative block aspect-[16/9] w-full overflow-hidden rounded-md">
+                        <Image
+                          fill
+                          className="absolute h-full w-full object-cover object-center"
+                          src={el.thumbnail}
+                          alt="postname"
+                        />
+                      </div>
+                    )}
+                    <div className="flex flex-col space-y-2 pt-2">
+                      <h3 className="line-clamp-2 overflow-hidden text-lg font-semibold text-balance text-ellipsis sm:text-xl">
+                        {el.title}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-xs">
+                          Updated{' '}
+                          {formatDistanceToNow(el.updated_at, {
+                            addSuffix: true,
+                          })}
+                        </span>
+                        <div className="flex items-center space-x-1">
+                          <Tooltip content="Upload this post">
+                            <Button
+                              onClick={() => uploadPost(el.id)}
+                              variant={'link'}
+                              size={'icon'}
+                              className="size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
+                            >
+                              <Upload />
+                            </Button>
+                          </Tooltip>
+                          <Tooltip content="Edit this post">
+                            <Button
+                              variant={'link'}
+                              size={'icon'}
+                              className="size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
+                              asChild
+                            >
+                              <Link href={`/edit/${el.id}`}>
+                                <Pen />
+                              </Link>
+                            </Button>
+                          </Tooltip>
+                          <Tooltip content="Delete this post">
+                            <Button
+                              size={'icon'}
+                              className="text-destructive size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
+                              variant={'link'}
+                            >
+                              <Trash />
+                            </Button>
+                          </Tooltip>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </Masonry>
             </div>
           ) : (
             <div className="col-span-3 flex items-center justify-center">

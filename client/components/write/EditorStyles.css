@@ -82,3 +82,8 @@
   background: var(--color-accent);
   font-weight: bold;
 }
+
+.editor .tiptap iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+}
