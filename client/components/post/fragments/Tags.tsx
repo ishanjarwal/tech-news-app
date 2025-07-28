@@ -6,11 +6,9 @@ const Tags = ({ tags }: { tags: { slug: string; name: string }[] }) => {
   return (
     <div className="flex flex-wrap justify-start gap-2">
       {tags.map((tag: { slug: string; name: string }, index: number) => (
-        <Button asChild variant={'secondary'} size={'sm'}>
-          <Link href={`/tag/${tag.slug}`} className="text-xs">
-            # {tag.name}
-          </Link>
-        </Button>
+        <Link href={`/tag/${tag.slug}`} className="text-sm hover:underline">
+          #{tag.name}
+        </Link>
       ))}
     </div>
   );
