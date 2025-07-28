@@ -536,7 +536,11 @@ export const changePostStatus: RequestHandler = async (req, res) => {
     if (!user) throw new Error();
     const userId = user._id;
     const id = req.params.id;
-    const post = await Post.findOne({ _id: id, author_id: userId });
+    const post = await Post.findOne({
+      _id: id,
+      author_id: userId,
+      status: { $ne: "archived" },
+    });
     if (!post) {
       res.error(400, "error", "Invalid request", null);
       return;

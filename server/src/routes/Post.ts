@@ -2,6 +2,7 @@ import express from "express";
 import {
   changePostStatus,
   createPost,
+  deletePost,
   deletePostThumbnail,
   fetchAuthorPosts,
   fetchPagePosts,
@@ -113,6 +114,14 @@ router
     handleValidation,
     uploadToCloudinary("content_images", "image", "content"),
     uploadContentImage
+  )
+  .delete(
+    "/:id",
+    rateLimiter(1, 5),
+    accessTokenAutoRefresh,
+    passportAuthenticate,
+    accessByRole(["author"]),
+    deletePost
   );
 
 // public routes

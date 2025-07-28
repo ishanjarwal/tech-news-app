@@ -16,6 +16,7 @@ interface PostStateValues {
   fetchedTillNow: number;
   totalCount: number;
   limit: number;
+  deletePostId?: string;
 }
 
 const initialState: PostStateValues = {
@@ -241,11 +242,33 @@ export const uploadContentImage = createAsyncThunk<
   }
 });
 
+export const deletePost = createAsyncThunk<
+  ReduxSuccessPayload,
+  { id: string },
+  { rejectValue: ReduxErrorPayload }
+>('post/delete-post', async (data: { id: string }, { rejectWithValue }) => {
+  try {
+    const url = new URL(`${env.NEXT_PUBLIC_BASE_URL}/post/${data.id}`);
+    const response = await axios.delete(url.toString(), {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(reduxThunkErrorPaylod(error));
+  }
+});
+
 const postSlice = createSlice({
   name: 'post',
   initialState,
   reducers: {
     resetPostState: (state: PostStateValues) => initialState,
+    setDeletePostId(state, action: { payload: string }) {
+      state.deletePostId = action.payload;
+    },
+    resetDeletePostId(state) {
+      state.deletePostId = undefined;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -411,10 +434,30 @@ const postSlice = createSlice({
           const message = error.message;
           fireToast('error', message);
         }
+      })
+      .addCase(deletePost.pending, (state, action) => {
+        state.loading = true;
+        state.errors = undefined;
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        const id = action.meta.arg.id;
+        const payload = action.payload;
+        state.loading = false;
+        const message = payload.message;
+        const posts = state.posts?.filter((post: any) => post.id !== id);
+        state.posts = posts;
+        fireToast('success', message);
+      })
+      .addCase(deletePost.rejected, (state, action) => {
+        const error = action.payload as ReduxErrorPayload;
+        state.loading = false;
+        const message = error.message;
+        fireToast('error', message);
       });
   },
 });
 
 export const selectPostState = (state: RootState) => state.post;
-export const { resetPostState } = postSlice.actions;
+export const { resetPostState, setDeletePostId, resetDeletePostId } =
+  postSlice.actions;
 export default postSlice.reducer;
