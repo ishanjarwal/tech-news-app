@@ -30,15 +30,15 @@ import { Button } from '@/components/ui/button';
 import { formatNumberShort } from '@/lib/utils';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const slug = params.slug;
+  const { slug } = await params;
   const response = await axios.get(
     `${env.NEXT_PUBLIC_BASE_URL}/post/metadata/${slug}`
   );
@@ -75,7 +75,7 @@ export async function generateMetadata({
 
 const page = async ({ params }: PageProps) => {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     const url = `${env.NEXT_PUBLIC_BASE_URL}/post/${slug}`;
     const response = await axios.get(url);

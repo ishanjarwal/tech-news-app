@@ -6,14 +6,14 @@ import axios from 'axios';
 import { redirect } from 'next/navigation';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 const page = async ({ params }: PageProps) => {
   try {
-    const { id } = params;
+    const { id } = await params;
     const url = `${env.NEXT_PUBLIC_BASE_URL}/post/id/${id}`;
     const response = await axios.get(url, { withCredentials: true });
     const post = mapPost(response.data.data);
