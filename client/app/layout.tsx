@@ -8,6 +8,7 @@ import './globals.css';
 import InitializeUser from '@/components/auth/InitializeUser';
 import PhotoUploader from '@/components/photo_upload/PhotoUploader';
 import { Manrope } from 'next/font/google';
+import PageProgress from '@/components/page_progress/PageProgress';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -57,6 +58,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased ${manrope.variable}`}>
+        <PageProgress />
         <AppStoreProvider>
           <InitializeUser>
             <ThemeProvider
