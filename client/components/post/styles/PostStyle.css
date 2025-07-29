@@ -5,11 +5,11 @@
 }
 
 .rendered_post h2 {
-  @apply mb-4 text-2xl leading-snug font-bold sm:text-3xl sm:leading-[2.75rem] md:text-4xl md:leading-[3.25rem] lg:text-[3rem] lg:leading-[3.5rem];
+  @apply mt-8 mb-4 text-2xl leading-snug font-bold sm:text-3xl sm:leading-[2.75rem] md:text-4xl md:leading-[3.25rem] lg:text-[3rem] lg:leading-[3.5rem];
 }
 
 .rendered_post h3 {
-  @apply mb-4 text-xl leading-snug font-bold sm:text-2xl sm:leading-8 md:text-[2.25rem] md:leading-[2.75rem] lg:text-[2.5rem] lg:leading-[2.5rem];
+  @apply mt-6 mb-4 text-xl leading-snug font-bold sm:text-2xl sm:leading-8 md:text-[2.25rem] md:leading-[2.75rem] lg:text-[2.5rem] lg:leading-[2.5rem];
 }
 
 .rendered_post p {
