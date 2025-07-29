@@ -110,7 +110,11 @@ router
     accessTokenAutoRefresh,
     passportAuthenticate,
     accessByRole(["author"]),
-    handleUpload(["image/jpeg", "image/jpg", "image/gif"], 2, "image"),
+    handleUpload(
+      ["image/jpeg", "image/jpg", "image/gif", "image/png"],
+      2,
+      "image"
+    ),
     handleValidation,
     uploadToCloudinary("content_images", "image", "content"),
     uploadContentImage
