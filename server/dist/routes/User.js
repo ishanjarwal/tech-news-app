@@ -55,6 +55,6 @@ router.get("/google/callback", (0, rateLimiter_1.rateLimiter)(1, 5), passport_1.
         refreshToken,
         refreshTokenExpiry,
     });
-    res.redirect(`${env_1.env.FRONTEND_HOST}/account/profile`);
+    res.redirect(`${env_1.env.FRONTEND_HOST}/`);
 });
 exports.default = router;

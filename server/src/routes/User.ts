@@ -193,7 +193,7 @@ router.get(
       refreshTokenExpiry,
     });
 
-    res.redirect(`${env.FRONTEND_HOST}/account/profile`);
+    res.redirect(`${env.FRONTEND_HOST}/`);
   }
 );
 
