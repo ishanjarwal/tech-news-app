@@ -9,6 +9,7 @@ import InitializeUser from '@/components/auth/InitializeUser';
 import PhotoUploader from '@/components/photo_upload/PhotoUploader';
 import { Manrope } from 'next/font/google';
 import PageProgress from '@/components/page_progress/PageProgress';
+import { Analytics } from '@vercel/analytics/next';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -58,6 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased ${manrope.variable}`}>
+        <Analytics />
         <PageProgress />
         <AppStoreProvider>
           <InitializeUser>
