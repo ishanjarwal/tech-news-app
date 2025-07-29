@@ -33,7 +33,7 @@
 }
 
 .rendered_post pre {
-  @apply max-w-full overflow-auto p-4 text-sm;
+  @apply my-1 max-w-full overflow-auto text-sm;
 }
 
 .rendered_post pre code {
