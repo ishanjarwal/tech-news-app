@@ -15,14 +15,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectUserState, updateUser } from '@/reducers/userReducer';
 import { useEffect } from 'react';
 import { AppDispatch } from '@/stores/appstore';
+import { PREFERENCES_THEMES } from '@/validations/profile';
 
 const ThemeToggleButton = () => {
   const { setTheme, theme } = useTheme();
   const { user } = useSelector(selectUserState);
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
-    if (user && theme !== user.preferences?.theme) {
-      dispatch(updateUser({ theme }));
+    if (user && theme && theme !== user.preferences?.theme) {
+      const validTheme = theme as (typeof PREFERENCES_THEMES)[number];
+      dispatch(updateUser({ theme: validTheme }));
     }
   }, [theme]);
 
