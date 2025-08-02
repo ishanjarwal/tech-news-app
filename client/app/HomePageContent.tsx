@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/carousel';
 import CategoryPosts from '@/components/homepage/CategoryPosts';
 import Masonry from '@/components/masonry/Masonry';
+import NewsletterBanner from '@/components/homepage/NewsletterBanner';
 
 const fetchHomepage = async () => {
   try {
@@ -68,10 +69,11 @@ const HomePageContent = async () => {
   }));
 
   return (
-    <div className="flex flex-col space-y-8 py-8 md:space-y-16 md:py-16">
+    <div className="flex flex-col space-y-24 py-8 md:space-y-32 md:py-16">
       {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
       <TopPosts posts={trendingPosts} />
       <Topics topics={topTags} />
+      <NewsletterBanner />
       <div className="px-2 sm:px-0">
         <h2 className="mb-4 border-b pb-4 text-3xl font-semibold sm:mb-8 sm:pb-8 lg:text-4xl">
           📋 Posts by Category

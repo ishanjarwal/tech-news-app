@@ -18,32 +18,32 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'Tech Newz | Stay Ahead in the Tech Space',
+  title: 'The Binary Ping | Stay Ahead in the Tech Space',
   description:
-    'Tech Newz delivers the latest technology news, coding tutorials, developer insights, product reviews, and industry analysis to keep tech enthusiasts and programmers ahead of the curve.',
+    'The Binary Ping delivers the latest technology news, coding tutorials, developer insights, product reviews, and industry analysis to keep tech enthusiasts and programmers ahead of the curve.',
   keywords:
     'technology news, coding tutorials, programming, developer news, software development, tech reviews, startups, AI, web development, mobile development, cybersecurity, tech trends, programming tips',
   twitter: {
     card: 'summary_large_image',
-    title: 'Tech Newz | Stay Ahead in the Tech Space',
+    title: 'The Binary Ping | Stay Ahead in the Tech Space',
     description:
       'Latest tech news, developer tutorials, product reviews, and industry insights for tech enthusiasts and programmers.',
-    site: '@TechNewzOfficial',
-    creator: '@TechNewzOfficial',
-    images: ['https://yourdomain.com/og-image.jpg'],
+    site: '@thebinaryping',
+    creator: '@thebinaryping',
+    images: ['https://thebinaryping.vercel.app/images/og-image.jpg'],
   },
   openGraph: {
-    title: 'Tech Newz | Stay Ahead in the Tech Space',
+    title: 'The Binary Ping | Stay Ahead in the Tech Space',
     description:
-      'Explore the latest technology trends, coding tutorials, and in-depth developer content at Tech Newz.',
-    url: 'https://yourdomain.com/',
-    siteName: 'Tech Newz',
+      'Explore the latest technology trends, coding tutorials, and in-depth developer content at The Binary Ping.',
+    url: 'https://thebinaryping.vercel.app/',
+    siteName: 'The Binary Ping',
     images: [
       {
-        url: 'https://yourdomain.com/og-image.jpg',
+        url: 'https://thebinaryping.vercel.app/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Tech Newz - Stay Ahead in the Tech Space',
+        alt: 'The Binary Ping - Stay Ahead in the Tech Space',
       },
     ],
     locale: 'en_US',

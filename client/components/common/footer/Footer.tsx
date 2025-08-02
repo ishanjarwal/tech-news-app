@@ -27,9 +27,9 @@ const Footer = () => {
             <div className="col-span-2 mb-8 lg:mb-0">
               <div className="flex items-center gap-2 lg:justify-start">
                 <Link href="/">
-                  <Logo className="max-h-8" />
+                  <Logo mobileWidth={0} className="max-h-8" />
                 </Link>
-                <p className="text-xl font-semibold">{logo.title}</p>
+                {/* <p className="text-xl font-semibold">{logo.title}</p> */}
               </div>
               <p className="text-muted-foreground mt-4 font-semibold">
                 {tagline}

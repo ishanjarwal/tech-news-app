@@ -4,8 +4,10 @@ export const logo = {
   url: '/',
   src_dark: '/images/logo_dark.png',
   src_light: '/images/logo_light.png',
-  alt: 'Tech News',
-  title: 'TechNews',
+  namelogo_src_dark: '/images/namelogo_dark.png',
+  namelogo_src_light: '/images/namelogo_light.png',
+  alt: 'The Binary Ping | Stay ahead in the Tech Space',
+  title: 'The Binary Ping',
 };
 
 export const auth = {
@@ -24,7 +26,7 @@ export const auth = {
 export const footer_content = {
   tagline: 'Stay ahead in the Tech Space.',
   description:
-    'A community-driven platform for developers, tech enthusiasts, and innovators to discover the latest in technology, share insights, publish ideas, and grow together.',
+    'We are a community-driven platform for developers, tech enthusiasts, and innovators to discover the latest in technology, share insights, publish ideas, and grow together.',
   menuItems: [
     {
       title: 'Explore',

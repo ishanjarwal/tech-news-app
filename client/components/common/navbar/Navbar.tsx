@@ -56,10 +56,10 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             {/* Logo */}
             <Link href={logo.url} className="flex items-center gap-2">
-              <Logo className="max-h-8" />
-              <span className="hidden text-lg font-semibold tracking-tighter lg:inline">
+              <Logo />
+              {/* <span className="hidden text-lg font-bold tracking-tighter lg:inline">
                 {logo.title}
-              </span>
+              </span> */}
             </Link>
           </div>
           <div className="flex flex-1 items-center px-4">
