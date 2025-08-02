@@ -16,6 +16,8 @@ import CategoryPosts from '@/components/homepage/CategoryPosts';
 import Masonry from '@/components/masonry/Masonry';
 import NewsletterBanner from '@/components/homepage/NewsletterBanner';
 
+export const dynamic = 'force-dynamic';
+
 const fetchHomepage = async () => {
   try {
     const url = `${env.NEXT_PUBLIC_BASE_URL}/homepage`;
