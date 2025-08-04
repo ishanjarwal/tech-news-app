@@ -6,8 +6,7 @@ import { isURL } from "validator";
 import slugify from "../utils/slugify";
 import Post from "../models/Post";
 import { MongooseError } from "mongoose";
-import { optional } from "zod";
-import isHtml from "is-html";
+import { HtmlValidate } from "html-validate";
 
 export const validateNewPost = [
   body("title")
@@ -57,8 +56,10 @@ export const validateNewPost = [
     .isLength({ min: 100, max: 20000 })
     .withMessage("Content must be between 100 and 20,000 characters")
     .bail()
-    .custom((value) => {
-      if (!isHtml(value)) {
+    .custom(async (value) => {
+      const htmlvalidate = new HtmlValidate();
+      const report = await htmlvalidate.validateString(value);
+      if (!report.valid) {
         throw new Error("Invalid format");
       }
       return true;
@@ -233,8 +234,10 @@ export const validateUpdatePost = [
     .isLength({ min: 100, max: 20000 })
     .withMessage("Content must be between 100 and 20,000 characters")
     .bail()
-    .custom((value) => {
-      if (!isHtml(value)) {
+    .custom(async (value) => {
+      const htmlvalidate = new HtmlValidate();
+      const report = await htmlvalidate.validateString(value);
+      if (report.valid) {
         throw new Error("Invalid format");
       }
       return true;
