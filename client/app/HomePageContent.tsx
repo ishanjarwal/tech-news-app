@@ -16,14 +16,20 @@ import CategoryPosts from '@/components/homepage/CategoryPosts';
 import Masonry from '@/components/masonry/Masonry';
 import NewsletterBanner from '@/components/homepage/NewsletterBanner';
 
-export const dynamic = 'force-dynamic';
-
 const fetchHomepage = async () => {
   try {
-    const url = `${env.NEXT_PUBLIC_BASE_URL}/homepage`;
-    const response = await axios.get(url);
-    return response.data.data;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/homepage`;
+    const response = await fetch(url, {
+      next: { revalidate: 300 }, // 300 seconds = 5 minutes
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch');
+    }
+    const json = await response.json();
+    return json.data;
   } catch (error) {
+    console.error('Fetch error:', error);
     return redirect('/error');
   }
 };

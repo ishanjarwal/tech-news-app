@@ -14,31 +14,21 @@ const Logo = ({
 }) => {
   const { theme, systemTheme } = useTheme();
   const { width } = useWindowSize();
-  return (
-    <>
-      {width > mobileWidth ? (
-        <img
-          src={
-            theme === 'dark' || (theme === 'system' && systemTheme === 'dark')
-              ? logo.namelogo_src_dark
-              : logo.namelogo_src_light
-          }
-          className={cn('h-8', className)}
-          alt={logo.alt}
-        />
-      ) : (
-        <img
-          src={
-            theme === 'dark' || (theme === 'system' && systemTheme === 'dark')
-              ? logo.src_dark
-              : logo.src_light
-          }
-          className={cn('h-8', className)}
-          alt={logo.alt}
-        />
-      )}
-    </>
-  );
+
+  const resolvedTheme = theme === 'system' ? systemTheme : theme;
+
+  if (typeof width === 'undefined' || !resolvedTheme) return null;
+
+  const isMobile = width <= mobileWidth;
+  const src = isMobile
+    ? resolvedTheme === 'dark'
+      ? logo.src_dark
+      : logo.src_light
+    : resolvedTheme === 'dark'
+      ? logo.namelogo_src_dark
+      : logo.namelogo_src_light;
+
+  return <img src={src} className={cn('h-8', className)} alt={logo.alt} />;
 };
 
 export default Logo;
