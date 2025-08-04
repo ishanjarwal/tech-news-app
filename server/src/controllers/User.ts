@@ -678,7 +678,6 @@ export const fetchAuthor: RequestHandler = async (req, res) => {
     }
 
     const authorId = author._id;
-    console.log(authorId, typeof authorId);
     const [totalPosts, totalLikes, totalFollowers] = await Promise.all([
       Post.countDocuments({ author_id: authorId }),
       Like.countDocuments({

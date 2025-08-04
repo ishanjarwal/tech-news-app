@@ -242,7 +242,7 @@ exports.validateUpdatePost = [
         .custom(async (value) => {
         const htmlvalidate = new html_validate_1.HtmlValidate();
         const report = await htmlvalidate.validateString(value);
-        if (report.valid) {
+        if (!report.valid) {
             throw new Error("Invalid format");
         }
         return true;

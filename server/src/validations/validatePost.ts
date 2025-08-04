@@ -237,7 +237,7 @@ export const validateUpdatePost = [
     .custom(async (value) => {
       const htmlvalidate = new HtmlValidate();
       const report = await htmlvalidate.validateString(value);
-      if (report.valid) {
+      if (!report.valid) {
         throw new Error("Invalid format");
       }
       return true;
