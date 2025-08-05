@@ -504,7 +504,8 @@ const changePostStatus = async (req, res) => {
             : "published";
         post.status = status;
         await post.save();
-        res.success(200, "success", `Post status changed to ${status}`, {
+        const message = status === "draft" ? "Saved as draft" : "Post published";
+        res.success(200, "success", message, {
             slug: post.slug,
             status: post.status,
         });
