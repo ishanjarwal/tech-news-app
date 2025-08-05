@@ -47,6 +47,7 @@ const HomePageContent = async () => {
     },
     thumbnail: el?.thumbnail ?? undefined,
     created_at: el.created_at,
+    reading_time_sec: el.reading_time_sec,
   }));
   const topTags = data.topTags.map((el: any) => ({
     name: el.name,
@@ -74,6 +75,7 @@ const HomePageContent = async () => {
     },
     thumbnail: el?.thumbnail ?? undefined,
     created_at: el.created_at,
+    reading_time_sec: el.reading_time_sec,
   }));
 
   return (
@@ -121,15 +123,20 @@ const Topics = ({ topics }: { topics: { name: string; slug: string }[] }) => {
       <h2 className="mb-4 border-b pb-4 text-3xl font-semibold sm:mb-8 sm:pb-8 lg:text-4xl">
         #️Trending Topics
       </h2>
-      <div className="hidden flex-wrap gap-2 lg:flex">
+      <div className="flex gap-2" style={{ flexFlow: 'row wrap' }}>
         {topics.map((tag: { name: string; slug: string }, index: number) => (
-          <Button key={'topic-button' + tag.slug} asChild variant={'secondary'}>
+          <Button
+            key={'topic-button' + tag.slug}
+            asChild
+            variant={'outline'}
+            className="flex-auto rounded-sm px-2 lg:rounded-lg lg:px-3"
+          >
             <Link href={`/tag/${tag.slug}`}># {tag.name}</Link>
           </Button>
         ))}
       </div>
 
-      <div className="relative lg:hidden">
+      {/* <div className="relative lg:hidden">
         <Carousel
           opts={{
             dragFree: true,
@@ -162,7 +169,7 @@ const Topics = ({ topics }: { topics: { name: string; slug: string }[] }) => {
             />
           </div>
         </Carousel>
-      </div>
+      </div> */}
     </div>
   );
 };

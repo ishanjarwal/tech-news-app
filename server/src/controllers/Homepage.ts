@@ -98,6 +98,7 @@ export async function getTrendingPosts() {
         author: 1,
         created_at: 1,
         category: 1,
+        reading_time_sec: 1,
       },
     },
   ]);
@@ -271,6 +272,7 @@ export async function getRecentPosts() {
         summary: 1,
         author: 1,
         category: 1,
+        reading_time_sec: 1,
       },
     },
   ]);

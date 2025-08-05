@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CategoryPostProps {
@@ -23,9 +23,12 @@ interface CategoryPostProps {
 const CategoryPosts = ({ categoryPosts }: CategoryPostProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const [active, setActive] = useState<string>('');
+
   const scrollToSection = (sectionId: string) => {
     const container = scrollContainerRef.current;
-    const section = container?.querySelector(
+    if (!container) return;
+    const section = container.querySelector(
       `#${sectionId}`
     ) as HTMLElement | null;
 
@@ -41,27 +44,43 @@ const CategoryPosts = ({ categoryPosts }: CategoryPostProps) => {
     }
   };
 
+  useEffect(() => {
+    setActive('category-' + categoryPosts[0].category.slug);
+  }, []);
+
+  useEffect(() => {
+    if (active) {
+      scrollToSection(active);
+    }
+  }, [active]);
+
   return (
     <div className="overflow-hidden rounded-lg border lg:flex">
       <div className="flex overflow-auto border-r lg:flex-col">
         {categoryPosts.map((el, index) => (
           <button
             key={'categor-button-' + index}
-            onClick={() => scrollToSection('category-' + el.category.slug)}
+            onClick={() => setActive('category-' + el.category.slug)}
             className={cn(
-              'hover:bg-accent/50 cursor-pointer border-r px-4 py-3 whitespace-nowrap duration-150 lg:border-r-0 lg:border-b'
+              'hover:bg-accent/50 text-muted-foreground cursor-pointer border-r px-4 py-3 whitespace-nowrap duration-150 lg:border-r-0 lg:border-b',
+              active === `category-${el.category.slug}` &&
+                'text-foreground border-b-foreground bg-accent/50 border-b-2'
             )}
           >
             {categoryPosts[index].category.name}
           </button>
         ))}
       </div>
-      <div className="!h-[450px] flex-1 overflow-auto" ref={scrollContainerRef}>
+      <div
+        className="pointer-events-auto !h-[450px] flex-1 overflow-hidden"
+        ref={scrollContainerRef}
+      >
         {categoryPosts.map((categorypost, index) => {
           return (
             <div
               key={'section-' + categorypost.category.slug}
               id={'category-' + categorypost.category.slug}
+              className="h-full"
             >
               <h2 className="bg-accent/50 px-4 py-2 text-3xl font-bold">
                 {categorypost.category.name}
