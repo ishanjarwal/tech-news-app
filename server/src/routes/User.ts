@@ -178,22 +178,27 @@ router.get(
     failureRedirect: "/login",
   }),
   (req, res) => {
-    const {
-      user,
-      accessToken,
-      accessTokenExpiry,
-      refreshToken,
-      refreshTokenExpiry,
-    } = req.user as any;
+    try {
+      const {
+        user,
+        accessToken,
+        accessTokenExpiry,
+        refreshToken,
+        refreshTokenExpiry,
+      } = req.user as any;
 
-    setAuthCookies(res, {
-      accessToken,
-      accessTokenExpiry,
-      refreshToken,
-      refreshTokenExpiry,
-    });
+      setAuthCookies(res, {
+        accessToken,
+        accessTokenExpiry,
+        refreshToken,
+        refreshTokenExpiry,
+      });
 
-    res.redirect(`${env.FRONTEND_HOST}/`);
+      res.redirect(`${env.FRONTEND_HOST}/`);
+    } catch (error) {
+      console.log(error);
+      res.redirect(`${env.FRONTEND_HOST}/error?code=google_auth_error`);
+    }
   }
 );
 
