@@ -46,7 +46,7 @@ const Comments = ({
   comments_count: number;
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { comments } = useSelector(selectCommentState);
+  const { comments, loading } = useSelector(selectCommentState);
 
   const [totalComments, setTotalComments] = useState<number>(comments_count);
 
