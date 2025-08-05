@@ -6,7 +6,14 @@ import { isURL } from "validator";
 import slugify from "../utils/slugify";
 import Post from "../models/Post";
 import { MongooseError } from "mongoose";
-import { HtmlValidate } from "html-validate";
+import { HtmlValidate, RuleOptions } from "html-validate";
+
+const htmlValidationRules: RuleOptions = {
+  "no-inline-style": "off", // Disable inline style check
+  "require-attr": "off", // Disable required attribute check,
+  "wcag/h37": "off", // image alt
+};
+const htmlvalidate = new HtmlValidate({ rules: htmlValidationRules });
 
 export const validateNewPost = [
   body("title")
@@ -57,7 +64,6 @@ export const validateNewPost = [
     .withMessage("Content must be between 100 and 20,000 characters")
     .bail()
     .custom(async (value) => {
-      const htmlvalidate = new HtmlValidate();
       const report = await htmlvalidate.validateString(value);
       if (!report.valid) {
         throw new Error("Invalid format");
@@ -235,7 +241,6 @@ export const validateUpdatePost = [
     .withMessage("Content must be between 100 and 20,000 characters")
     .bail()
     .custom(async (value) => {
-      const htmlvalidate = new HtmlValidate();
       const report = await htmlvalidate.validateString(value);
       if (!report.valid) {
         throw new Error("Invalid format");
