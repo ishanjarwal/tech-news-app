@@ -24,7 +24,16 @@ require("./config/passport-jwt-strategy");
 require("./config/passport-google-strategy");
 require("./config/cloudinary");
 const app = (0, express_1.default)();
-(0, connectDB_1.default)();
+app.use("/api/v1", (async (req, res, next) => {
+    try {
+        await (0, connectDB_1.default)();
+        next();
+    }
+    catch (error) {
+        console.error("DB Connection Error:", error);
+        return res.status(500).json({ message: "Database connection error" });
+    }
+}));
 // middlewares
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());

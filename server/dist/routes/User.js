@@ -48,13 +48,19 @@ router.get("/google/callback", (0, rateLimiter_1.rateLimiter)(1, 5), passport_1.
     session: false,
     failureRedirect: "/login",
 }), (req, res) => {
-    const { user, accessToken, accessTokenExpiry, refreshToken, refreshTokenExpiry, } = req.user;
-    (0, setAuthCookies_1.default)(res, {
-        accessToken,
-        accessTokenExpiry,
-        refreshToken,
-        refreshTokenExpiry,
-    });
-    res.redirect(`${env_1.env.FRONTEND_HOST}/`);
+    try {
+        const { user, accessToken, accessTokenExpiry, refreshToken, refreshTokenExpiry, } = req.user;
+        (0, setAuthCookies_1.default)(res, {
+            accessToken,
+            accessTokenExpiry,
+            refreshToken,
+            refreshTokenExpiry,
+        });
+        res.redirect(`${env_1.env.FRONTEND_HOST}/`);
+    }
+    catch (error) {
+        console.log(error);
+        res.redirect(`${env_1.env.FRONTEND_HOST}/error?code=google_auth_error`);
+    }
 });
 exports.default = router;

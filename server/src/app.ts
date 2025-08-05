@@ -1,4 +1,4 @@
-import express from "express";
+import express, { RequestHandler } from "express";
 import connectDB from "./config/connectDB";
 import { env } from "./config/env";
 import "./models"; // loads and registers all models once
@@ -21,7 +21,15 @@ import "./config/cloudinary";
 
 const app = express();
 
-connectDB();
+app.use("/api/v1", (async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("DB Connection Error:", error);
+    return res.status(500).json({ message: "Database connection error" });
+  }
+}) as RequestHandler);
 
 // middlewares
 app.use(express.json());
