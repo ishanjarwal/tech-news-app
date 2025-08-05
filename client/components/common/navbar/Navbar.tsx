@@ -8,7 +8,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { auth, logo } from '@/constants/constants';
-import { Menu } from 'lucide-react';
+import { ArrowBigDown, ArrowRight, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import SearchBar from '../searchbar/SearchBar';
@@ -51,7 +51,7 @@ const Navbar = () => {
 
   return (
     <section className="py-2 md:py-4">
-      <div className="px-2 sm:px-4">
+      <div className="px-2 sm:px-0">
         <nav className="flex justify-between">
           <div className="flex items-center gap-6">
             {/* Logo */}
@@ -62,19 +62,24 @@ const Navbar = () => {
               </span> */}
             </Link>
           </div>
-          <div className="flex flex-1 items-center px-4">
+          <div className="flex flex-1 items-center px-2 sm:px-4">
             <SearchBar />
           </div>
           <div className="flex items-center justify-end space-x-1 md:space-x-2">
             <div className="hidden items-center lg:flex">
               {navLinks.map((link, index) => (
-                <Button key={'navlink-' + index} asChild variant={'link'}>
+                <Button
+                  key={'navlink-' + index}
+                  asChild
+                  variant={'link'}
+                  className="px-2 text-xs xl:px-3 xl:text-sm"
+                >
                   <Link href={link.href}>{link.text}</Link>
                 </Button>
               ))}
             </div>
 
-            <div className="flex items-center justify-center">
+            <div className="hidden items-center justify-center lg:flex">
               <ThemeToggleButton />
             </div>
 
@@ -83,14 +88,21 @@ const Navbar = () => {
                 <UserProfile />
               </div>
             ) : (
-              <div className="hidden items-center gap-2 lg:flex">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={auth.login.href}>{auth.login.title}</Link>
-                </Button>
-                <Button asChild size="sm">
-                  <Link href={auth.signup.href}>{auth.signup.title}</Link>
-                </Button>
-              </div>
+              <>
+                <div className="hidden items-center gap-2 lg:flex">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={auth.login.href}>{auth.login.title}</Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link href={auth.signup.href}>{auth.signup.title}</Link>
+                  </Button>
+                </div>
+                <div className="lg:hidden">
+                  <Button asChild size="sm">
+                    <Link href={auth.login.href}>Join</Link>
+                  </Button>
+                </div>
+              </>
             )}
             <div className="lg:hidden">
               <Button
@@ -99,7 +111,7 @@ const Navbar = () => {
                 size={'icon'}
                 className="cursor-pointer active:brightness-90"
               >
-                <Menu />
+                <Menu className="size-6" />
               </Button>
             </div>
           </div>
@@ -130,14 +142,14 @@ const MobileNavbar = ({ open, setOpen, theme }: MobilenavProps) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       {/* <SheetTrigger>Open</SheetTrigger> */}
-      <SheetContent side="left" className="overflow-auto">
+      <SheetContent side="right" className="overflow-auto">
         <SheetHeader>
           <SheetTitle>
             <Link href={logo.url} className="flex items-center gap-2">
-              <Logo className="max-h-8" />
-              <span className="text-lg font-semibold tracking-tighter">
+              <Logo className="max-h-8" mobileWidth={0} />
+              {/* <span className="text-lg font-semibold tracking-tighter">
                 {logo.title}
-              </span>
+              </span> */}
             </Link>
           </SheetTitle>
           <SheetDescription className="text-balance">
@@ -150,13 +162,25 @@ const MobileNavbar = ({ open, setOpen, theme }: MobilenavProps) => {
               <Button
                 onClick={() => setOpen(false)}
                 key={'navlink-' + index}
-                className="justify-start"
+                className="justify-start text-base"
                 asChild
                 variant={'link'}
               >
-                <Link href={link.href}>{link.text}</Link>
+                <Link
+                  className="group flex items-center space-x-0.5"
+                  href={link.href}
+                >
+                  <span className="text-muted-foreground group-hover:text-foreground relative duration-150 group-hover:translate-x-1">
+                    <ArrowRight />
+                  </span>
+                  <span>{link.text}</span>
+                </Link>
               </Button>
             ))}
+            <div className="mt-8 flex items-center justify-start space-x-2 px-4">
+              <p className="text-muted-foreground text-base">Dark Mode</p>
+              <ThemeToggleButton />
+            </div>
           </div>
           {user ? (
             <div className="px-4">
@@ -168,22 +192,16 @@ const MobileNavbar = ({ open, setOpen, theme }: MobilenavProps) => {
               />
             </div>
           ) : (
-            <div className="flex w-full space-x-2 px-4">
+            <div className="flex w-full flex-col space-y-2 px-4">
               <Button
                 onClick={() => setOpen(false)}
                 asChild
                 variant="outline"
-                size="sm"
                 className="flex-1"
               >
                 <Link href={auth.login.href}>{auth.login.title}</Link>
               </Button>
-              <Button
-                onClick={() => setOpen(false)}
-                asChild
-                size="sm"
-                className="flex-1"
-              >
+              <Button onClick={() => setOpen(false)} asChild className="flex-1">
                 <Link href={auth.signup.href}>{auth.signup.title}</Link>
               </Button>
             </div>
