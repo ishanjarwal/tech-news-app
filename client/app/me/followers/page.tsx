@@ -18,9 +18,18 @@ import { useDispatch, useSelector } from 'react-redux';
 const page = () => {
   const hasFetched = useRef(false);
 
+  const [firstLoad, setFirstLoad] = useState<boolean>(true);
+
+  const fetchFirstFollowers = async () => {
+    const result = await dispatch(fetchFollowers({ page: 1 }));
+    if (fetchFollowers.fulfilled.match(result)) {
+      setFirstLoad(false);
+    }
+  };
+
   useEffect(() => {
     if (!hasFetched.current) {
-      dispatch(fetchFollowers({ page: 1 }));
+      fetchFirstFollowers();
       hasFetched.current = true;
     }
   }, []);
@@ -46,7 +55,11 @@ const page = () => {
         totalPages={Math.ceil(totalCount / limit)}
         total={fetchedTillNow}
       >
-        {followers && followers.length > 0 ? (
+        {firstLoad ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader className="animate-spin" />
+          </div>
+        ) : followers && followers.length > 0 ? (
           followers.map((el, index) => (
             <div className="flex justify-between rounded-md px-4 py-4">
               <div className="flex items-center justify-start space-x-4">
@@ -82,7 +95,7 @@ const page = () => {
             </div>
           ))
         ) : (
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center py-24">
             <p className="text-muted-foreground text-center text-sm">
               No one follows you
             </p>
