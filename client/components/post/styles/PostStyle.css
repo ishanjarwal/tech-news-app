@@ -1,15 +1,15 @@
 @import 'tailwindcss';
 
 .rendered_post h1 {
-  @apply mt-12 mb-4 text-3xl leading-tight font-bold sm:text-4xl sm:leading-[3rem] md:text-5xl md:leading-[3.5rem] lg:text-[4rem] lg:leading-[4.5rem];
+  @apply mt-12 mb-4 text-2xl leading-snug font-bold sm:text-3xl sm:leading-[2.5rem] md:text-4xl md:leading-[3rem] lg:text-[3rem] lg:leading-[3.5rem];
 }
 
 .rendered_post h2 {
-  @apply mt-8 mb-4 text-2xl leading-snug font-bold sm:text-3xl sm:leading-[2.75rem] md:text-4xl md:leading-[3.25rem] lg:text-[3rem] lg:leading-[3.5rem];
+  @apply mt-8 mb-4 text-xl leading-snug font-bold sm:text-2xl sm:leading-[2.25rem] md:text-3xl md:leading-[2.75rem] lg:text-[2.5rem] lg:leading-[3rem];
 }
 
 .rendered_post h3 {
-  @apply mt-6 mb-4 text-xl leading-snug font-bold sm:text-2xl sm:leading-8 md:text-[2.25rem] md:leading-[2.75rem] lg:text-[2.5rem] lg:leading-[2.5rem];
+  @apply mt-6 mb-4 text-lg leading-snug font-bold sm:text-xl sm:leading-7 md:text-[1.5rem] md:leading-[2.25rem] lg:text-[2rem] lg:leading-[2.25rem];
 }
 
 .rendered_post p {
@@ -33,7 +33,7 @@
 }
 
 .rendered_post pre {
-  @apply my-1 max-w-full overflow-auto text-sm;
+  @apply my-1 max-w-full overflow-auto text-base;
 }
 
 .rendered_post pre code {
@@ -41,13 +41,14 @@
 }
 
 .rendered_post blockquote {
-  @apply border-s-4 border-[var(--color-primary)] bg-[var(--color-accent)] py-6 ps-4 pe-2;
+  @apply border-s-4 border-[var(--color-primary)] bg-[var(--color-card)] py-6 ps-4 pe-2;
 }
 
 .rendered_post table {
-  @apply my-6 block w-full min-w-[640px] overflow-x-auto rounded-2xl border border-[var(--color-border)];
-  border-collapse: separate;
+  @apply my-6 w-full min-w-[640px] overflow-x-auto;
+  border-collapse: collapse;
   border-spacing: 0;
+  table-layout: auto;
 }
 
 .rendered_post table p {
@@ -60,11 +61,7 @@
 }
 
 .rendered_post th {
-  @apply bg-[var(--color-accent)] text-center font-semibold;
-}
-
-.rendered_post tr:last-child td {
-  border-bottom: none;
+  @apply bg-[var(--color-accent)] text-center font-semibold whitespace-nowrap;
 }
 
 .rendered_post iframe {
@@ -72,7 +69,7 @@
 }
 
 .rendered_post img {
-  @apply mx-auto block w-full max-w-3xl;
+  @apply mx-auto my-4 block w-full max-w-3xl border border-[var(--color-border)];
 }
 
 html.dark .rendered_post {

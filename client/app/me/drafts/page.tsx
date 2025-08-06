@@ -13,7 +13,7 @@ import {
 import { AppDispatch } from '@/stores/appstore';
 import { Loader, Pen, Trash, Upload } from 'lucide-react';
 import Image from 'next/image';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import InfiniteScroll from '@/components/common/infinite_scroll/InfiniteScroll';
@@ -34,10 +34,20 @@ const page = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const hasFetched = useRef(false);
+  const [firstLoad, setFirstLoad] = useState<boolean>(true);
+
+  const fetchFirstPosts = async () => {
+    const result = await dispatch(
+      fetchAuthorPosts({ page: 1, status: 'draft' })
+    );
+    if (fetchAuthorPosts.fulfilled.match(result)) {
+      setFirstLoad(false);
+    }
+  };
 
   useEffect(() => {
     if (!hasFetched.current) {
-      dispatch(fetchAuthorPosts({ page: 1, status: 'draft' }));
+      fetchFirstPosts();
       hasFetched.current = true;
     }
   }, []);
@@ -67,7 +77,11 @@ const page = () => {
         page={page}
       >
         <div>
-          {posts && posts.length > 0 ? (
+          {firstLoad ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader className="animate-spin" />
+            </div>
+          ) : posts && posts.length > 0 ? (
             <div>
               <Masonry gutters={{ 0: '8px' }}>
                 {posts.map((el) => (

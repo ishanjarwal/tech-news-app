@@ -37,7 +37,9 @@ const AuthorProfile = ({ author }: AuthorProfileProps) => {
   };
 
   useEffect(() => {
-    dispatch(followStatus({ author_id: author.id }));
+    if (user) {
+      dispatch(followStatus({ author_id: author.id }));
+    }
   }, []);
 
   return (
