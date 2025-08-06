@@ -3,12 +3,15 @@ import Tooltip from '@/components/common/Tooltip';
 import { Button } from '@/components/ui/button';
 import {
   changePostStatus,
+  deletePost,
   fetchAuthorPosts,
+  resetDeletePostId,
   resetPostState,
   selectPostState,
+  setDeletePostId,
 } from '@/reducers/postReducer';
 import { AppDispatch } from '@/stores/appstore';
-import { Loader, Pen, Save, Trash, Upload } from 'lucide-react';
+import { Delete, Loader, Pen, Save, Trash, Upload } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +19,14 @@ import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import InfiniteScroll from '@/components/common/infinite_scroll/InfiniteScroll';
 import Link from 'next/link';
 import Masonry from '@/components/masonry/Masonry';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const page = () => {
   const { posts, loading, fetchedTillNow, totalCount, page, limit } =
@@ -47,6 +58,7 @@ const page = () => {
 
   return (
     <div>
+      <DeleteDialog />
       <InfiniteScroll
         action={handleNext}
         // height={400}
@@ -111,6 +123,9 @@ const page = () => {
                           </Tooltip>
                           <Tooltip content="Delete this post">
                             <Button
+                              onClick={() => {
+                                dispatch(setDeletePostId(el.id));
+                              }}
                               size={'icon'}
                               className="text-destructive size-6 cursor-pointer !rounded-[4px] hover:brightness-90 sm:size-8"
                               variant={'link'}
@@ -135,6 +150,55 @@ const page = () => {
         </div>
       </InfiniteScroll>
     </div>
+  );
+};
+
+const DeleteDialog = () => {
+  const { loading, deletePostId } = useSelector(selectPostState);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleDelete = async () => {
+    if (!deletePostId) return;
+    const result = await dispatch(deletePost({ id: deletePostId }));
+    if (deletePost.fulfilled.match(result)) {
+      dispatch(resetDeletePostId());
+    }
+  };
+
+  return (
+    <Dialog
+      open={deletePostId ? true : false}
+      onOpenChange={(value: boolean) => {
+        if (!value) {
+          dispatch(resetDeletePostId());
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you sure ?</DialogTitle>
+          <p>
+            This action can't be undone. This will delete you post including all
+            the data like images, comments etc.
+          </p>
+        </DialogHeader>
+        <div></div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button disabled={loading} variant={'secondary'}>
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button
+            disabled={loading}
+            onClick={handleDelete}
+            variant={'destructive'}
+          >
+            {!loading ? 'Delete' : <Loader className="animate-spin" />}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
