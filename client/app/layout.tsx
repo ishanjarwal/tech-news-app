@@ -10,6 +10,7 @@ import PhotoUploader from '@/components/photo_upload/PhotoUploader';
 import { Manrope } from 'next/font/google';
 import PageProgress from '@/components/page_progress/PageProgress';
 import { Analytics } from '@vercel/analytics/next';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -85,6 +86,7 @@ export default function RootLayout({
           </InitializeUser>
         </AppStoreProvider>
       </body>
+      <GoogleAnalytics gaId="G-DN1MT0NLL7" />
     </html>
   );
 }
