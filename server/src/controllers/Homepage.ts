@@ -66,7 +66,7 @@ export async function getTrendingPosts() {
       $addFields: {
         ageInHours: {
           $divide: [
-            { $subtract: [now, "$created_at"] },
+            { $subtract: [now, "$updated_at"] },
             1000 * 60 * 60, // Convert ms to hours
           ],
         },
