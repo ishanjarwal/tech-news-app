@@ -71,7 +71,7 @@ async function getTrendingPosts() {
             $addFields: {
                 ageInHours: {
                     $divide: [
-                        { $subtract: [now, "$created_at"] },
+                        { $subtract: [now, "$updated_at"] },
                         1000 * 60 * 60, // Convert ms to hours
                     ],
                 },
@@ -249,7 +249,7 @@ async function getRecentPosts() {
             },
         },
         { $limit: 10 },
-        { $sort: { created_at: -1 } },
+        { $sort: { updated_at: -1 } },
         {
             $addFields: {
                 thumbnail: "$thumbnail.url",
