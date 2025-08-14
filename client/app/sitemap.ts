@@ -1,42 +1,25 @@
+import { env } from '@/config/env';
 import type { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     {
-      url: 'https://thebinaryping.vercel.app',
-      lastModified: new Date(),
-      changeFrequency: 'always',
-      priority: 1,
+      url: `${env.NEXT_PUBLIC_CLIENT_URL}`,
     },
     {
-      url: 'https://thebinaryping.vercel.app/archive',
-      lastModified: new Date(),
-      changeFrequency: 'always',
-      priority: 0.8,
+      url: `${env.NEXT_PUBLIC_CLIENT_URL}/archive`,
     },
     {
-      url: 'https://thebinaryping.vercel.app/most-viewed',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
+      url: `${env.NEXT_PUBLIC_CLIENT_URL}/most-viewed`,
     },
     {
-      url: 'https://thebinaryping.vercel.app/most-liked',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
+      url: `${env.NEXT_PUBLIC_CLIENT_URL}/most-liked`,
     },
     {
-      url: 'https://thebinaryping.vercel.app/topics',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
+      url: `${env.NEXT_PUBLIC_CLIENT_URL}/topics`,
     },
     {
-      url: 'https://thebinaryping.vercel.app/categories',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
+      url: `${env.NEXT_PUBLIC_CLIENT_URL}/categories`,
     },
   ];
 }
