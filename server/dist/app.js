@@ -17,6 +17,7 @@ const Tag_1 = __importDefault(require("./routes/Tag"));
 const User_1 = __importDefault(require("./routes/User"));
 const Follow_1 = __importDefault(require("./routes/Follow"));
 const Homepage_1 = __importDefault(require("./routes/Homepage"));
+const Sitemap_1 = __importDefault(require("./routes/Sitemap"));
 const passport_1 = __importDefault(require("passport"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
@@ -51,6 +52,7 @@ app.use("/api/v1/follow", Follow_1.default);
 app.use("/api/v1/admin", Admin_1.default);
 app.use("/api/v1/user", User_1.default);
 app.use("/api/v1/homepage", Homepage_1.default);
+app.use("/api/v1/sitemap", Sitemap_1.default);
 app.listen(env_1.env.PORT, (error) => {
     if (error) {
         console.error("Something went wrong while starting the server\n", error);
